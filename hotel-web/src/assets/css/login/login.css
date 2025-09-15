@@ -1,0 +1,183 @@
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f5f7fa;
+  min-height: 100vh;
+}
+
+.login-container {
+  display: flex;
+  width: 900px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.login-form {
+  flex: 5;
+  padding: 40px;
+}
+.back-link {
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #2c3e50;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+a {
+  color: red;
+}
+
+.login-form h1 {
+  margin-bottom: 5px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.sub-text {
+  margin-bottom: 20px;
+  color: #555;
+  font-weight: 500;
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.password-box {
+  position: relative;
+}
+
+.password-box input {
+  width: 100%;
+  padding: 10px;
+  padding-right: 50px; /* 버튼 공간 확보 */
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.toggle-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #4ec89f;
+}
+
+.options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  margin: 10px 0;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.options label {
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.forgot {
+  color: #4ec89f;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.forgot:hover {
+  text-decoration: underline;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  background: #4ec89f;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.register-btn {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #4ec89f; /* 테두리만 초록 */
+  background: #fff ;          /* 배경은 흰색 */
+  color: #616161;            /* 글자는 초록 */
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;          
+}
+.divider {
+  text-align: center;
+  margin: 20px 0;
+  font-size: 13px;
+  color: #888;
+}
+
+.social-login {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 15px;
+}
+
+.social-box {
+  width: 110px;
+  height: 60px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  background: #fff;
+  transition: 0.2s;
+}
+
+.social-box:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.social-box img {
+  width: 30px;
+  height: 30px;
+}
+
+.login-logo {
+  flex: 5;
+  width: 1200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-right: 50px;
+}
+
+.login-logo img {
+  width: 400px;
+}
