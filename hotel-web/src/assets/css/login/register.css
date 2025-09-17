@@ -97,11 +97,28 @@
 }
 
 .options {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 13px;
-  margin: 10px 0;
+  display: block;
+  margin: 20px 0;
+  font-size: 14px;
+  /* add spacing between checkbox and text */
+  gap: 8px;
+.options input[type="checkbox"] {
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.options .terms-label {
+  display: block;
+  margin-top: 8px;
+  line-height: 1.6;
+  /* add indentation before the text */
+  text-indent: 1em;
+}
+}
+/* style links in terms agreement */
+.options .link {
+  color: #4ec89f;
+  text-decoration: underline;
+  margin: 0 4px;
 }
 
 .register-btn {

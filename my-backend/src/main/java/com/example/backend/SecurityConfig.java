@@ -35,9 +35,21 @@ public class SecurityConfig {
 
             // 인증 필요 없는 URL 설정 (회원가입, 로그인은 누구나 접근 가능)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/users/register", "/users/login", "/oauth2/**", "/login/oauth2/code/**", "/api/user/info").permitAll()
+                // REST API endpoints for registration and login
+                .requestMatchers(
+                    "/api/users/register",
+                    "/api/users/login",
+                    "/oauth2/**",
+                    "/login/oauth2/code/**",
+                    "/api/user/info",
+                    "/api/password/**",
+                    "/api/test/**"
+                ).permitAll()
                 .anyRequest().authenticated()
             )
+            // Disable default form login and HTTP Basic for REST API
+            .formLogin(form -> form.disable())
+            .httpBasic(basic -> basic.disable())
             
             // OAuth2 로그인 설정
             .oauth2Login(oauth2 -> oauth2

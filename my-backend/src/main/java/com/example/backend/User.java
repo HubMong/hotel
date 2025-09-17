@@ -3,7 +3,6 @@ package com.example.backend;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "users")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class User {
     
     @Id
@@ -102,5 +101,30 @@ public class User {
     // 패스워드 설정 메서드 (회원가입용)
     public void setPassword(String password) {
         this.password = password;
+    }
+    
+    // 회원가입용 setter 메서드들
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+    
+    public void setAddress(String address) {
+        this.address = address;
+    }
+    
+    public void setProvider(Provider provider) {
+        this.provider = provider;
+    }
+    
+    public void setRole(Role role) {
+        this.role = role;
     }
 }

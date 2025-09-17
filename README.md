@@ -79,9 +79,9 @@ JWT_SECRET=your_jwt_secret_key_minimum_256_bits
 ```
 
 ### 4. 애플리케이션 실행
-```bash
-# 의존성이 자동으로 다운로드되고 .env 파일이 로드됩니다
-./mvnw spring-boot:run
+# my-backend에서 폴더 이동 후 npm run start 하시면 스프링 실행되도록 json 파일에 설정해놨습니다
+
+# hotel-web에서는 npm run dev 하시면 프론트 실행됩니다.
 ```
 
 서버가 `http://localhost:8888`에서 실행됩니다.

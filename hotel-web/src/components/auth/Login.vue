@@ -3,7 +3,7 @@
     <div class="login-container">
       <!-- 왼쪽 : 로그인 폼 -->
       <div class="login-form">
-        <div class="back-link">← 돌아가기</div>
+  <div class="back-link" @click="$router.push('/')" style="cursor: pointer;">← 돌아가기</div>
         <h1>로그인</h1>
         <p class="sub-text">Login</p>
 
@@ -77,6 +77,15 @@ export default {
       showPassword: false,
     };
   },
+  created() {
+    const savedEmail = localStorage.getItem('savedEmail');
+    const savedPassword = localStorage.getItem('savedPassword');
+    if (savedEmail && savedPassword) {
+      this.email = savedEmail;
+      this.password = savedPassword;
+      this.remember = true;
+    }
+  },
   methods: {
     togglePassword() {
       this.showPassword = !this.showPassword;
@@ -107,16 +116,20 @@ export default {
           localStorage.setItem('token', response.data.token);
           localStorage.setItem('user', JSON.stringify(response.data.user));
         }
-        
-        alert("로그인 성공!");
-        // 추후 메인 페이지로 리다이렉트 로직 추가 가능
+        // 비밀번호 저장(remember) 처리
+        if (this.remember) {
+          localStorage.setItem('savedEmail', this.email);
+          localStorage.setItem('savedPassword', this.password);
+        } else {
+          localStorage.removeItem('savedEmail');
+          localStorage.removeItem('savedPassword');
+        }
+
+        // 로그인 후 메인 페이지 이동
+        this.$router.push('/');
       } catch (error) {
         console.error("로그인 실패:", error.response?.data || error.message);
-        if (error.response?.status === 401) {
-          alert("이메일 또는 비밀번호가 잘못되었습니다.");
-        } else {
-          alert("로그인 중 오류가 발생했습니다. 다시 시도해주세요.");
-        }
+        alert(error.response?.data || '로그인에 실패했습니다.');
       }
     },
     isValidEmail(email) {
