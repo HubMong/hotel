@@ -34,7 +34,7 @@
   </div>
 </template>
 
-<style scoped src="@/assets/css/login/loginVerify.css"></style>
+<style scoped src="@/assets/css/loginVerify.css"></style>
 
 <script setup>
 import { ref } from "vue";

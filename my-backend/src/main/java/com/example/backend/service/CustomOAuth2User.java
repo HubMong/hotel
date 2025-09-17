@@ -1,4 +1,4 @@
-package com.example.backend;
+package com.example.backend.service;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -7,6 +7,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+
+import com.example.backend.domain.User;
 
 public class CustomOAuth2User implements OAuth2User {
     

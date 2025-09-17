@@ -62,7 +62,7 @@
                     <label for="terms" class="terms-label">
                         회원가입 시,
                         <router-link to="/terms" class="link">트립닷컴 이용약관</router-link> 및
-                        <router-link to="/privacy" class="link">개인정보 정책</router-link>에 동의한 것으로 간주합니다.
+                        <router-link to="/privacy" class="link">개인정보 정책</router-link>에 동의하시게 됩니다.
                         <br />
                         
                     </label>
@@ -90,10 +90,10 @@
   </div>
 </template>
 
-<style scoped src="@/assets/css/login/register.css"></style>
+<style scoped src="@/assets/css/register.css"></style>
 
 <script>
-import axios from "axios";
+import http from "@/api/http";
 
 export default {
   name: "RegisterPage",
@@ -169,7 +169,7 @@ export default {
       }
 
       try {
-        const response = await axios.post("http://localhost:8888/api/users/register", {
+  const response = await http.post("/users/register", {
           name: this.lastName + this.firstName,
           email: this.email,
           password: this.password,

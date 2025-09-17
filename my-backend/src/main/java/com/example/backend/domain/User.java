@@ -1,4 +1,4 @@
-package com.example.backend;
+package com.example.backend.domain;
 
 import java.time.LocalDateTime;
 
@@ -24,18 +24,16 @@ public class User {
     private String email;
 
     private String phone;
-    private String password; // 소셜 로그인 사용자는 null
+    private String password;
     private String address;
     private String profileImageUrl;
     
-    // 소셜 로그인 관련 필드
-    private String providerId; // 소셜 플랫폼에서 제공하는 고유 ID
+    private String providerId;
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Provider provider;
     
-    // 연결된 소셜 계정들 (JSON 형태)
     @Column(columnDefinition = "TEXT")
     private String socialProviders;
     
@@ -83,7 +81,6 @@ public class User {
         return this;
     }
     
-    // 소셜 계정 통합 메서드
     public void mergeSocialProvider(Provider provider, String providerId) {
         if (this.socialProviders.equals("{}")) {
             this.socialProviders = "{\"" + provider.name() + "\":\"" + providerId + "\"}";
@@ -98,33 +95,11 @@ public class User {
                this.socialProviders.contains("\"" + provider.name() + "\":");
     }
     
-    // 패스워드 설정 메서드 (회원가입용)
-    public void setPassword(String password) {
-        this.password = password;
-    }
-    
-    // 회원가입용 setter 메서드들
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    public void setEmail(String email) {
-        this.email = email;
-    }
-    
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-    
-    public void setAddress(String address) {
-        this.address = address;
-    }
-    
-    public void setProvider(Provider provider) {
-        this.provider = provider;
-    }
-    
-    public void setRole(Role role) {
-        this.role = role;
-    }
+    public void setPassword(String password) { this.password = password; }
+    public void setName(String name) { this.name = name; }
+    public void setEmail(String email) { this.email = email; }
+    public void setPhone(String phone) { this.phone = phone; }
+    public void setAddress(String address) { this.address = address; }
+    public void setProvider(Provider provider) { this.provider = provider; }
+    public void setRole(Role role) { this.role = role; }
 }

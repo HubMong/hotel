@@ -1,15 +1,16 @@
-package com.example.backend;
+package com.example.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+
+import com.example.backend.service.CustomOAuth2UserService;
 
 @Configuration
 @RequiredArgsConstructor
@@ -23,19 +24,14 @@ public class SecurityConfig {
         http
             .cors(cors -> cors.configurationSource(request -> {
                 var config = new CorsConfiguration();
-                config.setAllowedOrigins(List.of("http://localhost:5173")); // Vue 실행 주소
+                config.setAllowedOrigins(List.of("http://localhost:5173"));
                 config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                 config.setAllowedHeaders(List.of("*"));
                 config.setAllowCredentials(true);
                 return config;
             }))
-
-            // CSRF 비활성화 (테스트/REST API용)
             .csrf(csrf -> csrf.disable())
-
-            // 인증 필요 없는 URL 설정 (회원가입, 로그인은 누구나 접근 가능)
             .authorizeHttpRequests(auth -> auth
-                // REST API endpoints for registration and login
                 .requestMatchers(
                     "/api/users/register",
                     "/api/users/login",
@@ -47,11 +43,8 @@ public class SecurityConfig {
                 ).permitAll()
                 .anyRequest().authenticated()
             )
-            // Disable default form login and HTTP Basic for REST API
             .formLogin(form -> form.disable())
             .httpBasic(basic -> basic.disable())
-            
-            // OAuth2 로그인 설정
             .oauth2Login(oauth2 -> oauth2
                 .userInfoEndpoint(userInfo -> userInfo
                     .userService(customOAuth2UserService)

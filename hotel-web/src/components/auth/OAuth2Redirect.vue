@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import http from "@/api/http";
 
 export default {
   name: "OAuth2Redirect",
@@ -27,7 +27,7 @@ export default {
           localStorage.setItem('token', token);
           
           // API를 호출하여 사용자 정보 가져오기
-          const response = await axios.get('http://localhost:8888/api/user/info', {
+          const response = await http.get('/user/info', {
             headers: {
               'Authorization': `Bearer ${token}`
             }

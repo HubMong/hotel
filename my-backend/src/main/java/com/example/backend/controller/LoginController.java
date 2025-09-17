@@ -1,4 +1,4 @@
-package com.example.backend;
+package com.example.backend.controller;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +9,12 @@ import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import com.example.backend.config.JwtUtil;
+import com.example.backend.domain.User;
+import com.example.backend.repository.LoginRepository;
+import com.example.backend.service.EmailService;
+import com.example.backend.service.LoginService;
 
 @Slf4j
 @RestController
@@ -192,11 +198,11 @@ public class LoginController {
             }
 
             // 인증코드 발송
-            log.info("EmailService.sendPasswordResetCode 호출 직전: {}", email.trim());
-            boolean emailSent = emailService.sendPasswordResetCode(email.trim());
-            log.info("EmailService.sendPasswordResetCode 호출 결과: {}", emailSent);
+            log.info("EmailService.sendVerificationCode 호출 직전: {}", email.trim());
+            String result = emailService.sendVerificationCode(email.trim());
+            log.info("EmailService.sendVerificationCode 호출 결과: {}", result);
             
-            if (emailSent) {
+            if (result.contains("발송되었습니다")) {
                 return ResponseEntity.ok(Map.of(
                     "success", true,
                     "message", "인증코드가 발송되었습니다. 이메일을 확인해주세요."
@@ -249,38 +255,18 @@ public class LoginController {
                 ));
             }
 
-            // 인증코드 검증
-            boolean isCodeValid = emailService.verifyCode(email.trim(), verificationCode.trim());
-            if (!isCodeValid) {
-                return ResponseEntity.badRequest().body(Map.of(
-                    "success", false,
-                    "message", "인증코드가 올바르지 않거나 만료되었습니다."
-                ));
-            }
-
-            // 사용자 존재 여부 재확인
-            Optional<User> userOpt = loginRepository.findByEmail(email.trim());
-            if (userOpt.isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of(
-                    "success", false,
-                    "message", "존재하지 않는 사용자입니다."
-                ));
-            }
-
-            // 비밀번호 변경
-            User user = userOpt.get();
-            boolean passwordChanged = loginService.changePassword(user.getId(), newPassword);
-            
-            if (passwordChanged) {
+            // 인증코드 검증 및 비밀번호 재설정
+            String resetResult = emailService.verifyCodeAndResetPassword(email.trim(), verificationCode.trim(), newPassword);
+            if (resetResult.contains("성공적으로")) {
                 log.info("Password successfully changed for user: {}", email);
                 return ResponseEntity.ok(Map.of(
                     "success", true,
                     "message", "비밀번호가 성공적으로 변경되었습니다."
                 ));
             } else {
-                return ResponseEntity.internalServerError().body(Map.of(
+                return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
-                    "message", "비밀번호 변경에 실패했습니다."
+                    "message", resetResult
                 ));
             }
 

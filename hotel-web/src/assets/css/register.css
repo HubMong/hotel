@@ -97,22 +97,20 @@
 }
 
 .options {
-  display: block;
+  display: flex;
+  align-items: flex-start;
   margin: 20px 0;
   font-size: 14px;
-  /* add spacing between checkbox and text */
   gap: 8px;
+}
+
 .options input[type="checkbox"] {
-  margin-right: 8px;
-  vertical-align: middle;
+  margin-top: 2px;
+  flex-shrink: 0;
 }
+
 .options .terms-label {
-  display: block;
-  margin-top: 8px;
-  line-height: 1.6;
-  /* add indentation before the text */
-  text-indent: 1em;
-}
+  line-height: 1.5;
 }
 /* style links in terms agreement */
 .options .link {

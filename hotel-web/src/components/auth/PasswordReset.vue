@@ -7,25 +7,36 @@
         <div class="back-link" @click="$router.go(-1)">← 돌아가기</div>
         
         <h2>비밀번호 재설정</h2>
-        <p class="sub-text">{{ email }}로 발송된 인증코드를 입력하고 새 비밀번호를 설정하세요</p>
+        <div class="header-with-resend">
+          <p class="sub-text">{{ email }}로 발송된 인증코드를 입력하고 새 비밀번호를 설정하세요</p>
+          <button 
+            class="resend-btn" 
+            @click="resendCode" 
+            :disabled="loading || !canResend"
+          >
+            {{ canResend ? '인증코드 다시 받기' : `${remainingTime}초 후 재전송` }}
+          </button>
+        </div>
 
         <!-- 인증코드 입력 -->
         <div class="input-group">
           <label for="verificationCode">인증코드</label>
-          <input
-            id="verificationCode"
-            type="text"
-            v-model="verificationCode"
-            placeholder="6자리 인증코드 입력"
-            maxlength="6"
-            :disabled="loading"
-          />
+          <div class="password-box">
+            <input
+              id="verificationCode"
+              type="text"
+              v-model="verificationCode"
+              placeholder="6자리 인증코드 입력"
+              maxlength="6"
+              :disabled="loading"
+            />
+          </div>
         </div>
 
         <!-- 새 비밀번호 -->
         <div class="input-group">
           <label for="password">새 비밀번호</label>
-          <div class="input-wrapper">
+          <div class="password-box">
             <input
               id="password"
               :type="showPassword ? 'text' : 'password'"
@@ -33,8 +44,8 @@
               placeholder="새 비밀번호 입력 (6자 이상)"
               :disabled="loading"
             />
-            <button type="button" class="toggle" @click="togglePassword">
-              {{ showPassword ? "🙈" : "👁️" }}
+            <button type="button" class="toggle-btn" @click="togglePassword">
+              {{ showPassword ? "숨김" : "보기" }}
             </button>
           </div>
         </div>
@@ -42,7 +53,7 @@
         <!-- 비밀번호 확인 -->
         <div class="input-group">
           <label for="confirm">비밀번호 확인</label>
-          <div class="input-wrapper">
+          <div class="password-box">
             <input
               id="confirm"
               :type="showConfirm ? 'text' : 'password'"
@@ -50,8 +61,8 @@
               placeholder="비밀번호를 다시 입력해주세요"
               :disabled="loading"
             />
-            <button type="button" class="toggle" @click="toggleConfirm">
-              {{ showConfirm ? "🙈" : "👁️" }}
+            <button type="button" class="toggle-btn" @click="toggleConfirm">
+              {{ showConfirm ? "숨김" : "보기" }}
             </button>
           </div>
         </div>
@@ -76,10 +87,10 @@
   </div>
 </template>
 
-<style scoped src="@/assets/css/login/passwordReset.css"></style>
+<style scoped src="@/assets/css/passwordReset.css"></style>
 
 <script>
-import axios from "axios";
+import http from "@/api/http";
 
 export default {
   data() {
@@ -92,7 +103,10 @@ export default {
       showConfirm: false,
       loading: false,
       message: "",
-      messageType: "success"
+      messageType: "success",
+      canResend: false,
+      remainingTime: 60,
+      timer: null
     };
   },
   computed: {
@@ -111,9 +125,52 @@ export default {
       setTimeout(() => {
         this.$router.push('/forgot-password');
       }, 2000);
+    } else {
+      // 페이지 로드 시 1분 타이머 시작
+      this.startTimer();
+    }
+  },
+  beforeUnmount() {
+    // 컴포넌트가 제거될 때 타이머 정리
+    if (this.timer) {
+      clearInterval(this.timer);
     }
   },
   methods: {
+    startTimer() {
+      this.canResend = false;
+      this.remainingTime = 60;
+      
+      this.timer = setInterval(() => {
+        this.remainingTime--;
+        if (this.remainingTime <= 0) {
+          this.canResend = true;
+          clearInterval(this.timer);
+        }
+      }, 1000);
+    },
+
+    async resendCode() {
+      if (!this.canResend || this.loading) return;
+      
+      this.loading = true;
+      try {
+        const response = await http.post("/password/reset/send-code", null, {
+          params: {
+            email: this.email
+          }
+        });
+        
+        this.showMessage("인증코드가 다시 전송되었습니다.", "success");
+        this.startTimer(); // 타이머 재시작
+      } catch (error) {
+        console.error("인증코드 재전송 실패:", error);
+        this.showMessage("인증코드 재전송에 실패했습니다. 다시 시도해주세요.", "error");
+      } finally {
+        this.loading = false;
+      }
+    },
+
     togglePassword() {
       this.showPassword = !this.showPassword;
     },
@@ -153,7 +210,7 @@ export default {
       this.message = "";
 
       try {
-        const response = await axios.post(`http://localhost:8888/api/password/reset/verify-and-change`, null, {
+  const response = await http.post(`/password/reset/verify-and-change`, null, {
           params: {
             email: this.email,
             verificationCode: this.verificationCode,

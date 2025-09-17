@@ -1,4 +1,4 @@
-package com.example.backend;
+package com.example.backend.service;
 
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -10,6 +10,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+
+import com.example.backend.config.OAuth2Attributes;
+import com.example.backend.domain.User;
+import com.example.backend.repository.LoginRepository;
 
 @Slf4j
 @Service

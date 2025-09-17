@@ -39,10 +39,10 @@
   </div>
 </template>
 
-<style scoped src="@/assets/css/login/forgotPassword.css"></style>
+<style scoped src="@/assets/css/forgotPassword.css"></style>
 
 <script>
-import axios from "axios";
+import http from "@/api/http";
 
 export default {
   data() {
@@ -77,7 +77,7 @@ export default {
       this.message = "";
 
       try {
-        const response = await axios.post(`http://localhost:8888/api/password/reset/send-code`, null, {
+  const response = await http.post(`/password/reset/send-code`, null, {
           params: {
             email: this.email
           }

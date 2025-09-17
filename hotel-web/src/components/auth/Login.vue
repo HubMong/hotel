@@ -62,10 +62,10 @@
   </div>
 </template>
 
-<style scoped src="@/assets/css/login/login.css"></style>
+<style scoped src="@/assets/css/login.css"></style>
 
 <script>
-import axios from "axios";
+import http from "@/api/http";
 
 export default {
   name: "LoginPage",
@@ -103,7 +103,7 @@ export default {
       }
 
       try {
-        const response = await axios.post("http://localhost:8888/api/users/login", null, {
+  const response = await http.post("/users/login", null, {
           params: {
             email: this.email,
             password: this.password,
@@ -138,15 +138,15 @@ export default {
     },
     naverLogin() {
       // 네이버 OAuth2 로그인 URL로 리다이렉트
-      window.location.href = "http://localhost:8888/oauth2/authorization/naver";
+  window.location.href = "/oauth2/authorization/naver";
     },
     googleLogin() {
       // 구글 OAuth2 로그인 URL로 리다이렉트
-      window.location.href = "http://localhost:8888/oauth2/authorization/google";
+  window.location.href = "/oauth2/authorization/google";
     },
     kakaoLogin() {
       // 카카오 OAuth2 로그인 URL로 리다이렉트
-      window.location.href = "http://localhost:8888/oauth2/authorization/kakao";
+  window.location.href = "/oauth2/authorization/kakao";
     },
   },
 };
