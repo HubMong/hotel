@@ -1,0 +1,65 @@
+/* ---------------- Footer ---------------- */
+.main-footer {
+  background-color: #DBDCDA;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: auto;
+}
+
+.footer-content-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  justify-content: center;
+}
+
+.footer-logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.footer-logo-icon {
+  width: 150px;
+  height: 150px;
+  margin-bottom: 8px;
+}
+
+.footer-logo-text {
+  height: 150px;
+}
+
+.footer-text-container {
+  text-align: left;
+  color: #1a1a1a;
+  font-size: 14px;
+  font-weight: 400;
+  max-width: 723px;
+  margin-top: 0;
+  line-height: 1.6;
+}
+
+/* 반응형 */
+@media (max-width: 1024px) {
+  .footer-content-wrapper {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+
+  .footer-text-container {
+    text-align: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer-logo-icon {
+    width: 32px;
+    height: 32px;
+  }
+  .footer-logo-text {
+    height: 24px;
+  }
+}

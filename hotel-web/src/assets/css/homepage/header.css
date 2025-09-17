@@ -1,0 +1,93 @@
+/* ---------------- Header ---------------- */
+.main-header {
+  background-color: #fff;
+  box-shadow: 0 4px 16px 0 rgba(17, 34, 17, 0.05);
+  position: relative;
+  z-index: 20;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2%;
+  width: 100%;
+  margin: 0 auto;
+  height: 87px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.hamburger-menu {
+  padding: 12px;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.hamburger-menu svg {
+  width: 32px;
+  height: 32px;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.egodaLogo-icon {
+  width: 150px;
+  height: 150px;
+}
+
+.egodaLogo-text {
+  width: 150px;
+  height: 150px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #121211;
+}
+
+.login-text,
+.register-text {
+  cursor: pointer;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #121211;
+  cursor: pointer;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .header-content {
+    padding: 0 4%;
+    height: 60px;
+  }
+  .hamburger-menu svg {
+    width: 24px;
+    height: 24px;
+  }
+  .egodaLogo-icon {
+    width: 32px;
+    height: 32px;
+  }
+  .egodaLogo-text {
+    height: 24px;
+  }
+  .header-right {
+    font-size: 12px;
+    gap: 8px;
+  }
+}

@@ -1,0 +1,172 @@
+.search-form-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: -50px;
+  position: relative;
+  z-index: 5;
+}
+
+.search-form-card {
+  background: #fff;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 960px;
+}
+
+.search-form-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.search-form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  align-items: end; /* 버튼이 입력칸과 같은 라인에 */
+}
+
+.search-form-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.search-form-label {
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.input-field {
+  position: relative;
+}
+
+/* 기본 input */
+.input-text {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #fff;
+  cursor: text;
+  box-sizing: border-box;
+}
+
+/* flatpickr에서 대체 input */
+::v-deep(.flatpickr-alt-input) {
+  width: 100% !important;
+  padding: 10px 12px !important;
+  border: 1px solid #ddd !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  background: #fff !important;
+  cursor: pointer !important;
+  height: 40px !important;
+  line-height: 20px !important;
+  box-sizing: border-box;
+}
+
+/* ============================= */
+/* 여행자 수 드롭다운 */
+/* ============================= */
+.traveler-dropdown {
+  position: relative;
+}
+
+.traveler-button {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  text-align: left;
+  background: #fff;
+  cursor: pointer;
+}
+
+.traveler-menu {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  z-index: 10;
+  width: 220px;
+}
+
+.traveler-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.counter button {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  background: #f9f9f9;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.counter span {
+  min-width: 20px; /* 숫자 자리를 고정 */
+  text-align: center;
+}
+
+/* 드롭다운 확인 버튼 */
+.traveler-actions {
+  text-align: center; /* 가운데 정렬 */
+  margin-top: 10px;
+}
+
+.confirm-btn {
+  background: #4ec89f;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.confirm-btn:hover {
+  background: #3fb88f;
+}
+
+/* ============================= */
+/* 검색 버튼 */
+/* ============================= */
+.search-button-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.search-button {
+  background: #4ec89f;
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  width: 100%;
+}
+
+.search-button:hover {
+  background: #3fb88f;
+}

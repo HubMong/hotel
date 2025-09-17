@@ -7,9 +7,9 @@ import LoginVerify from "@/components/auth/LoginVerify.vue";
 import PasswordReset from "@/components/auth/PasswordReset.vue";
 import OAuth2Redirect from "@/components/auth/OAuth2Redirect.vue";
 // Page components
-import MainPage from "@/components/pages/MainPage.vue";
-import TermsPage from "@/components/pages/Terms.vue";
-import PrivacyPage from "@/components/pages/Privacy.vue";
+import MainPage from "@/components/page/MainPage.vue";
+import TermsPage from "@/components/page/Terms.vue";
+import PrivacyPage from "@/components/page/Privacy.vue";
 
 const routes = [
   { path: "/", component: MainPage }, // 기본 경로를 MainPage로 설정

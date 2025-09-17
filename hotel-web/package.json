@@ -13,7 +13,10 @@
   },
   "dependencies": {
     "axios": "^1.12.1",
+    "flatpickr": "^4.6.13",
+    "swiper": "^12.0.1",
     "vue": "^3.5.18",
+    "vue-flatpickr-component": "^12.0.0",
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
