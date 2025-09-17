@@ -2,7 +2,7 @@
   <header class="main-header">
     <div class="header-content">
       <div class="header-left">
-        <button class="hamburger-menu">
+        <button class="hamburger-menu" @click="toggleSidebar">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
             xmlns="http://www.w3.org/2000/svg">
             <path d="M3 6h18M3 12h18M3 18h18"
@@ -10,6 +10,30 @@
               stroke-linecap="round" />
           </svg>
         </button>
+
+        <div class="sidebar" :class="{ open: isSidebarOpen }">
+          <button class="close-btn" @click="toggleSidebar">×</button>
+          <ul>
+            <li @click="$router.push('/')">홈</li>
+            <template v-if="!isLoggedIn">
+              <li @click="$router.push('/login')">로그인</li>
+              <li @click="$router.push('/register')">회원가입</li>
+            </template>
+
+            <li @click="$router.push('/search')">호텔 검색</li>
+            <li @click="$router.push('/wishlist')">찜 목록</li>
+            <li @click="$router.push('/myreservation')">내 예약</li>
+            <li @click="$router.push('/mypage')">마이페이지</li>
+            <li @click="$router.push('/support')">고객센터</li>
+
+            <template v-if="isLoggedIn">
+              <li @click="logout">로그아웃</li>
+            </template>
+          </ul>
+        </div>
+
+        <div class="overlay" v-if="isSidebarOpen" @click="toggleSidebar"></div>
+
         <div class="logo-container">
           <img src="/egodaLogo2.png" alt="egoda icon" class="egodaLogo-icon" />
           <img src="/egodaLogo3.png" alt="egoda icon" class="egodaLogo-text"/>
@@ -17,20 +41,14 @@
       </div>
 
       <div class="header-right">
-        <!-- 로그인 전 -->
         <template v-if="!isLoggedIn">
             <span class="login-text" @click="$router.push('/login')">로그인</span>
             <span>|</span>
             <span class="register-text" @click="$router.push('/register')">회원가입</span>
         </template>
  
-        <!-- 로그인 후 -->
         <template v-else>
-            <span class="customer-center" @click="$router.push('/support')">고객센터</span>
-            <span>|</span>
-            <span class="wishlist-text" @click="$router.push('/wishlist')">내 찜 목록</span>
-            <span>|</span>
-            <span class="my-reservations" @click="$router.push('/reservations')">내 예약</span>
+            <span class="user-name">{{ user.name }}님</span>
             <span>|</span>
             <span class="logout-text" @click="logout">로그아웃</span>
         </template>
@@ -48,13 +66,32 @@ export default {
     isLoggedIn: { type: Boolean, default: false },
     user: { type: Object, default: () => ({ name: "홍길동" }) }
   },
+  // ❗️ 추가된 부분: 사이드바의 상태를 관리하기 위한 데이터
+  data() {
+    return {
+      isSidebarOpen: false
+    };
+  },
   methods: {
+    // ❗️ 추가된 부분: isSidebarOpen 값을 반전시켜 사이드바를 열고 닫습니다.
+    toggleSidebar() {
+      this.isSidebarOpen = !this.isSidebarOpen;
+    },
     logout() {
-        // 실제로는 토큰 제거 + 상태 갱신 로직 필요
-        this.isLoggedIn = false;
+        // 토큰과 사용자 정보 제거
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        
+        // 부모 컴포넌트에 로그아웃 이벤트 전달
+        this.$emit('logout');
+        
         alert("로그아웃 되었습니다.");
+        
+        // 메인 페이지로 이동 및 새로고침으로 상태 초기화
+        this.$router.push('/').then(() => {
+          window.location.reload();
+        });
     }
   }
 };
-
 </script>

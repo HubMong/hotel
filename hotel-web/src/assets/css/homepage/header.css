@@ -30,8 +30,79 @@
 }
 
 .hamburger-menu svg {
-  width: 32px;
-  height: 32px;
+  width: 50px;
+  height: 50px;
+}
+/* ---------------- Sidebar ---------------- */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -250px; /* 기본적으로 숨김 */
+  width: 250px;
+  height: 100%;
+  background-color: #fff;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  padding: 20px;
+  transition: left 0.3s ease;
+  z-index: 1000;
+}
+
+.sidebar.open {
+  left: 0; /* 열렸을 때 */
+}
+
+.sidebar .close-btn {
+  font-size: 24px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar ul li {
+  padding: 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.sidebar ul li:hover {
+  color: #4ec89f;
+}
+
+/* ---------------- Overlay ---------------- */
+.overlay {
+  position: fixed;
+  inset: 0; /* top, left, right, bottom: 0 */
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 900;
+}
+
+/* ---------------- Hamburger Button ---------------- */
+.hamburger-menu {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.hamburger-menu svg {
+  width: 28px;
+  height: 28px;
+  stroke: #333;
+  transition: stroke 0.2s ease;
+}
+
+.hamburger-menu:hover svg {
+  stroke: #4ec89f;
 }
 
 .logo-container {

@@ -1,7 +1,7 @@
 <template>
   <div class="main-page">
     <!-- 헤더 -->
-    <Header :isLoggedIn="isLoggedIn" :user="user" />
+    <Header :isLoggedIn="isLoggedIn" :user="user" @logout="handleLogout" />
 
     <!-- Hero 배너 -->
     <div class="hero-section hero-bg">
@@ -165,6 +165,27 @@ export default {
         { title: "해외여행 짐 싸기 노하우", description: "짐은 최소화! 멀티어댑터, 보조배터리는 필수 아이템." }
       ]
     };
+  },
+  mounted() {
+    // 로그인 상태 확인 (로컬스토리지나 쿠키에서 토큰/사용자 정보 확인)
+    this.checkAuthStatus();
+  },
+  methods: {
+    checkAuthStatus() {
+      // JWT 토큰이나 사용자 정보를 확인하여 로그인 상태 설정
+      const token = localStorage.getItem('token');
+      const userInfo = localStorage.getItem('user');
+      
+      if (token && userInfo) {
+        this.isLoggedIn = true;
+        this.user = JSON.parse(userInfo);
+      }
+    },
+    handleLogout() {
+      // 로그아웃 시 상태 초기화
+      this.isLoggedIn = false;
+      this.user = { name: "홍길동" };
+    }
   },
   setup() {
     return {
