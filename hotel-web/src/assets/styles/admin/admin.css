@@ -1,0 +1,86 @@
+/* 레이아웃 */
+.admin-app{ min-height:100vh; background:#f7f9fc; color:#0f172a; }
+.admin-header{
+  position: sticky; top:0; z-index: 50;
+  height:56px; background:#ffffff; border-bottom:1px solid #e5e7eb;
+}
+.admin-header .ah-inner{
+  height:100%; max-width:1200px; margin:0 auto; padding:0 16px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.admin-header .brand{ font-weight:800; cursor:pointer; }
+
+/* 본문 2열 */
+.admin-body{ display:grid; grid-template-columns: 240px 1fr; }
+
+/* 사이드바 */
+.admin-side{
+  background:#ffffff; border-right:1px solid #e5e7eb;
+  min-height: calc(100vh - 56px);
+  position: sticky; top:56px;
+}
+.side-nav{ display:grid; gap:6px; padding:16px; }
+.side-label{ margin-top:8px; font-size:12px; color:#64748b; }
+.side-link{
+  text-align:left; padding:10px 12px; border-radius:8px; border:1px solid #e5e7eb; background:#fff;
+  cursor:pointer; transition:.15s;
+}
+.side-link:hover{ background:#f8fafc; }
+
+/* 메인 컨테이너: 여백 + 카드 폭 제한 */
+.admin-main{ padding:20px; }
+.admin-container{
+  max-width: 1100px;  /* ▶ “네모난 틀” 느낌을 주는 고정 폭 */
+  margin: 0 auto;
+  display: grid; gap:16px;
+}
+
+/* 공통 컴포넌트 */
+.panel{
+  background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:16px;
+}
+.panel-title{ font-weight:700; margin-bottom:10px; }
+.toolbar{ display:flex; gap:8px; align-items:center; }
+
+.admin-btn{
+  height:34px; padding:0 12px; border-radius:8px; border:1px solid #e5e7eb; background:#fff;
+  cursor:pointer; transition:.15s;
+}
+.admin-btn:hover{ background:#f8fafc; }
+.admin-btn.primary{ background:#111827; border-color:#111827; color:#fff; }
+.admin-btn.primary:hover{ filter:brightness(1.05); }
+
+.cards-grid{
+  display:grid; gap:12px;
+  grid-template-columns: repeat(5, minmax(160px,1fr));
+}
+.card{ background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:14px; }
+.card-title{ font-size:12px; color:#64748b; }
+.card-value{ font-size:22px; font-weight:800; margin-top:4px; }
+
+.admin-table{ width:100%; border-collapse:collapse; font-size:14px; }
+.admin-table th, .admin-table td{ padding:10px 12px; border-bottom:1px solid #e5e7eb; vertical-align:top; }
+.admin-table th{ text-align:left; color:#475569; background:#f8fafc; }
+.cell-title{ font-weight:700; }
+.cell-sub{ color:#64748b; font-size:12px; }
+.right{ text-align:right; }
+.center{ text-align:center; }
+.muted{ color:#94a3b8; }
+.error{ color:#b42318; }
+.info{ background:#f8fafc; }
+
+.tag{
+  display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; border:1px solid #e5e7eb;
+  background:#fff;
+}
+.tag.approved{ color:#0a7f2e; border-color:#bbf7d0; background:#ecfdf5; }
+.tag.pending{ color:#b45309; border-color:#fed7aa; background:#fff7ed; }
+.tag.rejected{ color:#b91c1c; border-color:#fecaca; background:#fef2f2; }
+
+/* 반응형 */
+@media (max-width: 960px){
+  .admin-body{ grid-template-columns: 1fr; }
+  .admin-side{ position: static; min-height: auto; border-right:none; }
+  .cards-grid{ grid-template-columns: repeat(2, 1fr); }
+  .admin-container{ max-width: 100%; }
+}

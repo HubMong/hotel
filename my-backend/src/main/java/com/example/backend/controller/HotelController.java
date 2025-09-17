@@ -17,7 +17,7 @@ public class HotelController {
     @GetMapping("/ping")
     public String ping(){ return "pong"; }
 
-    @GetMapping("/hotels/{id}")
+    @GetMapping("/hotels/{id}") //호텔 상세 화면에 필요한 모든 데이터 “한 번에” 제공
     public ResponseEntity<HotelDetailDto> getHotel(@PathVariable Long id){
         return ResponseEntity.ok(hotelService.getHotelDetail(id));
     }

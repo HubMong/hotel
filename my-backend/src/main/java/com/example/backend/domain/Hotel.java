@@ -23,5 +23,5 @@ public class Hotel {
     @Column(length=50)
     private String country;
 
-    // 소유주/비즈니스 등은 여기선 생략(필요시 컬럼 추가)
+
 }

@@ -20,9 +20,9 @@ public class HotelService {
 
     public HotelDetailDto getHotelDetail(Long id) {
         Hotel h = hotelRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("hotel not found"));
+                .orElseThrow(() -> new NoSuchElementException("hotel not found"));//호텔정보불러오기
 
-        // 호텔 이미지
+        // 호텔 이미지 정렬
         List<String> hotelImages = hotelImageRepository.findByHotelIdOrderBySortNoAsc(id)
                 .stream().map(HotelImage::getUrl).toList();
 

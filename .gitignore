@@ -1,0 +1,20 @@
+# Node / Vue
+hotel-web/node_modules/
+hotel-web/dist/
+hotel-web/.vite/
+hotel-web/.DS_Store
+
+# Java / Spring
+my-backend/target/
+my-backend/.mvn/
+my-backend/.idea/
+my-backend/*.iml
+my-backend/.classpath
+my-backend/.project
+my-backend/.settings/
+
+# Logs & OS/IDE
+*.log
+.DS_Store
+.idea/
+.vscode/
