@@ -64,7 +64,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { RouterLink } from 'vue-router';
+import { RouterLink, useRouter } from 'vue-router'; // useRouter 추가
 import axios from 'axios';  
 
 const destination = ref('');
@@ -74,6 +74,8 @@ const adults = ref(0);
 const children = ref(0);
 const isGuestCounterVisible = ref(false);
 const guestsField = ref(null);
+
+const router = useRouter(); // 라우터 인스턴스 생성 - 빈 조건상태에서 검색 누를 시 검색 페이지로 이동
 
 const incrementAdults = () => { adults.value++; };
 const decrementAdults = () => { if (adults.value > 0) adults.value--; };
@@ -87,14 +89,13 @@ const totalGuestsDisplay = computed(() => {
 });
 
 const allHotels = ref([
-  { id: 1, name: '서울 신라 호텔', price: 450000, rating: '5성급(*****)', amenities: ['무료 Wi-Fi', '수영장', '피트니스 센터'], capacity: 2, image: 'https://picsum.photos/id/10/200/200', description: '서울 강남에 위치한 아코르 프리미엄 브랜드.' },
-  { id: 2, name: '롯데 호텔 월드', price: 320000, rating: '5성급(*****)', amenities: ['무료 Wi-Fi', '주차 가능', '피트니스 센터'], capacity: 4, image: 'https://picsum.photos/id/20/200/200', description: '서울 잠실에 위치한 랜드마크 호텔.' },
-  { id: 4, name: '노보텔 앰배서더 동대문', price: 210000, rating: '4성급(****)', amenities: ['무료 Wi-Fi', '주차 가능', '수영장'], capacity: 3, image: 'https://picsum.photos/id/30/200/200', description: '동대문 패션가에 위치한 모던한 디자인 호텔.' },
-  { id: 5, name: 'L7 홍대', price: 180000, rating: '4성급(****)', amenities: ['무료 Wi-Fi', '피트니스 센터'], capacity: 2, image: 'https://picsum.photos/id/40/200/200', description: '힙한 홍대의 분위기를 담은 라이프스타일 호텔.' },
-  { id: 6, name: '신라스테이 역삼', price: 150000, rating: '3성급(***)', amenities: ['무료 Wi-Fi', '주차 가능'], capacity: 2, image: 'https://picsum.photos/id/50/200/200', description: '강남 비즈니스 중심가에 위치한 실용적인 호텔.' },
+  { id: 1, name: '서울 신라 호텔', price: 450000, rating: '5성급(*****)', amenities: ['무료 Wi-Fi', '수영장', '피트니스 센터'], capacity: 2, image: 'https://picsum.photos/id/10/200/200', description: '서울 강남에 위치한 아코르 프리미엄 브랜드.' },
+  { id: 2, name: '롯데 호텔 월드', price: 320000, rating: '5성급(*****)', amenities: ['무료 Wi-Fi', '주차 가능', '피트니스 센터'], capacity: 4, image: 'https://picsum.photos/id/20/200/200', description: '서울 잠실에 위치한 랜드마크 호텔.' },
+  { id: 4, name: '노보텔 앰배서더 동대문', price: 210000, rating: '4성급(****)', amenities: ['무료 Wi-Fi', '주차 가능', '수영장'], capacity: 3, image: 'https://picsum.photos/id/30/200/200', description: '동대문 패션가에 위치한 모던한 디자인 호텔.' },
+  { id: 5, name: 'L7 홍대', price: 180000, rating: '4성급(****)', amenities: ['무료 Wi-Fi', '피트니스 센터'], capacity: 2, image: 'https://picsum.photos/id/40/200/200', description: '힙한 홍대의 분위기를 담은 라이프스타일 호텔.' },
+  { id: 6, name: '신라스테이 역삼', price: 150000, rating: '3성급(***)', amenities: ['무료 Wi-Fi', '주차 가능'], capacity: 2, image: 'https://picsum.photos/id/50/200/200', description: '강남 비즈니스 중심가에 위치한 실용적인 호텔.' },
 ]);
 
-// 페이지 로딩 시점에 모든 호텔을 보여줍니다.
 const searchResults = ref(allHotels.value);
 const handleSearch = () => {
   searchResults.value = allHotels.value.filter(hotel => {
@@ -102,9 +103,10 @@ const handleSearch = () => {
     const guestsMatch = (adults.value + children.value) <= hotel.capacity;
     return destinationMatch && guestsMatch;
   });
+  // 검색 후 페이지 이동
+  router.push('/search');
 };
 
-// 드롭다운 외부 클릭 시 닫기
 const closeOnOutsideClick = (event) => {
   if (guestsField.value && !guestsField.value.contains(event.target)) {
     isGuestCounterVisible.value = false;
@@ -239,7 +241,7 @@ body { background: var(--bg); color: var(--ink);
 
 /* 반응형 */
 @media (max-width: 960px){
-  .searchgrid{ grid-template-columns: 1fr 1fr; }
-  .btn--primary{ grid-column: 1 / -1; }
+  .searchgrid{ grid-template-columns: 1fr 1fr; }
+  .btn--primary{ grid-column: 1 / -1; }
 }
 </style>
