@@ -1,6 +1,9 @@
-import './assets/main.css'
-
+// src/main.js
 import { createApp } from 'vue'
 import App from './App.vue'
+import router from './router'
 
-createApp(App).mount('#app')
+// 전역 스타일
+import './assets/styles/hotel-detail.css'
+
+createApp(App).use(router).mount('#app')
