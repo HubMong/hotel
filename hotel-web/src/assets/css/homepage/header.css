@@ -30,8 +30,8 @@
 }
 
 .hamburger-menu svg {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
 }
 /* ---------------- Sidebar ---------------- */
 .sidebar {
@@ -108,16 +108,13 @@
 .logo-container {
   display: flex;
   align-items: center;
+  gap: 4px;
+  margin-left: 4px;
 }
 
-.egodaLogo-icon {
-  width: 150px;
-  height: 150px;
-}
-
-.egodaLogo-text {
-  width: 150px;
-  height: 150px;
+.egoda-logo {
+  height: 65px;
+  width: auto;
 }
 
 .header-right {
@@ -130,7 +127,8 @@
 }
 
 .login-text,
-.register-text {
+.register-text,
+.logout-text {
   cursor: pointer;
 }
 
@@ -147,15 +145,11 @@
     height: 60px;
   }
   .hamburger-menu svg {
-    width: 24px;
-    height: 24px;
+    width: 40px;
+    height: 40px;
   }
-  .egodaLogo-icon {
-    width: 32px;
-    height: 32px;
-  }
-  .egodaLogo-text {
-    height: 24px;
+  .egoda-logo {
+    height: 52px;
   }
   .header-right {
     font-size: 12px;

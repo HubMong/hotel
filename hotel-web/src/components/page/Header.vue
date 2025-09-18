@@ -35,8 +35,7 @@
         <div class="overlay" v-if="isSidebarOpen" @click="toggleSidebar"></div>
 
         <div class="logo-container">
-          <img src="/egodaLogo2.png" alt="egoda icon" class="egodaLogo-icon" />
-          <img src="/egodaLogo3.png" alt="egoda icon" class="egodaLogo-text"/>
+          <img src="/egodaLogo2.png" alt="egoda" class="egoda-logo" />
         </div>
       </div>
 

@@ -6,6 +6,7 @@
   align-items: center;
   justify-content: center;
   height: auto;
+  padding: 40px 20px;
 }
 
 .footer-content-wrapper {
@@ -21,14 +22,9 @@
   align-items: center;
 }
 
-.footer-logo-icon {
-  width: 150px;
-  height: 150px;
-  margin-bottom: 8px;
-}
-
-.footer-logo-text {
-  height: 150px;
+.footer-logo {
+  height: 70px;
+  width: auto;
 }
 
 .footer-text-container {
@@ -55,11 +51,7 @@
 }
 
 @media (max-width: 768px) {
-  .footer-logo-icon {
-    width: 32px;
-    height: 32px;
-  }
-  .footer-logo-text {
-    height: 24px;
+  .footer-logo {
+    height: 42px;
   }
 }

@@ -2,8 +2,7 @@
   <footer class="main-footer">
     <div class="footer-content-wrapper">
       <div class="footer-logo-container">
-        <img src="/egodaLogo2.png" alt="egoda icon" class="footer-logo-icon" />
-        <img src="/egodaLogo3.png" alt="egoda icon" class="footer-logo-text" />
+        <img src="/egodaLogo2.png" alt="egoda" class="footer-logo" />
       </div>
       <div class="footer-text-container">
         All material herein © 2005 – 2025 Agoda Company Pte. Ltd., All Rights Reserved.<br>
