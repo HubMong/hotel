@@ -1,0 +1,304 @@
+.search-form-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: -50px;
+  position: relative;
+  z-index: 5;
+}
+
+.search-form-card {
+  background: #fff;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 1080px;
+}
+
+.search-form-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.search-form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  align-items: end; /* 버튼이 입력칸과 같은 라인에 */
+}
+
+.search-form-item {
+  display: flex;
+  flex-direction: column;
+  margin: 0; /* 마진 제거 */
+  padding: 0; /* 패딩 제거 */
+}
+
+.search-form-label {
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: #333;
+  margin-top: 0; /* 상단 마진 제거 */
+}
+
+.input-field {
+  position: relative;
+  margin: 0; /* 마진 제거 */
+  padding: 0; /* 패딩 제거 */
+}
+
+/* 기본 input */
+.input-text {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #fff;
+  cursor: text;
+  box-sizing: border-box;
+  height: 44px; /* 명시적 높이 설정 */
+  margin: 0; /* 마진 제거 */
+}
+
+/* flatpickr에서 대체 input */
+::v-deep(.flatpickr-alt-input) {
+  width: 100% !important;
+  padding: 12px !important;
+  border: 1px solid #ddd !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  background: #fff !important;
+  cursor: pointer !important;
+  height: 44px !important;
+  line-height: 20px !important;
+  box-sizing: border-box !important;
+  margin: 0 !important; /* 마진 제거 */
+}
+
+/* ============================= */
+/* 여행자 수 드롭다운 */
+/* ============================= */
+.traveler-dropdown {
+  position: relative;
+}
+
+.traveler-button {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  text-align: left;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  height: 44px; /* 다른 입력 필드와 동일한 높이 */
+  box-sizing: border-box;
+  margin: 0; /* 마진 제거 */
+  display: flex;
+  align-items: center; /* 텍스트 수직 정렬 */
+}
+
+.traveler-menu {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  z-index: 10;
+  width: 220px;
+}
+
+.traveler-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.counter button {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  background: #f9f9f9;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.counter span {
+  min-width: 20px; /* 숫자 자리를 고정 */
+  text-align: center;
+}
+
+/* 드롭다운 확인 버튼 */
+.traveler-actions {
+  text-align: center; /* 가운데 정렬 */
+  margin-top: 10px;
+}
+
+.confirm-btn {
+  background: #4ec89f;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.confirm-btn:hover {
+  background: #3fb88f;
+}
+
+/* ============================= */
+/* 검색 버튼 */
+/* ============================= */
+.search-button-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.search-button {
+  background: #4ec89f;
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  width: 100%;
+  height: 44px; /* 다른 입력 필드와 동일한 높이 */
+  box-sizing: border-box;
+  margin: 0; /* 마진 제거 */
+  display: flex;
+  align-items: center; /* 텍스트 수직 정렬 */
+  justify-content: center; /* 텍스트 수평 정렬 */
+}
+
+.search-button:hover {
+  background: #3fb88f;
+}
+
+/* ============================= */
+/* flatpickr 캘린더 스타일 (두 개 달력) */
+/* ============================= */
+::v-deep(.flatpickr-calendar.hasWeeks.showTimeInput.rangeMode) {
+  width: auto !important;
+}
+
+::v-deep(.flatpickr-calendar) {
+  width: auto !important;
+  display: flex !important;
+  gap: 30px !important; /* 두 달력 사이의 간격 */
+}
+
+::v-deep(.flatpickr-months) {
+  display: flex !important;
+  gap: 30px !important; /* 달력 헤더 사이의 간격 */
+}
+
+::v-deep(.flatpickr-calendar .flatpickr-month) {
+  background: transparent !important;
+}
+
+::v-deep(.flatpickr-calendar .flatpickr-months .flatpickr-month:first-child) {
+  margin-right: 0 !important; /* gap으로 대체 */
+}
+
+::v-deep(.flatpickr-calendar .flatpickr-innerContainer) {
+  display: flex !important;
+  gap: 30px !important; /* 달력 본체 사이의 간격 */
+}
+
+/* 연도 관련 요소들 완전히 숨기기 */
+::v-deep(.flatpickr-calendar .numInputWrapper),
+::v-deep(.flatpickr-calendar .numInput),
+::v-deep(.flatpickr-calendar .arrowUp),
+::v-deep(.flatpickr-calendar .arrowDown),
+::v-deep(.flatpickr-calendar input[type="number"]),
+::v-deep(.flatpickr-calendar .flatpickr-monthDropdown-months) {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* 월 헤더 레이아웃 조정 */
+::v-deep(.flatpickr-calendar .flatpickr-current-month) {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 10px 0 !important;
+  height: auto !important;
+}
+
+/* 커스텀 월/연도 텍스트 스타일 (기존 flatpickr 월 스타일과 동일하게) */
+::v-deep(.flatpickr-calendar .flatpickr-current-month span) {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #333 !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  line-height: 1 !important;
+}
+
+/* 일요일 스타일 - flatpickr의 기본 구조를 이용 */
+::v-deep(.flatpickr-calendar .flatpickr-day:nth-child(7n+1)) {
+  color: #ff4757 !important;
+  font-weight: 600 !important;
+}
+
+/* 선택된 날짜가 일요일인 경우 */
+::v-deep(.flatpickr-calendar .flatpickr-day:nth-child(7n+1).selected) {
+  background-color: #4ec89f !important;
+  color: white !important;
+}
+
+/* 범위 선택 중인 일요일 */
+::v-deep(.flatpickr-calendar .flatpickr-day:nth-child(7n+1).inRange) {
+  background-color: rgba(78, 200, 159, 0.2) !important;
+  color: #ff4757 !important;
+}
+
+/* 오늘 날짜가 일요일인 경우 */
+::v-deep(.flatpickr-calendar .flatpickr-day:nth-child(7n+1).today) {
+  border-color: #ff4757 !important;
+}
+
+/* 기존 sunday-date 클래스 스타일도 유지 */
+::v-deep(.flatpickr-calendar .sunday-date) {
+  color: #ff4757 !important;
+  font-weight: 600 !important;
+}
+
+/* 선택된 날짜가 일요일인 경우 */
+::v-deep(.flatpickr-calendar .sunday-date.selected) {
+  background-color: #4ec89f !important;
+  color: white !important;
+}
+
+/* 범위 선택 중인 일요일 */
+::v-deep(.flatpickr-calendar .sunday-date.inRange) {
+  background-color: rgba(78, 200, 159, 0.2) !important;
+  color: #ff4757 !important;
+}
+
+/* 오늘 날짜가 일요일인 경우 */
+::v-deep(.flatpickr-calendar .sunday-date.today) {
+  border-color: #ff4757 !important;
+}

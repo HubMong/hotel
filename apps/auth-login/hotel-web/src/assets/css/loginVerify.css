@@ -1,0 +1,95 @@
+.verify-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #f5f7fa;
+}
+
+/* 전체 박스 */
+.verify-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between; /* [유지] 좌우 배치 */
+  background: #fff;
+  border: 2px solid #ccc;
+  border-radius: 14px;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+  padding: 40px;
+  gap: 20px; /* [수정됨] 여백 줄이기 */
+}
+
+/* 왼쪽 인증 폼 */
+.verify-left {
+  width: 400px; /* [수정됨] 고정 크기 */
+}
+
+.verify-left h2 {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.sub-text {
+  font-size: 14px;
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.input-group {
+  margin-bottom: 10px; /* [수정됨] 간격 줄임 */
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+.input-wrapper {
+  border: 1px solid #bbb;
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 8px; /* [수정됨] 입력칸과 재전송 버튼 간격 */
+}
+
+.input-wrapper input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 16px;
+}
+
+.resend {
+  margin-bottom: 20px; /* [수정됨] 입력칸 바로 아래 위치 */
+  text-align: left; /* [수정됨] 왼쪽 정렬 */
+}
+
+.verify-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  background: #4caf91;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.verify-btn:hover {
+  background: #3a8f72; /* [수정됨] hover 색상 추가 */
+}
+
+.verify-right {
+  flex: 0 0 280px; /* [수정됨] 영역 좁힘 */
+  display: flex;
+  justify-content: flex-end; /* [수정됨] 오른쪽에 딱 붙이기 */
+  align-items: center;
+}
+
+.verify-right .logo {
+  width: 340px;   /* [수정됨] 로고 더 키움 */
+  max-width: 100%; /* [수정됨] 영역 넘어가지 않게 */
+  height: auto;
+}
