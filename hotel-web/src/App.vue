@@ -16,6 +16,8 @@ const isBackoffice = computed(() =>
       <div class="container topbar__inner">
         <router-link class="logo" to="/hotels/1">egoda</router-link>
         <nav class="actions" aria-label="주요 메뉴">
+          <router-link class="btn btn--ghost" to="/checkout">결제 하기</router-link>
+          <router-link class="btn btn--ghost" to="/payment/lists">결제 목록</router-link>
           <router-link class="btn btn--ghost" to="/me">마이 페이지</router-link>
           <router-link class="btn btn--ghost" to="/wishlist">찜 목록</router-link>
           <router-link class="btn btn--primary" to="/login">로그인</router-link>

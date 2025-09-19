@@ -5,6 +5,10 @@ const routes = [
 
   // 사용자 영역
   { path: '/hotels/:id', component: () => import('@/components/user/HotelDetailView.vue'), props: true },
+  { path: "/checkout", component: () => import('@/components/user/Checkout.vue'), props: true },
+  { path: "/payment/lists", component: () => import('@/components/user/PaymentList.vue'), props: true },
+  { path: "/payment/success", component: () => import('@/components/user/PaymentSuccess.vue'), props: true },
+  { path: "/payment/fail", component: () => import('@/components/user/PaymentFailure.vue'), props: true },
 
   // 관리자 영역 (메타로 'admin' 레이아웃 표시)
 // src/router/index.js (요약)
