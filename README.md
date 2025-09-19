@@ -1,4 +1,5 @@
 #db
+
 INSERT INTO USERS (USERNAME, PASSWORD, ROLE) VALUES ('user1', '1234', 'USER');
 INSERT INTO USERS (USERNAME, PASSWORD, ROLE) VALUES ('admin', '1234', 'ADMIN');
 
@@ -20,6 +21,7 @@ SELECT * FROM WISHLIST;
 SELECT * FROM PAYMENT;
 
 #mariadb
+
 C:\Program Files\MariaDB 12.0\bin>mysql -u root -p
 Enter password: ****
 Welcome to the MariaDB monitor.  Commands end with ; or \g.
