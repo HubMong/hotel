@@ -1,0 +1,98 @@
+/* 기본 폰트와 레이아웃 */
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+/* 네비게이션 */
+nav {
+  background: #2c3e50;
+  padding: 1rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+nav a.router-link-active {
+  text-decoration: underline;
+}
+
+nav button {
+  background: #e74c3c;
+  border: none;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+nav button:hover {
+  background: #c0392b;
+}
+
+/* 공통 컨테이너 */
+.container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 제목 */
+h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+/* 폼 */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+input {
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  padding: 0.8rem;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #2980b9;
+}
+
+/* 리스트 */
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  padding: 0.8rem;
+  margin-bottom: 0.5rem;
+  background: #f4f6f7;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
