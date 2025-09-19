@@ -4,6 +4,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# Environment files (보안상 중요)
+.env
+
 ### STS ###
 .apt_generated
 .classpath

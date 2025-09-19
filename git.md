@@ -12,7 +12,8 @@ git switch -c developer my-base
 git push -u origin developer
 
 브랜치 삭제 (로컬/원격)
-# (A) 로컬 삭제
+# (A) 로컬 삭제git fetch hotel --prune
+
 # 먼저 해당 브랜치 위에 있으면 삭제 불가 → 다른 브랜치로 이동
 git switch main        # 또는 git checkout --detach
 git branch -d developer   # 병합된 경우만 삭제

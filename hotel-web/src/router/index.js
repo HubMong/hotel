@@ -1,54 +1,59 @@
-import { createRouter, createWebHistory } from 'vue-router'
+// src/router/index.js (예시)
+import { createRouter, createWebHistory } from "vue-router";
+
+// Auth components (정적 import 유지: 로그인/회원가입 초기 진입 속도)
+import Login from "@/components/user/login_page/Login.vue";
+import Register from "@/components/user/login_page/Register.vue";
+import ForgotPassword from "@/components/user/login_page/ForgotPassword.vue";
+import LoginVerify from "@/components/user/login_page/LoginVerify.vue";
+import PasswordReset from "@/components/user/login_page/PasswordReset.vue";
+import OAuth2Redirect from "@/components/user/login_page/OAuth2Redirect.vue";
+
+// Page components
+import MainPage from "@/components/user/main_page/MainPage.vue";
+import TermsPage from "@/components/user/main_page/Terms.vue";
+import PrivacyPage from "@/components/user/main_page/Privacy.vue";
+
+
+import Search from '@/components/user/hotel_page/Search.vue'
+import Reser from '@/components/user/hotel_page/Reser.vue'
+
+// User pages (호텔 상세는 지연 로딩으로 번들 최적화)
+const HotelDetailView = () =>
+  import("@/components/user/hotel_page/HotelDetailView.vue");
 
 const routes = [
-  { path: '/', redirect: '/hotels/1' },
+  // 1) 기본 메인 유지 (기존 의도 살림)
+  { path: "/", component: MainPage },
 
-  // 사용자 영역
-  { path: '/hotels/:id', component: () => import('@/components/user/HotelDetailView.vue'), props: true },
+  // 2) 호텔 상세 (지연 로딩 + 동적 파라미터 전달)
+  { path: "/hotels/:id", component: HotelDetailView, props: true },
 
-  // 관리자 영역 (메타로 'admin' 레이아웃 표시)
-// src/router/index.js (요약)
-{
-  path: '/admin',
-  component: () => import('@/components/admin/AdminLayout.vue'),
-  children: [
-    { path: '', component: () => import('@/components/admin/Dashboard.vue') },
-    { path: 'businesses', component: () => import('@/components/admin/BusinessApproval.vue') },
-    { path: 'hotels', component: () => import('@/components/admin/HotelList.vue') },
-    { path: 'hotels/:id', component: () => import('@/components/admin/HotelEdit.vue'), props: true },
-  ]
-},
+  // 3) /hotels 진입 시 기본 호텔로 리다이렉트 (두 번째 스니펫 의도 보존)
+  { path: "/hotels", redirect: "/hotels/1" },
 
-{
-  path: '/owner',
-  component: () => import('@/components/owner/OwnerLayout.vue'),
-  meta: { requiresBusiness: true },
-  children: [
-    { path: '', component: () => import('@/components/owner/OwnerDashboard.vue') },
-    { path: 'hotels', component: () => import('@/components/owner/OwnerHotelList.vue') },
-    { path: 'hotels/new', component: () => import('@/components/owner/OwnerHotelEdit.vue') },
-    { path: 'hotels/:id', component: () => import('@/components/owner/OwnerHotelEdit.vue'), props: true },
-  ]
-}
+  { path: '/Search', name: 'Search', component: Search },
+  { path: '/Reser', name: 'Reser', component: Reser },
 
-]
+  // 4) 인증/정책 페이지들
+  { path: "/login", component: Login },
+  { path: "/register", component: Register },
+  { path: "/terms", component: TermsPage },
+  { path: "/privacy", component: PrivacyPage },
+  { path: "/forgotPassword", component: ForgotPassword },
+  { path: "/forgot-password", component: ForgotPassword }, // alias 유지
+  { path: "/verify", component: LoginVerify },
+  { path: "/passwordReset", component: PasswordReset },
+  { path: "/password-reset", component: PasswordReset },   // alias 유지
+  { path: "/oauth2/redirect", component: OAuth2Redirect },
+
+];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
-  scrollBehavior: () => ({ top: 0 })
-})
+  // 두 번째 스니펫의 scrollBehavior 반영
+  scrollBehavior: () => ({ top: 0 }),
+});
 
-// 아주 단순한 ADMIN 가드 (임시)
-router.beforeEach((to, _from, next) => {
-  if (to.meta?.requiresAdmin) {
-    const role = localStorage.getItem('role') || ''
-    return role === 'ADMIN' ? next() : next('/')
-  }
-  if (to.meta?.requiresBusiness) {
-    const role = localStorage.getItem('role') || ''
-    return role === 'BUSINESS' ? next('/login') : next()
-  }
-  next()
-})
-export default router
+export default router;

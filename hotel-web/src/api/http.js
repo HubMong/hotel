@@ -1,9 +1,21 @@
 // src/api/http.js
-import axios from 'axios'
+import axios from 'axios';
 
+// Vite 프록시(/api) 사용
 const http = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE || '/api', // vite.config.js proxy or .env
-  timeout: 8000,
-})
+  baseURL: '/api',
+  withCredentials: false,
+  timeout: 10000,
+});
 
-export default http
+// JWT 헤더 주입
+http.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export default http;
