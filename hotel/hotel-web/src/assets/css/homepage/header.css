@@ -1,0 +1,163 @@
+/* ---------------- Header ---------------- */
+.main-header {
+  background-color: #fff;
+  box-shadow: 0 4px 16px 0 rgba(17, 34, 17, 0.05);
+  position: relative;
+  z-index: 20;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2%;
+  width: 100%;
+  margin: 0 auto;
+  height: 87px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.hamburger-menu {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.hamburger-menu svg {
+  width: 28px;
+  height: 28px;
+  stroke: #333;
+  transition: stroke 0.2s ease;
+}
+
+.hamburger-menu:hover svg { stroke: #4ec89f; }
+/* ---------------- Sidebar ---------------- */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;                       /* 기준은 0 */
+  width: 250px;
+  height: 100%;
+  background-color: #fff;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+  padding: 20px;
+  transform: translateX(-100%);  /* ✅ 화면 밖으로 숨김 (레이아웃 영향 없음) */
+  transition: transform 0.3s ease;
+  will-change: transform;
+  z-index: 1000;
+}
+.sidebar.open {
+  transform: translateX(0);      /* ✅ 열렸을 때만 보이게 */
+}
+
+.sidebar .close-btn {
+  font-size: 24px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar ul li {
+  padding: 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.sidebar ul li:hover {
+  color: #4ec89f;
+}
+
+/* ---------------- Overlay ---------------- */
+.overlay {
+  position: fixed;
+  inset: 0; /* top, left, right, bottom: 0 */
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 900;
+}
+
+/* ---------------- Hamburger Button ---------------- */
+.hamburger-menu {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.hamburger-menu svg {
+  width: 28px;
+  height: 28px;
+  stroke: #333;
+  transition: stroke 0.2s ease;
+}
+
+.hamburger-menu:hover svg {
+  stroke: #4ec89f;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 4px;
+}
+
+.egoda-logo {
+  height: 65px;
+  width: auto;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #121211;
+}
+
+.login-text,
+.register-text,
+.logout-text {
+  cursor: pointer;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #121211;
+  cursor: pointer;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .header-content {
+    padding: 0 4%;
+    height: 60px;
+  }
+  .hamburger-menu svg {
+    width: 40px;
+    height: 40px;
+  }
+  .egoda-logo {
+    height: 52px;
+  }
+  .header-right {
+    font-size: 12px;
+    gap: 8px;
+  }
+}
