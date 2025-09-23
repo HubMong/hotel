@@ -1,0 +1,112 @@
+/* src/assets/styles/hotel-detail.css */
+:root{ --line:#e5e7eb; --ink:#111827; --muted:#6b7280; --brand:#1f3a8a; }
+
+.container { max-width:1200px; margin:0 auto; padding:0 16px; }
+.hotel-detail { display:grid; gap:24px; padding:16px 0 40px; }
+.loading, .error { padding:12px; border-radius:8px; }
+.loading { background:#f8fafc; border:1px solid #e2e8f0; }
+.error { background:#fff1f2; border:1px solid #fecdd3; color:#b91c1c; }
+
+/* 갤러리 */
+.gallery{
+  display:grid; gap:10px;
+  grid-template-columns: 2fr 1fr;
+  grid-auto-rows: 220px;
+}
+.gallery .hero{
+  grid-row:1 / span 2; grid-column:1;
+  width:100%; height:100%; object-fit:cover; border-radius:12px;
+}
+.gallery .thumb{ width:100%; height:100%; object-fit:cover; border-radius:12px; }
+
+/* 타이틀 */
+.titlebox h1 { margin:0; font-size:28px; line-height:1.3; color:var(--ink); }
+.titlebox p  { margin:6px 0 0; color:#6b7b8c; }
+
+/* 개요 */
+.overview-grid{ display:grid; gap:16px; grid-template-columns:2fr 1fr; }
+.badges{ display:flex; gap:8px; flex-wrap:wrap; }
+.badge{ font-size:12px; padding:4px 8px; border-radius:12px; border:1px solid #dbe3f0; background:#f1f5f9; }
+
+.name-row{ display:flex; gap:12px; align-items:center; justify-content:space-between; margin-top:6px; }
+.kname{ margin:8px 0 0; font-size:20px; }
+.price-inline{ display:flex; align-items:center; gap:8px; }
+.price-inline .from{ color:#6b7280; }
+.price-inline strong{ color:#dc2626; font-size:18px; }
+.btn.small{ height:30px; padding:0 10px; border-radius:8px; background:var(--brand); color:#fff; border:0; cursor:pointer; }
+
+.addr{ margin:6px 0 0; color:#6b7280; }
+.addr a{ color:#1d4ed8; text-decoration: underline; }
+
+.highlights{ display:grid; grid-template-columns: repeat(5, 1fr); gap:12px; margin-top:12px; }
+.hi{ display:flex; gap:10px; align-items:center; padding:10px; border:1px solid var(--line); border-radius:10px; background:#fff; }
+.hi-ic{ font-size:22px; }
+.hi-title{ font-weight:700; color:var(--ink); }
+.hi-sub{ font-size:12px; color:#6b7280; }
+
+.panel{ border:1px solid var(--line); border-radius:12px; padding:12px; background:#fff; margin-top:10px; }
+.panel-title{ font-weight:700; margin-bottom:8px; }
+.amenities{ display:grid; grid-template-columns: 1fr 1fr; gap:4px 12px; }
+.amen{ color:var(--ink); }
+.desc{ color:#4b5563; }
+
+.notice{ display:flex; gap:8px; align-items:center; border:1px solid #ffd1c2; background:#fff1ed; color:#b54708; border-radius:12px; padding:12px; margin-top:10px; }
+
+/* 오른쪽 */
+.ov-right{ display:grid; gap:12px; align-content:start; }
+.rating-card, .map-card{ border:1px solid var(--line); border-radius:12px; background:#fff; padding:12px; }
+.score{ display:flex; align-items:baseline; gap:6px; }
+.score strong{ font-size:28px; color:var(--ink); }
+.metrics{ display:grid; gap:4px; margin:8px 0; color:#475569; }
+.link{ color:#1d4ed8; font-size:14px; }
+.map-ph{ height:140px; border-radius:10px; border:1px dashed #cbd5e1; display:grid; place-items:center; color:#64748b; margin-bottom:8px; }
+.near-title{ font-weight:700; margin-bottom:6px; }
+.near ul{ padding-left:18px; margin:0; }
+.near li{ margin-bottom:4px; }
+.near li span{ color:#64748b; margin-left:6px; }
+
+/* 객실 */
+.rooms{ display:grid; gap:12px; }
+.rooms h2{ margin: 12px 0; font-size:22px; color:#24324a; }
+
+.room{
+  display:grid; grid-template-columns: 340px 1fr 240px;
+  border:1px solid var(--line); border-radius:12px; background:#fff; overflow:hidden;
+}
+.r-media{ display:grid; grid-template-columns: 1fr; gap:8px; padding:12px; border-right:1px solid var(--line); }
+.photos img{ width:100%; height:180px; object-fit:cover; border-radius:8px; }
+.thumbs{ display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; }
+.thumbs img{ width:100%; height:80px; object-fit:cover; border-radius:8px; }
+.spec{ list-style:none; padding:0; margin:6px 0 0; color:#475569; font-size:13px; }
+
+.r-benefits{ display:grid; gap:10px; padding:12px; border-right:1px solid var(--line); }
+.r-title{ display:flex; gap:8px; align-items:center; justify-content:space-between; }
+.r-title h3{ margin:0; font-size:18px; }
+.lastbooked{ color:#b42318; font-size:12px; }
+
+.policy{ display:grid; gap:4px; color:var(--ink); }
+.promos{ display:grid; gap:6px; }
+.promo{ border-radius:8px; padding:8px; border:1px solid #e2e8f0; background:#f8fafc; }
+.promo.deal{ border-color:#d4f0d0; background:#ecfdf5; }
+.promo.chance{ border-color:#ffe1b3; background:#fff7ed; }
+.promo.note{ border-color:#e3e8ff; background:#eef2ff; }
+.p-title{ font-weight:700; margin-right:6px; }
+
+.r-cta{ display:grid; gap:10px; padding:12px; align-content:center; justify-items:stretch; }
+.price{ display:grid; gap:2px; text-align:right; }
+.orig{ text-decoration: line-through; color:#9ca3af; }
+.now{ font-size:22px; font-weight:800; color:var(--ink); }
+.tax{ color:#6b7280; font-size:12px; }
+.qty input{ width:72px; height:34px; border:1px solid var(--line); border-radius:8px; padding:0 8px; }
+.btn.primary{ height:38px; border:0; border-radius:8px; background:var(--brand); color:#fff; font-weight:700; cursor:pointer; }
+
+/* 반응형 */
+@media (max-width: 1100px){ .overview-grid{ grid-template-columns: 1fr; } }
+@media (max-width: 960px){
+  .gallery{ grid-template-columns: 1fr; grid-auto-rows: 180px; }
+  .gallery .hero{ grid-row:auto; }
+  .room{ grid-template-columns: 1fr; }
+  .r-media, .r-benefits{ border-right:none; border-bottom:1px solid var(--line); }
+  .r-cta{ justify-items:stretch; text-align:left; }
+  .titlebox h1{ font-size:24px; }
+}
