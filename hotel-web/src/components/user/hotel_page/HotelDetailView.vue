@@ -1,34 +1,70 @@
 <!-- src/components/HotelDetailView.vue -->
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import HotelApi from '@/api/HotelApi'
+import ReservationApi from '@/api/ReservationApi'
 
 const route = useRoute()
+const router = useRouter()
 
 // 상태
 const isLoading = ref(true)
 const loadError = ref(null)
 const hotel = ref(null)
 const rooms = ref([])
+const reserving = ref(false)
 
-// 유틸
-const money = (n) => Number.isFinite(n) ? '₩ ' + n.toLocaleString('ko-KR') : '요금 문의'
+// URL 쿼리에서 날짜/인원
+const checkInStr  = computed(() => route.query.checkIn || null)
+const checkOutStr = computed(() => route.query.checkOut || null)
+const adultsUrl   = computed(() => route.query.adults ? Number(route.query.adults) : null)
+const childrenUrl = computed(() => route.query.children ? Number(route.query.children) : null)
 
-// 안전 접근용
-const gallery = computed(() => hotel.value?.images ?? [])
-const badges = computed(() => hotel.value?.badges ?? [])
-const highlights = computed(() => hotel.value?.highlights ?? [])
-const amenitiesLeft = computed(() => hotel.value?.amenities?.left ?? [])
+// 돈 포맷
+const money = (n) => Number.isFinite(n) ? '₩ ' + Number(n).toLocaleString('ko-KR') : '요금 문의'
+
+// ✅ 템플릿에서 참조하는 계산값들(안전 기본값 제공)
+const gallery        = computed(() => hotel.value?.images ?? [])
+const badges         = computed(() => hotel.value?.badges ?? [])
+const highlights     = computed(() => hotel.value?.highlights ?? [])
+const amenitiesLeft  = computed(() => hotel.value?.amenities?.left ?? [])
 const amenitiesRight = computed(() => hotel.value?.amenities?.right ?? [])
-const nearby = computed(() => hotel.value?.nearby ?? [])
-const rating = computed(() => hotel.value?.rating ?? { score: 0, subs: {} })
+const nearby         = computed(() => hotel.value?.nearby ?? [])
+const rating         = computed(() => hotel.value?.rating ?? { score: 0, subs: {} })
 
 onMounted(async () => {
   try {
     const data = await HotelApi.getDetail(route.params.id)
-    hotel.value = data.hotel
-    rooms.value = (data.rooms || []).map(r => ({ ...r, qty: r.qty ?? 1 }))
+    console.log('[detail] api raw =', data)
+
+    // 응답 유연 매핑: {hotel, rooms} or { ...hotelFields, rooms } 모두 지원
+    const h = data?.hotel ?? data ?? null
+    hotel.value = h
+
+    const roomsArray = data?.rooms ?? data?.roomList ?? h?.rooms ?? []
+    rooms.value = (Array.isArray(roomsArray) ? roomsArray : []).map(r => ({
+      // 백엔드 속성명이 다를 수 있으니 안전 병합
+      id: r.id,
+      name: r.name,
+      size: r.room_size ?? r.size ?? r.roomSize ?? '',
+      view: r.view ?? r.view_name ?? '',
+      bed: r.bed ?? '',
+      bath: r.bath ?? '',
+      smoke: r.smoke ?? false,
+      sharedBath: r.shared_bath ?? r.sharedBath ?? false,
+      window: r.has_window ?? r.window ?? false,
+      aircon: r.aircon ?? false,
+      water: r.free_water ?? r.water ?? false,
+      wifi: r.wifi ?? true,
+      cancelPolicy: r.cancel_policy ?? r.cancelPolicy ?? '무료취소(일부 날짜 제외)',
+      payment: r.payment ?? '현장결제/선결제',
+      lastBookedHours: r.lastBookedHours ?? null,
+      originalPrice: r.original_price ?? r.originalPrice ?? null,
+      price: r.price ?? null,
+      photos: r.photos ?? r.images ?? [],
+      qty: r.qty ?? 1,
+    }))
   } catch (e) {
     console.error(e)
     loadError.value = '숙소 정보를 불러오지 못했어요.'
@@ -37,8 +73,40 @@ onMounted(async () => {
   }
 })
 
-function reserve(room) {
-  alert(`예약 시도: ${room.name} / ${room.qty}개`)
+function ymdGuard(s) {
+  return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : null
+}
+
+async function reserve(room) {
+  if (!room?.id) { alert('객실 정보 오류'); return }
+  const ci = ymdGuard(checkInStr.value)
+  const co = ymdGuard(checkOutStr.value)
+  if (!ci || !co) { alert('상단에서 체크인/아웃을 먼저 선택해주세요.'); return }
+
+  const qty = Number(room.qty || 1)
+  if (!Number.isFinite(qty) || qty < 1) { alert('수량을 1 이상'); return }
+
+  reserving.value = true
+  try {
+    const res = await ReservationApi.hold({
+      userId: 1,           // 데모
+      hotelId: Number(route.params.id),
+      roomId: room.id,
+      qty,
+      checkIn: ci,
+      checkOut: co,
+      adults: adultsUrl.value ?? 1,
+      children: childrenUrl.value ?? 0,
+      holdSeconds: 60 // 비관적 타임 시간
+    })
+    // 체크아웃 페이지로 이동
+    router.push({ name: 'ReservationCheckout', params: { id: res.reservationId }, query: { hotelId: route.params.id } })
+  } catch (e) {
+    alert(e?.response?.data?.message || '홀드 실패')
+    console.error(e)
+  } finally {
+    reserving.value = false
+  }
 }
 </script>
 
@@ -76,7 +144,6 @@ function reserve(room) {
 
       <!-- 개요 -->
       <section class="overview-grid">
-        <!-- 왼쪽 -->
         <div class="ov-left">
           <div class="badges">
             <span v-for="b in badges" :key="b" class="badge">{{ b }}</span>
@@ -132,7 +199,6 @@ function reserve(room) {
           </div>
         </div>
 
-        <!-- 오른쪽 -->
         <aside class="ov-right">
           <div class="rating-card" aria-label="이용후기 요약">
             <div class="score">
@@ -225,14 +291,14 @@ function reserve(room) {
               <input type="number" v-model.number="room.qty" min="1" aria-label="수량" />
             </div>
 
-            <button class="btn primary" @click="reserve(room)">지금 예약하기</button>
+            <button class="btn primary" :disabled="reserving" @click="reserve(room)">
+              {{ reserving ? '처리 중…' : '지금 예약하기' }}
+            </button>
           </div>
         </article>
       </section>
     </template>
   </section>
 </template>
-
-
 
 <style src="@/assets/css/hotel_detail/hotel_detail.css"></style>

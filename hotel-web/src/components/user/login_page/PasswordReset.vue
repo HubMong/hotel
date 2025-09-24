@@ -155,11 +155,9 @@ export default {
       
       this.loading = true;
       try {
-        const response = await http.post("/password/reset/send-code", null, {
-          params: {
-            email: this.email
-          }
-        });
+const response = await http.post("/password/reset/send-code", {
+  email: this.email
+});
         
         this.showMessage("인증코드가 다시 전송되었습니다.", "success");
         this.startTimer(); // 타이머 재시작
@@ -210,13 +208,11 @@ export default {
       this.message = "";
 
       try {
-  const response = await http.post(`/password/reset/verify-and-change`, null, {
-          params: {
-            email: this.email,
-            verificationCode: this.verificationCode,
-            newPassword: this.newPassword
-          }
-        });
+const response = await http.post(`/password/reset/verify-and-change`, {
+  email: this.email,
+  verificationCode: this.verificationCode,
+  newPassword: this.newPassword
+});
 
         if (response.data.success) {
           this.showMessage("비밀번호가 성공적으로 변경되었습니다! 로그인 페이지로 이동합니다.", "success");

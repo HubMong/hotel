@@ -23,7 +23,7 @@
           <a href="#" @click.prevent="resendCode">재전송하기</a>
         </div>
 
-        <button class="verify-btn" @click="$router.push('/passwordReset')">인증하기</button>
+        <button class="verify-btn" @click="$router.push('/password-reset')">인증하기</button>
       </div>
 
       <!-- 오른쪽: 로고 --> 

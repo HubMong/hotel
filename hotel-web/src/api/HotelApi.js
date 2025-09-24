@@ -1,9 +1,13 @@
-// src/api/HotelApi.js
-import http from './http';
+import http from './http'
 
-// 백엔드 응답을 가공하지 않고 그대로 반환
-async function getDetail(id) {
-  return await http.get(`/hotels/${id}`); // http는 res.data만 돌려줌
+async function getRoomSummary(roomId) {
+  const { data } = await http.get(`/rooms/${roomId}/summary`)
+  return data
 }
 
-export default { getDetail };
+export default {
+  getDetail(hotelId){
+    return http.get(`/hotels/${hotelId}`).then(r => r.data)
+  },
+  getRoomSummary
+}

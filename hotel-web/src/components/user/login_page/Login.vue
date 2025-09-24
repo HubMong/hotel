@@ -103,12 +103,10 @@ export default {
       }
 
       try {
-  const response = await http.post("/users/login", null, {
-          params: {
-            email: this.email,
-            password: this.password,
-          },
-        });
+const response = await http.post("/users/login", {
+  email: this.email,
+  password: this.password,
+});
         console.log("로그인 성공:", response.data);
         
         // JWT 토큰을 로컬 스토리지에 저장

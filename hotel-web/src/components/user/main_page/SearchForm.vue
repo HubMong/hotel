@@ -1,3 +1,4 @@
+<!-- src/components/user/main_page/SearchForm.vue -->
 <template>
   <div class="search-form-wrapper">
     <div class="search-form-card">
@@ -21,7 +22,8 @@
         <div class="search-form-item date-range">
           <label class="search-form-label">체크인 / 체크아웃</label>
           <div class="input-field" ref="datePickerField">
-            <flat-pickr
+            <FlatPickr
+              ref="rangePicker"                
               v-model="dateRange"
               :config="dateRangeConfig"
               placeholder="체크인 ~ 체크아웃 날짜 선택"
@@ -55,7 +57,6 @@
                   <button @click="increase('children')">+</button>
                 </div>
               </div>
-              <!-- 확인 버튼 -->
               <div class="traveler-actions">
                 <button class="confirm-btn" @click="closeTravelerMenu">확인</button>
               </div>
@@ -86,7 +87,7 @@ export default {
   data() {
     return {
       destination: "",
-      dateRange: [], // [Date, Date]
+      dateRange: [], // [Date, Date] 또는 문자열이 섞일 수 있음 (그래서 fp.selectedDates 신뢰)
       adults: 1,
       children: 0,
       showTravelerMenu: false,
@@ -103,46 +104,55 @@ export default {
         disableMobile: true,
         clickOpens: true,
         allowInput: false,
-        formatDate: (date, format, locale) => {
-          // 범위 선택이 완료되었을 때 사용자 정의 표시
-          if (this.dateRange && this.dateRange.length === 2) {
-            const [checkIn, checkOut] = this.dateRange;
-            const nights = Math.ceil((checkOut - checkIn) / (1000 * 3600 * 24));
-            return `${checkIn.getMonth()+1}월 ${checkIn.getDate()}일 - ${checkOut.getMonth()+1}월 ${checkOut.getDate()}일 (${nights}박)`;
-          }
-          return `${date.getMonth()+1}월 ${date.getDate()}일`;
-        },
-        onReady: (selectedDates, dateStr, instance) => {
+
+        onReady: (selected, _dateStr, instance) => {
+          console.log('[SearchForm FP onReady] selected =', selected);
           const host = this.$refs.datePickerField;
           if (host && instance?.calendarContainer && instance.calendarContainer.parentElement !== host) {
             host.appendChild(instance.calendarContainer);
           }
           this.$nextTick(() => {
             this.updateCalendarHeaders(instance);
-            setTimeout(() => { this.applySundayStyles(instance); }, 100);
+            setTimeout(() => { this.applySundayStyles(instance); }, 60);
           });
+
+          const cal = instance.calendarContainer;
+          if (cal) {
+            cal.addEventListener('wheel', (e) => {
+              if (e.target.closest('.cur-year') || e.target.closest('.numInputWrapper')) {
+                e.preventDefault(); e.stopPropagation();
+              }
+            }, { passive:false, capture:true });
+            cal.addEventListener('keydown', (e) => {
+              if (e.target.closest('.cur-year') || e.target.closest('.numInputWrapper')) {
+                e.preventDefault(); e.stopPropagation();
+              }
+            }, true);
+          }
         },
-        onChange: (selectedDates, dateStr, instance) => {
-          this.updateDateDisplay(selectedDates, instance);
-        },
-        onMonthChange: (selectedDates, dateStr, instance) => {
+
+        onOpen: (_sel, _dateStr, instance) => {
+          const ci = this.checkIn;
+          instance.jumpToDate(ci || new Date());
           this.$nextTick(() => {
             this.updateCalendarHeaders(instance);
-            setTimeout(() => { this.applySundayStyles(instance); }, 100);
+            setTimeout(() => { this.applySundayStyles(instance); }, 60);
           });
         },
-        onOpen: (selectedDates, dateStr, instance) => {
-          const today = new Date();
-          instance.changeMonth(today.getMonth(), false);
+
+        onMonthChange: (_sel, _dateStr, instance) => {
           this.$nextTick(() => {
             this.updateCalendarHeaders(instance);
-            setTimeout(() => { this.applySundayStyles(instance); }, 100);
+            setTimeout(() => { this.applySundayStyles(instance); }, 60);
           });
         },
-        onClose: (selectedDates, dateStr, instance) => {
-          const today = new Date();
-          instance.changeMonth(today.getMonth(), false);
+
+        onClose: (_selected, _dateStr, _instance) => {},
+
+        onChange: (selectedDates) => {
+          console.log('[SearchForm FP onChange] selected =', selectedDates);
         },
+
         onDayCreate: (dObj, dStr, fp, dayElem) => {
           const date = dayElem.dateObj;
           if (date.getDay() === 0) {
@@ -160,8 +170,8 @@ export default {
       if (this.children > 0) parts.push(`어린이 ${this.children}명`);
       return parts.length ? parts.join(", ") : "여행자 선택";
     },
-    checkIn()  { return this.dateRange?.[0] || null; },  // Date or null
-    checkOut() { return this.dateRange?.[1] || null; },  // Date or null
+    checkIn()  { return this.dateRange?.[0] || null; },
+    checkOut() { return this.dateRange?.[1] || null; },
     nights() {
       if (this.dateRange?.length === 2) {
         const [ci, co] = this.dateRange;
@@ -171,62 +181,69 @@ export default {
     }
   },
   methods: {
+    // -------- 유틸
+    toYmd(d) {
+      if (!(d instanceof Date) || Number.isNaN(d.getTime())) return undefined;
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    },
+
+    // -------- 인원
     toggleTravelerMenu() { this.showTravelerMenu = !this.showTravelerMenu; },
     closeTravelerMenu()  { this.showTravelerMenu = false; },
     increase(type) { this[type]++; },
     decrease(type) { if (this[type] > 0) this[type]--; },
 
+    // -------- 검색 (fp.selectedDates를 신뢰)
     goSearch() {
       if (!this.destination) {
         alert("목적지를 입력해주세요.");
         return;
       }
 
-      // YYYY-MM-DD
-      const toYmd = (d) => {
-        if (!d) return undefined;
-        const dt = d instanceof Date ? d : new Date(d);
-        const m = String(dt.getMonth() + 1).padStart(2, '0');
-        const day = String(dt.getDate()).padStart(2, '0');
-        return `${dt.getFullYear()}-${m}-${day}`;
-      };
+      // ✅ flatpickr 인스턴스에서 실제 선택값(Date[])을 읽음
+      const fp = this.$refs.rangePicker?._flatpickr || this.$refs.rangePicker?.fp;
+      const sel = fp?.selectedDates && fp.selectedDates.length ? fp.selectedDates : this.dateRange;
 
-      // 원본 값
-      let ci = this.checkIn ? new Date(this.checkIn) : null;
-      let co = this.checkOut ? new Date(this.checkOut) : null;
+      let ci = sel?.[0] ? new Date(sel[0]) : null;
+      let co = sel?.[1] ? new Date(sel[1]) : null;
 
-      // ✅ 최소 1박 보정: co가 없거나 co <= ci면 다음날로 고정
+      // 최소 1박 보정
       if (ci && (!co || co <= ci)) {
         const next = new Date(ci);
         next.setDate(next.getDate() + 1);
         co = next;
       }
 
-      const checkInStr  = ci ? toYmd(ci) : undefined;
-      const checkOutStr = co ? toYmd(co) : undefined;
+      const query = {
+        q: this.destination || undefined,
+        checkIn: this.toYmd(ci),
+        checkOut: this.toYmd(co),
+        adults: this.adults || undefined,
+        children: this.children || undefined
+      };
 
-      this.$router.push({
-        name: 'Search',
-        query: {
-          q: this.destination || undefined,
-          checkIn: checkInStr,
-          checkOut: checkOutStr,
-          adults: this.adults || undefined,
-          children: this.children || undefined
-        }
-      });
+      console.log('[SearchForm emit] v-model dateRange =', this.dateRange, 'fp.selectedDates =', (sel || []).map(this.toYmd));
+      console.log('[SearchForm emit] pushing query =', query);
+
+      this.$router.push({ path: '/search', query });
     },
 
+    // -------- 달력 헤더/표시
     updateDateDisplay(selectedDates, instance) {
       if (selectedDates.length === 2 && instance?.altInput) {
         const [ci, co] = selectedDates;
         const nights = Math.ceil((co - ci) / (1000 * 3600 * 24));
-        instance.altInput.value = `${ci.getMonth()+1}월 ${ci.getDate()}일 - ${co.getMonth()+1}월 ${co.getDate()}일 (${nights}박)`;
+        instance.altInput.value =
+          `${ci.getMonth()+1}월 ${ci.getDate()}일 - ${co.getMonth()+1}월 ${co.getDate()}일 (${nights}박)`;
       }
     },
 
     updateCalendarHeaders(instance) {
-      const yearInputs = instance.calendarContainer.querySelectorAll('.numInputWrapper, .numInput, .arrowUp, .arrowDown');
+      const yearInputs = instance.calendarContainer
+        .querySelectorAll('.numInputWrapper, .numInput, .arrowUp, .arrowDown');
       yearInputs.forEach(el => { el.style.display = 'none'; });
 
       const monthHeaders = instance.calendarContainer.querySelectorAll('.flatpickr-current-month');
@@ -237,12 +254,13 @@ export default {
         const baseMonth = (instance.currentMonth ?? now.getMonth()) + index;
         const baseYear  = (instance.currentYear  ?? now.getFullYear());
         const displayYear  = baseYear + Math.floor(baseMonth / 12);
-        const displayMonth = baseMonth % 12;
+        const displayMonth = ((baseMonth % 12) + 12) % 12;
 
         const monthNames = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
         const textSpan = document.createElement('span');
         textSpan.textContent = `${displayYear}년 ${monthNames[displayMonth]}`;
-        textSpan.style.cssText = 'font-size:16px;font-weight:700;color:#333;pointer-events:none;user-select:none;';
+        textSpan.style.cssText =
+          'font-size:16px;font-weight:700;color:#333;pointer-events:none;user-select:none;';
         header.appendChild(textSpan);
       });
     },
@@ -268,7 +286,7 @@ export default {
 </script>
 
 <style scoped>
-/* 입력 필드를 기준으로 팝업을 고정 */
+/* 팝업을 입력 필드에 고정 */
 .input-field { position: relative; }
 ::v-deep(.flatpickr-calendar) {
   position: absolute;
@@ -277,7 +295,10 @@ export default {
   z-index: 9999;
 }
 
-/* 입력/버튼이 상위섹션에 눌리지 않도록 */
+/* 연도 인풋 숨김 (휠/키 이슈 차단) */
+:deep(.flatpickr-current-month .numInputWrapper){ display:none !important; }
+
+/* 겹침 방지 */
 .search-form-card, .search-form-grid, .input-field, .input-text, .traveler-button {
   position: relative;
   z-index: 1;

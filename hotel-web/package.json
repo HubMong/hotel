@@ -8,10 +8,16 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:fe": "vite",
+    "dev:be:win": "cd my-backend && mvnw.cmd spring-boot:run",
+    "dev:be:nix": "cd my-backend && ./mvnw spring-boot:run",
+    "dev:win": "concurrently -k -n FE,BE -c green,cyan \"npm:dev:fe\" \"npm:dev:be:win\"",
+    "dev:nix": "concurrently -k -n FE,BE -c green,cyan \"npm:dev:fe\" \"npm:dev:be:nix\"",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview --port 5173"
   },
   "dependencies": {
+    "@tosspayments/tosspayments-sdk": "^2.4.0",
     "axios": "^1.12.2",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
@@ -23,6 +29,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.1",
+    "concurrently": "^8.2.2",
     "vite": "^7.0.6",
     "vite-plugin-vue-devtools": "^8.0.0"
   }

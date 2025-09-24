@@ -59,11 +59,12 @@
                 <strong>{{ filteredResults.length }}개</strong>의 검색 결과
               </p>
 
+              <!-- 쿼리 보존하여 상세로 이동 -->
               <RouterLink
                 v-for="hotel in filteredResults"
                 :key="hotel.id"
-                :to="`/hotels/${hotel.id}`"
                 class="hotel-card-link"
+                :to="{ path: `/hotels/${hotel.id}`, query: keepQuery() }"
               >
                 <article class="hotel-card">
                   <img :src="thumbOf(hotel.id)" :alt="hotel.name" class="hotel-image" />
@@ -121,7 +122,13 @@ const selectedTypes = ref([])
 const minPrice = ref(0)
 const maxPrice = ref(500000)
 
-// 쿼리 객체를 문자열로만 구성 (URLSearchParams 안전하게)
+// 상세로 넘길 때 현재 URL의 날짜/인원 쿼리를 그대로 유지
+const keepQuery = () => {
+  const { checkIn, checkOut, adults, children, q } = route.query
+  return { checkIn, checkOut, adults, children, q }
+}
+
+// 쿼리 → API params
 function buildQueryFromRoute() {
   const qObj = {}
   for (const [k, v] of Object.entries(route.query)) {
@@ -136,14 +143,10 @@ async function fetchResults () {
   loadError.value = null
   try {
     const params = buildQueryFromRoute()
-
-    // ✅ http는 axios 래퍼라고 가정: response.data 사용
-    const { data } = await http.get('/hotels', { params }) // baseURL이 /api 라면 '/hotels'로 충분
-    // 백엔드가 Page를 준다면 data.content, 배열이면 data
+    const { data } = await http.get('/hotels', { params })
     const list = Array.isArray(data) ? data : (Array.isArray(data?.content) ? data.content : [])
     results.value = list
 
-    // 가격 슬라이더 상한 보정
     const prices = results.value.map(r => r.lowestPrice ?? 0)
     const maxInResult = prices.length ? Math.max(...prices) : 500000
     maxPrice.value = Math.max(500000, maxInResult)
@@ -157,7 +160,6 @@ async function fetchResults () {
 }
 
 onMounted(fetchResults)
-// 라우터 쿼리 바뀔 때마다 재검색
 watch(() => route.query, fetchResults, { deep: true })
 
 // 필터 적용
@@ -165,14 +167,11 @@ const filteredResults = computed(() => {
   return results.value.filter(h => {
     const p = h.lowestPrice ?? 0
     const priceOK = p >= minPrice.value && p <= maxPrice.value
-
-    // rating이 숫자라면 타입 맞춰 비교하거나, 표시용 텍스트로 매핑 필요
     const typeOK =
       selectedTypes.value.length === 0
         ? true
         : selectedTypes.value.includes(h.rating)
-
-    const amenityOK = true // TODO: 백엔드 연동 시 수정
+    const amenityOK = true
     return priceOK && typeOK && amenityOK
   })
 })
@@ -184,67 +183,36 @@ function thumbOf (id) {
 }
 </script>
 
-
 <style scoped>
 .search-page { background: var(--bg, #fff); }
-
-/* 레이아웃 */
-.search-layout {
-  display: flex;
-  gap: 48px;
-  padding: 12px 120px 60px;
-}
-
-/* 사이드바 */
-.filter-sidebar {
-  flex-basis: 260px;
-  flex-shrink: 0;
-  border-right: 1px solid var(--line, #eee);
-  padding-right: 32px;
-}
+.search-layout { display: flex; gap: 48px; padding: 12px 120px 60px; }
+.filter-sidebar { flex-basis: 260px; flex-shrink: 0; border-right: 1px solid var(--line, #eee); padding-right: 32px; }
 .filter-group { margin-bottom: 2rem; }
 .filter-group h4 { margin-bottom: 1rem; font-size: 16px; color: var(--ink-light, #666); }
 .hint { font-size: 12px; color: #9aa0a6; margin-bottom: 8px; }
 .checkbox-item { display: flex; align-items: center; margin-bottom: 8px; }
 .checkbox-item input { margin-right: 8px; width: 16px; height: 16px; }
-
-/* 우측 본문 */
 .main-content { flex: 1; overflow-x: hidden; }
 .page-title { font-size: 28px; margin: 12px 0 24px; }
 .results-count { margin-bottom: 16px; color: var(--ink, #222); }
-
 .hotel-list { display: flex; flex-direction: column; gap: 16px; }
 .hotel-card-link { text-decoration: none; color: inherit; }
-.hotel-card {
-  display: flex; gap: 20px; align-items: center;
-  border: 1px solid var(--line, #eee);
-  border-radius: 8px; padding: 16px 20px; background: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,.04); transition: .2s ease;
-}
+.hotel-card { display: flex; gap: 20px; align-items: center; border: 1px solid var(--line, #eee); border-radius: 8px; padding: 16px 20px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.04); transition: .2s ease; }
 .hotel-card:hover { border-color: #39c5a0; box-shadow: 0 6px 18px rgba(0,0,0,.08); transform: translateY(-2px); }
-
 .hotel-image { width: 200px; height: 160px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
 .hotel-details { flex: 1; }
 .hotel-rating { font-size: 12px; color: #666; display: block; margin-bottom: 4px; }
 .hotel-name { font-size: 18px; font-weight: 700; margin: 0 0 4px; }
 .hotel-city { font-size: 14px; color: #777; }
-
 .hotel-price-block { text-align: right; }
 .hotel-price-block .price { font-size: 22px; font-weight: 800; color: #39c5a0; }
 .hotel-price-block .per-night { font-size: 13px; color: #888; margin-top: 4px; }
-
 .price-range { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: #666; }
 .price-slider { width: 100%; cursor: pointer; }
-
 .loading, .error, .no-results { padding: 24px 8px; color: #666; }
-
-/* 반응형 */
 @media (max-width: 992px) {
   .search-layout { flex-direction: column; gap: 24px; padding: 12px 20px 40px; }
-  .filter-sidebar {
-    border-right: none; border-bottom: 1px solid var(--line, #eee);
-    padding-right: 0; padding-bottom: 20px; margin-bottom: 8px;
-  }
+  .filter-sidebar { border-right: none; border-bottom: 1px solid var(--line, #eee); padding-right: 0; padding-bottom: 20px; margin-bottom: 8px; }
   .hotel-card { flex-direction: column; align-items: flex-start; }
   .hotel-image { width: 100%; height: 200px; }
   .hotel-price-block { width: 100%; text-align: left; }
