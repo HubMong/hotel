@@ -1,0 +1,123 @@
+/* ============================= */
+/* Flatpickr 전역 커스텀 스타일 */
+/* ============================= */
+
+/* 달력 전체 */
+.flatpickr-calendar {
+  border: 1px solid #4ec89f !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1) !important;
+  font-family: "Noto Sans KR", sans-serif !important;
+  overflow: hidden;
+}
+
+/* 상단 바 (월/년도 선택 영역) */
+.flatpickr-months {
+  background: #4ec89f !important;
+  color: #fff !important;
+  border-radius: 12px 12px 0 0 !important;
+  padding: 6px 0 !important;
+}
+
+/* 현재 월/년도 표시 */
+.flatpickr-current-month {
+  display: flex !important;
+  flex-direction: row-reverse !important; /* 연도 → 월 */
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 8px !important; /* 년/월 간격 */
+}
+
+/* 월 선택 드롭다운 */
+.flatpickr-monthDropdown-months {
+  background: #fff !important;
+  border: 1px solid #4ec89f !important;
+  border-radius: 6px !important;
+  padding: 4px 8px !important;
+  font-size: 14px !important;
+  color: #000 !important;
+  cursor: pointer;
+  height: 32px !important;       
+  min-width: 60px !important;    
+  box-sizing: border-box;
+}
+
+/* 년도 input */
+.numInput.cur-year {
+  background: #fff !important;
+  border: 1px solid #4ec89f !important;
+  border-radius: 6px !important;
+  padding: 4px 8px !important;
+  font-size: 14px !important;
+  color: #000 !important;
+  width: 60px !important;       
+  height: 32px !important;      
+  text-align: center;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* 연도 옆에 "년" 표시 */
+.numInput.cur-year::after {
+  content: "년";
+  margin-left: 4px;
+  font-size: 14px;
+  color: #000;
+  position: absolute;
+  right: -18px; /* 위치 조정 */
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* 년/월 hover */
+.flatpickr-monthDropdown-months:hover,
+.numInput.cur-year:hover {
+  border-color: #3fb88f !important;
+}
+
+/* 오늘 이전 날짜 비활성화 */
+.flatpickr-day.flatpickr-disabled {
+  color: #bbb !important;
+  background: #f5f5f5 !important;
+  cursor: not-allowed !important;
+}
+
+/* 요일 헤더 */
+span.flatpickr-weekday {
+  color: #4ec89f !important;
+  font-weight: 600 !important;
+}
+
+/* 날짜 셀 기본 */
+.flatpickr-day {
+  border-radius: 6px !important;
+  color: #333 !important;
+}
+
+/* 오늘 */
+.flatpickr-day.today {
+  border: 1px solid #4ec89f !important;
+  color: #4ec89f !important;
+}
+
+/* 선택된 날짜 */
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+  background: #4ec89f !important;
+  color: #fff !important;
+}
+
+/* 선택된 범위 */
+.flatpickr-day.inRange {
+  background: rgba(78, 200, 159, 0.2) !important;
+  color: #333 !important;
+}
+
+/* hover */
+.flatpickr-day:hover {
+  background: rgba(78, 200, 159, 0.3) !important;
+  border-color: #4ec89f !important;
+  cursor: pointer;
+}

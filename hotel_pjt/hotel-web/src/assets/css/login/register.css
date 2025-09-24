@@ -1,0 +1,166 @@
+.register-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f8f9fa;
+}
+
+.register-container {
+  display: flex;
+  width: 1000px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.register-logo {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.register-logo img {
+  width: 400px;
+}
+
+.register-form {
+  flex: 1;
+  padding: 40px;
+}
+
+.back-link {
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #000000;
+  cursor: pointer; 
+}
+
+.register-form h1 {
+  margin-bottom: 5px;
+}
+
+.sub-text {
+  margin-bottom: 20px;
+  color: gray;
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.name-row {
+  display: flex;
+  gap: 15px;
+}
+
+.half {
+  flex: 1;
+}
+
+.password-box {
+  position: relative;
+}
+
+.password-box input {
+  width: 100%;
+  padding: 10px;
+  padding-right: 50px; /* 버튼 공간 확보 */
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.toggle-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #4ec89f;
+}
+
+.options {
+  display: flex;
+  align-items: flex-start;
+  margin: 20px 0;
+  font-size: 14px;
+  gap: 8px;
+}
+
+.options input[type="checkbox"] {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.options .terms-label {
+  line-height: 1.5;
+}
+/* style links in terms agreement */
+.options .link {
+  color: #4ec89f;
+  text-decoration: underline;
+  margin: 0 4px;
+}
+
+.register-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  background: #4ec89f;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.divider {
+  text-align: center;
+  margin: 20px 0;
+  font-size: 13px;
+  color: #888;
+}
+
+.social-login {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 15px;
+}
+
+.social-box {
+  width: 145px;
+  height: 60px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  background: #fff;
+  transition: 0.2s;
+}
+
+.social-box:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.social-box img {
+  width: 30px;
+  height: 30px;
+}

@@ -1,0 +1,28 @@
+# Node/Vue
+node_modules/
+dist/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Java/Spring
+target/
+build/
+out/
+*.class
+*.jar
+*.war
+
+# Env/Secrets
+.env
+.env.*
+application-*.yml
+application-*.yaml
+application-*.properties

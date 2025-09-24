@@ -1,0 +1,90 @@
+/* ReservationResult.css */
+
+/* 전체 컨테이너 */
+.container.result {
+  max-width: 700px;
+  margin: 80px auto;
+  padding: 40px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(17, 34, 17, 0.08);
+  text-align: center;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* 타이틀 */
+.container.result h1 {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: #121211;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+/* 예약 정보 박스 */
+.container.result .box {
+  background: #FAFBFC;
+  border: 1px solid #e5e7eb;
+  padding: 28px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  text-align: left;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* 예약번호 강조 */
+.container.result .box p b {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 1.05rem;
+  color: #121211;
+  font-weight: 700;
+}
+
+/* 일반 텍스트 */
+.container.result .box p {
+  margin: 12px 0;
+  color: #555;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* 버튼 묶음을 감싸는 wrapper */
+.button-group {
+  display: flex;               /* 가로 정렬 */
+  justify-content: center;     /* 중앙 정렬 */
+  align-items: center;         /* 세로 정렬 */
+  gap: 14px;                   /* 버튼 간격 */
+  margin-top: 24px;
+  flex-wrap: wrap;             /* 반응형에서 줄바꿈 */
+}
+
+/* 버튼 스타일 */
+.container.result .btn {
+  flex: 0 0 auto;              /* 버튼 크기 고정 */
+  padding: 12px 22px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  background: #4ec89f;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.container.result .btn:hover {
+  background: #3db089;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(78, 200, 159, 0.3);
+}
+
+/* 호텔 정보 없음 표시 */
+.container.result span {
+  display: inline-block;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  color: #6b7280;
+  background: #f3f4f6;
+  border-radius: 6px;
+}
