@@ -1,0 +1,136 @@
+.my-reservation-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: #fafafa;
+}
+
+.page-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.reservation-container {
+    flex: 1;
+    padding: 20px;
+    /* max-width를 없애고 전체 너비를 사용 */
+    width: 100%;
+    margin: 0 auto;
+}
+
+.loading,
+.no-data {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 16px;
+    color: #555;
+}
+
+.reservation-list {
+    /* ★★★ 변경: CSS Grid를 사용해 3개씩 배열 ★★★ */
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 1fr 크기의 열 3개 생성 */
+    gap: 16px; /* 카드 사이 간격 */
+    /* ★★★ 추가: 중앙 정렬을 위한 설정 ★★★ */
+    justify-content: center;
+    max-width: 1200px; /* 카드를 너무 넓게 퍼뜨리지 않도록 최대 너비 설정 */
+    margin: 0 auto;
+}
+
+.reservation-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease;
+    /* ★★★ 변경: 세로 길이를 일정하게 유지 (선택사항) ★★★ */
+    min-height: 250px;
+}
+
+.reservation-card:hover {
+    transform: translateY(-3px);
+}
+
+.reservation-header {
+    display: flex;
+    flex-direction: column; /* ★★★ 변경: 세로 방향으로 정렬 ★★★ */
+    align-items: flex-start; /* ★★★ 변경: 왼쪽 정렬 ★★★ */
+    margin-bottom: 12px;
+}
+
+.hotel-name {
+    font-size: 19px;
+    font-weight: 600;
+    color: #1d4ed8;
+}
+
+.dates {
+    font-size: 15px;
+    color: #666;
+    margin-top: 4px;
+}
+
+.reservation-body {
+    font-size: 15px;
+    color: #444;
+    margin-bottom: 16px;
+}
+
+.reservation-body p {
+    margin: 6px 0;
+}
+
+.reservation-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto; /* ★★★ 추가: 푸터를 카드 하단에 고정 ★★★ */
+}
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.status-badge.CONFIRMED {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge.CANCELLED {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-badge.PENDING {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-badge.HOLD {
+    background: #f3e8ff;
+    color: #6b21a8;
+}
+
+.btn-detail {
+    background: #10b981;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: background 0.2s;
+}
+
+.btn-detail:hover {
+    background: #0d835f;
+}
