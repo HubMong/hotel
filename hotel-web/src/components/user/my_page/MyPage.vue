@@ -1,8 +1,7 @@
 <template>
   <div class="mypage-layout">
     <Header :isLoggedIn="isLoggedIn" :user="user" @logout="handleLogout" />
-    <SearchForm />
-
+    
     <div class="allcard">
       <div class="intro">
         <h2>내 정보</h2>
@@ -30,37 +29,83 @@
       <div class="my-page1" v-if="selectedTab === 'account'">
         <div v-if="isLoading.user" class="loading">정보를 불러오는 중...</div>
         <div v-else class="user-info">
-          <div class="info-item"><span class="label">이름</span><span class="value">{{ user.name }}</span></div>
-          <div class="info-item">
-            <span class="label">이메일</span>
-            <template v-if="!editStates.email">
-              <span class="value">{{ user.email }}</span>
-              <button @click="toggleEdit('email')" class="btn-change">수정하기</button>
-            </template>
-            <template v-else>
-              <input type="email" v-model="editableUser.email" class="input-edit" />
-              <button @click="saveChanges('email')" class="btn-save">저장</button>
-              <button @click="cancelEdit('email')" class="btn-cancel">취소</button>
-            </template>
+          
+          <div class="edit-actions" v-if="!isEditing">
+            <button @click="startEditing" class="btn-change">내 정보 수정</button>
           </div>
-          <div class="info-item">
-            <span class="label">비밀번호</span>
-            <template v-if="!editStates.password">
-              <span class="value">{{ '*'.repeat(user.passwordLength || 4) }}</span>
-              <button @click="toggleEdit('password')" class="btn-change">변경하기</button>
-            </template>
-            <template v-else>
-              <div class="password-edit-form">
-                <input type="password" v-model="editableUser.currentPassword" placeholder="현재 비밀번호" class="input-edit" />
-                <input type="password" v-model="editableUser.newPassword" placeholder="새 비밀번호" class="input-edit" />
-                <input type="password" v-model="editableUser.confirmPassword" placeholder="새 비밀번호 확인" class="input-edit" />
-                <div class="password-buttons">
-                  <button @click="savePasswordChanges" class="btn-save">저장</button>
-                  <button @click="cancelEdit('password')" class="btn-cancel">취소</button>
+
+          <template v-if="!isEditing">
+            <div class="info-item"><span class="label">이름</span><span class="value">{{ user.name }}</span></div>
+            <div class="info-item"><span class="label">이메일</span><span class="value">{{ user.email }}</span></div>
+            <div v-if="user.provider === 'LOCAL'" class="info-item">
+                <span class="label">비밀번호</span><span class="value">********</span>
+            </div>
+          </template>
+
+          <template v-else>
+            <div class="info-item"><span class="label">이름</span><span class="value">{{ user.name }}</span></div>
+            <div class="info-item">
+                <span class="label">이메일</span>
+                <input type="email" v-model="editableUser.email" class="input-edit" />
+            </div>
+            <div v-if="user.provider === 'LOCAL'" class="info-item password-edit-section">
+                <span class="label">비밀번호 변경</span>
+                <div class="input-group">
+                  <div class="password-input-wrapper">
+                    <input 
+                      :type="currentPasswordType" 
+                      v-model="editableUser.currentPassword" 
+                      placeholder="현재 비밀번호" 
+                      class="input-edit" 
+                    />
+                    <button 
+                      type="button" 
+                      @click="togglePasswordVisibility('current')" 
+                      class="btn-toggle-password"
+                    >
+                      {{ currentPasswordType === 'password' ? '보기' : '숨기기' }}
+                    </button>
+                  </div>
+
+                  <div class="password-input-wrapper">
+                    <input 
+                      :type="newPasswordType" 
+                      v-model="editableUser.newPassword" 
+                      placeholder="새 비밀번호" 
+                      class="input-edit" 
+                    />
+                    <button 
+                      type="button" 
+                      @click="togglePasswordVisibility('new')" 
+                      class="btn-toggle-password"
+                    >
+                      {{ newPasswordType === 'password' ? '보기' : '숨기기' }}
+                    </button>
+                  </div>
+
+                  <div class="password-input-wrapper">
+                    <input 
+                      :type="confirmPasswordType" 
+                      v-model="editableUser.confirmPassword" 
+                      placeholder="새 비밀번호 확인" 
+                      class="input-edit" 
+                    />
+                    <button 
+                      type="button" 
+                      @click="togglePasswordVisibility('confirm')" 
+                      class="btn-toggle-password"
+                    >
+                      {{ confirmPasswordType === 'password' ? '보기' : '숨기기' }}
+                    </button>
+                  </div> 
+                <p class="notice">비밀번호를 변경하지 않으려면 비워두세요.</p>
                 </div>
-              </div>
-            </template>
-          </div>
+            </div>  
+            <div class="form-actions">
+                <button @click="cancelEditing" class="btn-cancel">취소</button>
+                <button @click="saveAllChanges" class="btn-save">수정 완료</button>
+            </div>
+          </template>
         </div>
       </div>
 
@@ -86,7 +131,7 @@
                 <button @click.stop="goToReservationDetail(reservation.id)" class="btn-detail">상세보기</button>
                 
                 <button 
-                  v-if="reservation.status === 'CONFIRMED' || reservation.status === 'HOLD'"
+                  v-if="reservation.status === 'CONFIRMED' || reservation.status === 'PENDING'"
                   @click.stop="cancelReservation(reservation.id)" 
                   class="btn-cancel"
                   style="margin-left: 5px;">
@@ -122,10 +167,8 @@ import { useRouter } from 'vue-router';
 import http from '@/api/http';
 import Header from "@/components/user/main_page/Header.vue";
 import Footer from "@/components/user/main_page/Footer.vue";
-import { getMy } from '@/api/ReservationApi';
+import { getMy, cancel } from '@/api/ReservationApi';
 import UserApi from '@/api/UserApi';
-// import SearchForm from "@/components/user/main_page/SearchForm.vue";
-
 
 const user = reactive({});
 const editableUser = reactive({});
@@ -135,10 +178,16 @@ const selectedTab = ref('account');
 const profileImage = ref('');
 const fileInput = ref(null);
 const isLoggedIn = ref(false);
-const editStates = reactive({ email: false, password: false });
+const isEditing = ref(false);
 const router = useRouter();
 
+// [추가된 부분] 비밀번호 입력 필드 타입 관리 상태
+const currentPasswordType = ref('password');
+const newPasswordType = ref('password');
+const confirmPasswordType = ref('password');
+
 const statusMap = {
+  PENDING: "결제 대기중",
   CONFIRMED: "예약 확정",
   COMPLETED: "이용 완료",
   CANCELLED: "취소됨",
@@ -151,38 +200,46 @@ const formatDate = (isoString) => {
   return d.toLocaleDateString('ko-KR');
 };
 
+//예약 카드 토글 함수
 const toggleReservation = (reservation) => {
   reservation.active = !reservation.active;
 };
 
+// [추가된 부분]비밀번호 보기/숨기기 토글 함수: input의 type을 text/password로 전환합니다.
+const togglePasswordVisibility = (field) => {
+  if (field === 'current') {
+    currentPasswordType.value = currentPasswordType.value === 'password' ? 'text' : 'password';
+  } else if (field === 'new') {
+    newPasswordType.value = newPasswordType.value === 'password' ? 'text' : 'password';
+  } else if (field === 'confirm') {
+    confirmPasswordType.value = confirmPasswordType.value === 'password' ? 'text' : 'password';
+  }
+};
+
+// 예약 내역 조회 함수
 const fetchReservations = async () => {
   isLoading.history = true;
   try {
     const baseReservations = await getMy(0, 10);
-
     if (!baseReservations || baseReservations.length === 0) {
       reservations.value = [];
       return;
     }
-
     const promises = baseReservations.map(async r => {
       let hotelName = `호텔 ID: ${r.hotelId}`;
       let roomName = `객실 ID: ${r.roomId}`;
-
       try {
         const hotelRes = await http.get(`/hotels/${r.hotelId}`);
-        if (hotelRes.data.hotel) {
+        if (hotelRes.data && hotelRes.data.hotel) {
           hotelName = hotelRes.data.hotel.name;
         }
-
         const roomRes = await http.get(`/rooms/${r.roomId}`);
         if (roomRes.data) {
-          roomName = roomRes.data.name; 
+          roomName = roomRes.data.name;
         }
       } catch (e) {
         console.error(`호텔 또는 객실 정보 조회 실패 (ID: ${r.hotelId}/${r.roomId})`, e);
       }
-      
       return {
         ...r,
         hotelName,
@@ -191,64 +248,67 @@ const fetchReservations = async () => {
         statusText: statusMap[r.status] || r.status
       };
     });
-
     reservations.value = await Promise.all(promises);
   } catch (e) {
-    console.error("예약 내역 조회 실패", e?.response?.status, e?.response?.data || e);
+    console.error("예약 내역 조회 실패", e);
     reservations.value = [];
   } finally {
     isLoading.history = false;
   }
 };
 
+// 예약 상세 페이지 이동 함수
 const goToReservationDetail = (reservationId) => {
   router.push(`/reservations/${reservationId}`);
 };
 
-/*
-- - - - - - - - - - - - - - - - - - - - - - - - - - - -
-[ ✨ 새롭게 추가된 함수 ]
-
-[ 변경 이유 ]
-템플릿에 추가된 '예약 취소' 버튼을 눌렀을 때 실제로 서버에 취소 요청을 보내고,
-결과에 따라 화면을 갱신하는 로직이 필요하여 cancelReservation 함수를 새로 작성했습니다.
-(이전 코드에는 이 함수가 존재하지 않았으므로 '수정 전 코드'는 없습니다.)
-- - - - - - - - - - - - - - - - - - - - - - - - - - - -
-*/
+// 💡 예약 취소 함수: http.delete 대신 API 모듈의 cancel 함수를 사용
 const cancelReservation = async (reservationId) => {
-  if (!confirm("정말로 이 예약을 취소하시겠습니까?")) {
-    return;
-  }
-
+  if (!confirm("정말로 이 예약을 취소하시겠습니까?")) return;
+  
   try {
-    await http.delete(`/reservations/${reservationId}`);
+    console.log(`예약 취소 요청: POST /reservations/${reservationId}/cancel`);
+    
+    // 이 줄이 핵심 변경 사항입니다.
+    await cancel(reservationId); 
+    
     alert("예약이 성공적으로 취소되었습니다.");
     await fetchReservations();
   } catch (error) {
     console.error("예약 취소 실패:", error);
-    alert("예약 취소에 실패했습니다. 다시 시도해 주세요.");
+    const errorMessage = error.response?.data?.message || error.message || "알 수 없는 오류가 발생했습니다. (콘솔 확인)";
+    console.error("서버 응답 오류 상세:", error.response);
+    
+    alert(`예약 취소에 실패했습니다.\n오류: ${errorMessage}`);
   }
 };
 
+// 로그인 상태 확인 함수 
 const checkAuthStatus = () => {
-  const token = localStorage.getItem('token') || localStorage.getItem('access_token')
-                || sessionStorage.getItem('token') || sessionStorage.getItem('access_token');
+  const token = localStorage.getItem('token') || localStorage.getItem('access_token');
   const userInfo = localStorage.getItem('user');
   if (token && userInfo) {
     isLoggedIn.value = true;
     Object.assign(user, JSON.parse(userInfo));
   } else {
+    // 페이지 로드 시에는 alert 대신 조용히 로그인 페이지로 보낼 수 있습니다.
+    // 하지만 현재 로직을 유지합니다.
     alert("로그인이 필요한 페이지입니다.");
     router.push('/login');
   }
 };
 
-const handleLogout = () => {
-  ['token','access_token'].forEach(k => { localStorage.removeItem(k); sessionStorage.removeItem(k); });
-  localStorage.removeItem('user');
+const handleLogout = (showAlert = true) => {
+  ['token','access_token','user'].forEach(k => { 
+    localStorage.removeItem(k); 
+    sessionStorage.removeItem(k); 
+  });
   isLoggedIn.value = false;
   Object.keys(user).forEach(k => delete user[k]);
-  alert("로그아웃 되었습니다.");
+  
+  if (showAlert) {
+    alert("로그아웃 되었습니다.");
+  }
   router.push('/').then(() => window.location.reload());
 };
 
@@ -259,8 +319,10 @@ const fetchUserProfile = async () => {
     Object.assign(user, data);
     profileImage.value = data.profileImageUrl || '';
     localStorage.setItem('user', JSON.stringify(data));
-  } catch {
-    alert("사용자 정보를 불러올 수 없습니다.");
+  } catch(e) {
+    console.error("사용자 정보 로드 실패:", e);
+    alert("사용자 정보를 불러올 수 없습니다. 다시 로그인해주세요.");
+    handleLogout(false);
   } finally {
     isLoading.user = false;
   }
@@ -270,70 +332,82 @@ const onImageClick = () => fileInput.value.click();
 const onFileChange = async (event) => {
   const file = event.target.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => (profileImage.value = e.target.result);
-  reader.readAsDataURL(file);
-
   const formData = new FormData();
   formData.append('profileImage', file);
   try {
-    await http.post('/users/me/profile-image', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+    const res = await http.post('/users/me/profile-image', formData, { 
+      headers: { 'Content-Type': 'multipart/form-data' } 
+    });
     alert("프로필 이미지가 변경되었습니다.");
-    await fetchUserProfile();
+    profileImage.value = res.data.profileImageUrl;
+    Object.assign(user, res.data);
+    localStorage.setItem('user', JSON.stringify(user));
   } catch {
     alert("이미지 업로드에 실패했습니다.");
   }
 };
 
-const toggleEdit = (field) => {
-  if (field === 'password') {
-    editableUser.currentPassword = '';
-    editableUser.newPassword = '';
-    editableUser.confirmPassword = '';
-  } else {
-    Object.assign(editableUser, user);
+const startEditing = () => {
+  editableUser.email = user.email;
+  editableUser.currentPassword = '';
+  editableUser.newPassword = '';
+  editableUser.confirmPassword = '';
+  // 수정 모드 시작 시 비밀번호 타입 초기화
+  currentPasswordType.value = 'password';
+  newPasswordType.value = 'password';
+  confirmPasswordType.value = 'password';
+  isEditing.value = true;
+};
+
+const cancelEditing = () => {
+  isEditing.value = false;
+};
+
+const saveAllChanges = async () => {
+  if (!user.id) {
+    alert("사용자 ID가 없어 정보를 수정할 수 없습니다.");
+    return;
   }
-  editStates[field] = true;
-};
-
-const cancelEdit = (field) => {
-  editStates[field] = false;
-  for (const key in editableUser) delete editableUser[key];
-};
-
-const saveChanges = async (field) => {
-  const updatedData = { [field]: editableUser[field] };
+  const isEmailChanged = editableUser.email !== user.email;
+  const isPasswordChanged = editableUser.newPassword !== '';
+  if (isPasswordChanged) {
+    if (!editableUser.currentPassword) {
+      alert('비밀번호 변경을 원하시면 현재 비밀번호를 입력해주세요.');
+      return;
+    }
+    if (editableUser.newPassword !== editableUser.confirmPassword) {
+      alert('새 비밀번호 확인이 일치하지 않습니다.');
+      return;
+    }
+  }
+  if (!isEmailChanged && !isPasswordChanged) {
+    alert('변경된 내용이 없습니다.');
+    isEditing.value = false;
+    return;
+  }
   try {
-    // ▼▼▼ [수정] '/users/me' 대신 동적으로 URL 생성 ▼▼▼
-    const res = await http.patch(`/users/${user.id}`, updatedData);
-
-    Object.assign(user, res.data);
-    alert(`${field} 정보가 수정되었습니다.`);
-    cancelEdit(field);
-  } catch {
-    alert("정보 수정에 실패했습니다.");
+    if (isEmailChanged) {
+      await http.patch(`/users/${user.id}`, { email: editableUser.email });
+    }
+    if (isPasswordChanged) {
+      await http.patch(`/users/${user.id}/password`, {
+        currentPassword: editableUser.currentPassword,
+        newPassword: editableUser.newPassword,
+      });
+    }
+    alert("정보가 성공적으로 수정되었습니다. 보안을 위해 다시 로그인해주세요.");
+    handleLogout(false);
+  } catch (err) {
+    console.error("정보 수정 실패:", err);
+    alert(err.response?.data?.message || "정보 수정에 실패했습니다.");
   }
 };
 
-const savePasswordChanges = async () => {
-  const { currentPassword, newPassword, confirmPassword } = editableUser;
-  if (!currentPassword || !newPassword || !confirmPassword) { alert("모든 필드를 입력해주세요."); return; }
-  if (newPassword !== confirmPassword) { alert("비밀번호 확인이 일치하지 않습니다."); return; }
-  try {
-     // ▼▼▼ [수정] '/users/me/password' 대신 동적으로 URL 생성 ▼▼▼
-    await http.patch(`/users/${user.id}/password`, { currentPassword, newPassword });
-
-    alert("비밀번호가 변경되었습니다.");  
-    cancelEdit('password');
-  } catch {
-    alert("비밀번호 변경에 실패했습니다.");
-  }
-};
-
-onMounted(() => {
+onMounted(async () => {
   checkAuthStatus();
   if (isLoggedIn.value) {
-    fetchUserProfile().then(fetchReservations);
+    await fetchUserProfile();
+    fetchReservations();
   }
 });
 </script>

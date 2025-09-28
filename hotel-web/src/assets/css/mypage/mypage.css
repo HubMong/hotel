@@ -1,6 +1,6 @@
 /* ==========================================================================
-   1. 기본 변수 및 전체 레이아웃 (Variables & Global Layout)
-   ========================================================================== */
+ * 1. 기본 변수 및 전체 레이아웃 (Variables & Global Layout)
+ * ========================================================================== */
 :root {
   --line: #e5e7eb;
   --ink: #111827;
@@ -32,8 +32,8 @@
 }
 
 /* ==========================================================================
-   2. 프로필 및 탭 메뉴 (Profile & Tab Menu)
-   ========================================================================== */
+ * 2. 프로필 및 탭 메뉴 (Profile & Tab Menu)
+ * ========================================================================== */
 .image {
   display: flex;
   justify-content: center;
@@ -71,11 +71,11 @@
 }
 
 /* ==========================================================================
-   3. 계정 정보 섹션 (Account Info Section)
-   ========================================================================== */
+ * 3. 계정 정보 섹션 및 폼 (Account Info Section & Form)
+ * ========================================================================== */
 .info-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* 라벨 상단 정렬 */
   justify-content: space-between;
   padding: 16px 8px;
   border-bottom: 1px solid var(--line);
@@ -90,6 +90,7 @@
   flex-shrink: 0;
   font-weight: 600;
   color: #374151;
+  padding-top: 8px; /* input과 세로 정렬 맞추기 */
 }
 
 .value {
@@ -97,6 +98,7 @@
   color: var(--ink);
   text-align: left;
   margin-right: 1rem;
+  padding-top: 8px;
 }
 
 .input-edit {
@@ -104,8 +106,7 @@
   border: 1px solid var(--line);
   border-radius: 6px;
   width: 100%;
-  flex-grow: 1;
-  margin-right: 1rem;
+  box-sizing: border-box;
   transition: border-color 0.2s;
 }
 
@@ -114,26 +115,53 @@
   border-color: var(--brand-primary);
 }
 
-.password-edit-form {
+/* 비밀번호 섹션 컨테이너 */
+.password-edit-section .input-group {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
+  flex-grow: 1;
   gap: 8px;
 }
 
-.password-edit-form .input-edit {
-  width: calc(100% - 100px);
-  box-sizing: border-box;
+/* 비밀번호 토글 기능 관련 스타일 */
+.password-input-wrapper {
+  position: relative;
+  display: flex; /* 인풋과 버튼을 한 줄에 배치 */
+  margin-bottom: 10px;
 }
 
-.password-buttons {
-  margin-top: 8px;
+.password-input-wrapper .input-edit {
+  flex-grow: 1;
+  padding-right: 70px; /* 버튼 공간 확보 */
+  margin-bottom: 0; /* 개별 margin-bottom 제거 */
+}
+
+.btn-toggle-password {
+  position: absolute;
+  right: 0px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--brand-primary); /* #007bff 대신 변수 사용 권장 */
+  padding: 5px 10px;
+  z-index: 10;
+  line-height: 1;
+}
+
+/* 폼 안내 문구 */
+.notice {
+  font-size: 12px;
+  color: #888;
+  text-align: left; /* 전체 섹션에 맞춰 왼쪽 정렬 */
+  margin-top: 4px;
 }
 
 /* ==========================================================================
-   4. 버튼 스타일 (Buttons)
-   ========================================================================== */
+ * 4. 버튼 및 액션 (Buttons & Actions)
+ * ========================================================================== */
 .btn-change,
 .btn-save,
 .btn-cancel {
@@ -162,8 +190,7 @@
   background-color: var(--brand-primary);
   color: var(--bg-white);
   border-color: var(--brand-primary);
-  margin-left: auto;
-  margin-right: 8px;
+  margin-left: 8px;
 }
 
 .btn-save:hover {
@@ -181,9 +208,27 @@
   opacity: 0.8;
 }
 
+/* 액션 그룹 */
+.edit-actions {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px;
+  margin-bottom: 1rem;
+}
+
+.form-actions {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 8px 0;
+  gap: 10px; /* 버튼 간격 통일 */
+}
+
+
 /* ==========================================================================
-   5. 예약 내역 카드 (Reservation History Card)
-   ========================================================================== */
+ * 5. 예약 내역 카드 (Reservation History Card)
+ * ========================================================================== */
 .loading,
 .no-data {
   text-align: center;
@@ -240,7 +285,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  /* ★★★ 수정: flex-basis와 flex-shrink로 요소 크기를 유연하게 조정 ★★★ */
   flex-basis: 35%; 
   flex-shrink: 0;
   justify-content: flex-end;
@@ -257,7 +301,7 @@
   color: white;
 }
 
-/* ★★★ 수정: PENDING 상태에 color: var(--ink); 추가 (배경색과 대비) ★★★ */
+/* 상태별 색상 */
 .status-badge.CONFIRMED {
   background-color: #1d4ed8;
 }
@@ -276,7 +320,7 @@
 
 .status-badge.PENDING {
   background-color: #ffc107;
-  color: var(--ink);
+  color: var(--ink); /* 배경색 대비를 위해 글자색 변경 */
 }
 
 .arrow-icon {

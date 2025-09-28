@@ -6,9 +6,12 @@ import java.util.List;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.example.backend.authlogin.service.CustomUserDetailsService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,6 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    // ▼▼▼ [추가] CustomUserDetailsService 주입 ▼▼▼
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -51,6 +56,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             if (jwtUtil.validateToken(jwtToken, email)) {
 
+                // ▼▼▼ [추가] 이 줄을 추가해주세요. ▼▼▼
+                UserDetails userDetails = this.customUserDetailsService.loadUserByUsername(email);
+
                 // 2-1) 토큰 roles 클레임을 읽어 권한 복원 (없으면 폴백)
                 List<String> roleStrings;
                 try {
@@ -68,8 +76,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                      .toList();
 
                 // 2-2) 인증 토큰 생성 후 SecurityContext에 설정
+                // UsernamePasswordAuthenticationToken authToken =
+                //         new UsernamePasswordAuthenticationToken(email, null, authorities);
+                // ▼▼▼ [수정 후] 첫 번째 인자를 email에서 userDetails로 변경합니다. ▼▼▼
                 UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(email, null, authorities);
+                        new UsernamePasswordAuthenticationToken(userDetails, null, authorities);    
+
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
 
