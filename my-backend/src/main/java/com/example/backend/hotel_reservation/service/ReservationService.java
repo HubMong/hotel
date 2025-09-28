@@ -8,11 +8,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.data.domain.PageRequest;  
-import org.springframework.data.domain.Pageable;    
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.time.*;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Slf4j
@@ -22,6 +23,9 @@ public class ReservationService {
     private final RoomInventoryRepository invRepo;
     private final ReservationRepository resRepo;
     private final RoomRepository roomRepo;
+
+    // ▼▼▼ [추가] 가격 조회를 위해 새로운 Repository를 주입받습니다. ▼▼▼
+    private final RoomPricePolicyRepository pricePolicyRepo;
 
     private static LocalDate parseYmd(String s) {
         return LocalDate.parse(s); // 'YYYY-MM-DD' 가정
@@ -73,9 +77,21 @@ public class ReservationService {
         // 2) 차감
         locked.forEach(ri -> ri.setAvailableQuantity(ri.getAvailableQuantity() - qty));
         invRepo.saveAllAndFlush(locked);
+        
+        // ▼▼▼ [수정된 부분] 총 결제 금액 계산 로직 ▼▼▼
+        // RoomPricePolicyRepository를 통해 체크인 날짜의 1박 가격을 조회합니다.
+        Integer pricePerNight = pricePolicyRepo.findApplicablePrice(req.getRoomId(), ci)
+                .orElseThrow(() -> new IllegalStateException("객실 ID " + req.getRoomId() + "의 " + ci + " 날짜에 대한 가격 정책이 없습니다."));
+
+        // 숙박일수 계산
+        long nights = ChronoUnit.DAYS.between(ci, co);
+        
+        // 총 결제 금액 계산
+        int totalPrice = pricePerNight * (int)nights * qty;
+        // ▲▲▲ [수정된 부분] 총 결제 금액 계산 로직 ▲▲▲
 
         // 3) PENDING 예약(홀드) 생성 + 만료시간
-        int holdSec = Optional.ofNullable(req.getHoldSeconds()).orElse(30);
+        int holdSec = Optional.ofNullable(req.getHoldSeconds()).orElse(90);
         Instant now = Instant.now();
         Reservation r = Reservation.builder()
                 .userId(req.getUserId())
@@ -87,11 +103,12 @@ public class ReservationService {
                 .endDate(toStartOfDayUtc(co))
                 .status(ReservationStatus.PENDING)
                 .expiresAt(now.plusSeconds(holdSec))
+                .totalPrice(totalPrice)
                 .build();
         resRepo.save(r);
 
-        log.info("[HOLD] reservationId={} room={} dates={}~{} qty={} expiresAt={}",
-                r.getId(), r.getRoomId(), ci, co.minusDays(1), qty, r.getExpiresAt());
+        log.info("[HOLD] reservationId={} room={} dates={}~{} qty={} expiresAt={} totalPrice={}",
+                r.getId(), r.getRoomId(), ci, co.minusDays(1), qty, r.getExpiresAt(), totalPrice);
 
         return HoldResponse.builder()
                 .reservationId(r.getId())
@@ -113,10 +130,10 @@ public class ReservationService {
             cancelInternal(r);
             throw new IllegalStateException("시간초과로 예약이 만료되었습니다.");
         }
-        r.setStatus(ReservationStatus.COMPLETED);
-        resRepo.save(r);
-        log.info("[CONFIRM] reservationId={} COMPLETED", r.getId());
-    }
+        r.setStatus(ReservationStatus.CONFIRMED); 
+    resRepo.save(r);
+    log.info("[CONFIRM] reservationId={} CONFIRMED", r.getId()); // 로그 메시지도 함께 수정
+}
 
     @Transactional
     public void cancel(Long reservationId) {
@@ -151,7 +168,9 @@ public class ReservationService {
     public ReservationDtos.ReservationDetail get(Long id) {
         Reservation r = resRepo.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("예약 없음"));
-                Long hotelId = roomRepo.findHotelIdByRoomId(r.getRoomId());
+                
+        Long hotelId = roomRepo.findHotelIdByRoomId(r.getRoomId());
+                
         return ReservationDtos.ReservationDetail.builder()
                 .id(r.getId())
                 .status(r.getStatus().name())
@@ -164,33 +183,34 @@ public class ReservationService {
                 .children(r.getNumKid())
                 .startDate(r.getStartDate())
                 .endDate(r.getEndDate())
-                .createdAt(r.getCreatedAt()) // ★★★ 이 라인을 추가하세요. ★★★
+                .createdAt(r.getCreatedAt()) // 이 라인을 추가하세요.
+                .totalPrice(r.getTotalPrice())
                 .build();
     }
 
-    @org.springframework.transaction.annotation.Transactional(readOnly = true)
-public java.util.List<ReservationDtos.ReservationSummary> getByUserId(Long userId, int page, int size) {
-    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "startDate"));
-    var pageRes = resRepo.findByUserId(userId, pageable);
+    @Transactional(readOnly = true)
+    public java.util.List<ReservationDtos.ReservationSummary> getByUserId(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "startDate"));
+        var pageRes = resRepo.findByUserId(userId, pageable);
 
-    java.util.List<ReservationDtos.ReservationSummary> list = new java.util.ArrayList<>(pageRes.getNumberOfElements());
-    for (Reservation r : pageRes.getContent()) {
-        Long hotelId = roomRepo.findHotelIdByRoomId(r.getRoomId());  // 이미 쓰던 메서드 재사용
-        list.add(ReservationDtos.ReservationSummary.builder()
-                .id(r.getId())
-                .status(r.getStatus().name())
-                .userId(r.getUserId())
-                .roomId(r.getRoomId())
-                .hotelId(hotelId)
-                .numRooms(r.getNumRooms())
-                .adults(r.getNumAdult())
-                .children(r.getNumKid())
-                .startDate(r.getStartDate())
-                .endDate(r.getEndDate())
-                .createdAt(r.getCreatedAt()) // ★★★ 이 라인을 추가하세요. ★★★
-                .build());
+        java.util.List<ReservationDtos.ReservationSummary> list = new java.util.ArrayList<>(pageRes.getNumberOfElements());
+        for (Reservation r : pageRes.getContent()) {
+            Long hotelId = roomRepo.findHotelIdByRoomId(r.getRoomId());   // 이미 쓰던 메서드 재사용
+            list.add(ReservationDtos.ReservationSummary.builder()
+                    .id(r.getId())
+                    .status(r.getStatus().name())
+                    .userId(r.getUserId())
+                    .roomId(r.getRoomId())
+                    .hotelId(hotelId)
+                    .numRooms(r.getNumRooms())
+                    .adults(r.getNumAdult())
+                    .children(r.getNumKid())
+                    .startDate(r.getStartDate())
+                    .endDate(r.getEndDate())
+                    .createdAt(r.getCreatedAt()) // 이 라인을 추가하세요.
+                    .totalPrice(r.getTotalPrice())
+                    .build());
+        }
+        return list;
     }
-    return list;
-}
-
 }

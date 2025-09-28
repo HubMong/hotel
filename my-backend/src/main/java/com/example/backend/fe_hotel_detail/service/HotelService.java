@@ -11,10 +11,12 @@ import com.example.backend.fe_hotel_detail.repository.RoomImageRepository;
 // ✅ 여기서부터 핵심: reservation 쪽 Room/Repository 사용
 import com.example.backend.hotel_reservation.domain.Room;
 import com.example.backend.hotel_reservation.repository.RoomRepository;
+import com.example.backend.hotel_reservation.repository.RoomPricePolicyRepository; // ▼▼▼ [추가] 가격 정책 Repository 임포트 ▼▼▼
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate; // ▼▼▼ [추가] 날짜 사용을 위해 임포트 ▼▼▼
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,6 +30,9 @@ public class HotelService {
 
     // ✅ reservation 쪽 RoomRepository 주입 (패키지 다름!)
     private final RoomRepository roomRepository;
+    
+    // ▼▼▼ [추가] 가격 조회를 위해 RoomPricePolicyRepository 주입 ▼▼▼
+    private final RoomPricePolicyRepository pricePolicyRepo;
 
     public HotelDetailDto getHotelDetail(Long id) {
         Hotel h = hotelRepository.findById(id)
@@ -76,6 +81,11 @@ public class HotelService {
         // 객실 DTO
         List<HotelDetailDto.RoomDto> rooms = new ArrayList<>();
         for (Room r : roomEntities) {
+            
+            // ▼▼▼ [수정] 오늘 날짜 기준으로 가격을 조회합니다. ▼▼▼
+            Integer currentPrice = pricePolicyRepo.findApplicablePrice(r.getId(), LocalDate.now())
+                    .orElse(0); // 가격 정보가 없으면 0원으로 표시 (또는 null 처리)
+
             rooms.add(HotelDetailDto.RoomDto.builder()
                     .id(r.getId())
                     .name(r.getName())
@@ -92,8 +102,11 @@ public class HotelService {
                     .wifi(Boolean.TRUE.equals(r.getWifi()))
                     .cancelPolicy(nullToDash(r.getCancelPolicy()))
                     .payment(nullToDash(r.getPayment()))
-                    .originalPrice(r.getOriginalPrice())
-                    .price(r.getPrice())
+                    
+                    // ▼▼▼ [수정] Room에서 가격을 가져오던 부분을 위에서 조회한 currentPrice로 변경합니다. ▼▼▼
+                    .originalPrice(currentPrice) 
+                    .price(currentPrice)
+
                     .lastBookedHours(3) // 데모 값
                     .photos(roomImagesMap.getOrDefault(r.getId(), List.of()))
                     .promos(List.of(

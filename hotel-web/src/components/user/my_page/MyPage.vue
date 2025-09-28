@@ -84,6 +84,15 @@
               
               <div class="summary-right">
                 <button @click.stop="goToReservationDetail(reservation.id)" class="btn-detail">상세보기</button>
+                
+                <button 
+                  v-if="reservation.status === 'CONFIRMED' || reservation.status === 'HOLD'"
+                  @click.stop="cancelReservation(reservation.id)" 
+                  class="btn-cancel"
+                  style="margin-left: 5px;">
+                  예약 취소
+                </button>
+
                 <span :class="['status-badge', reservation.status]" style="font-size: 0.8rem;">
                   {{ reservation.statusText }}
                 </span>
@@ -196,9 +205,34 @@ const goToReservationDetail = (reservationId) => {
   router.push(`/reservations/${reservationId}`);
 };
 
+/*
+- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+[ ✨ 새롭게 추가된 함수 ]
+
+[ 변경 이유 ]
+템플릿에 추가된 '예약 취소' 버튼을 눌렀을 때 실제로 서버에 취소 요청을 보내고,
+결과에 따라 화면을 갱신하는 로직이 필요하여 cancelReservation 함수를 새로 작성했습니다.
+(이전 코드에는 이 함수가 존재하지 않았으므로 '수정 전 코드'는 없습니다.)
+- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+*/
+const cancelReservation = async (reservationId) => {
+  if (!confirm("정말로 이 예약을 취소하시겠습니까?")) {
+    return;
+  }
+
+  try {
+    await http.delete(`/reservations/${reservationId}`);
+    alert("예약이 성공적으로 취소되었습니다.");
+    await fetchReservations();
+  } catch (error) {
+    console.error("예약 취소 실패:", error);
+    alert("예약 취소에 실패했습니다. 다시 시도해 주세요.");
+  }
+};
+
 const checkAuthStatus = () => {
   const token = localStorage.getItem('token') || localStorage.getItem('access_token')
-               || sessionStorage.getItem('token') || sessionStorage.getItem('access_token');
+                || sessionStorage.getItem('token') || sessionStorage.getItem('access_token');
   const userInfo = localStorage.getItem('user');
   if (token && userInfo) {
     isLoggedIn.value = true;
@@ -270,7 +304,9 @@ const cancelEdit = (field) => {
 const saveChanges = async (field) => {
   const updatedData = { [field]: editableUser[field] };
   try {
-    const res = await http.patch('/users/me', updatedData);
+    // ▼▼▼ [수정] '/users/me' 대신 동적으로 URL 생성 ▼▼▼
+    const res = await http.patch(`/users/${user.id}`, updatedData);
+
     Object.assign(user, res.data);
     alert(`${field} 정보가 수정되었습니다.`);
     cancelEdit(field);
@@ -284,8 +320,10 @@ const savePasswordChanges = async () => {
   if (!currentPassword || !newPassword || !confirmPassword) { alert("모든 필드를 입력해주세요."); return; }
   if (newPassword !== confirmPassword) { alert("비밀번호 확인이 일치하지 않습니다."); return; }
   try {
-    await http.patch('/users/me/password', { currentPassword, newPassword });
-    alert("비밀번호가 변경되었습니다.");
+     // ▼▼▼ [수정] '/users/me/password' 대신 동적으로 URL 생성 ▼▼▼
+    await http.patch(`/users/${user.id}/password`, { currentPassword, newPassword });
+
+    alert("비밀번호가 변경되었습니다.");  
     cancelEdit('password');
   } catch {
     alert("비밀번호 변경에 실패했습니다.");

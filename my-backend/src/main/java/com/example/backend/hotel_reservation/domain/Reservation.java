@@ -42,6 +42,11 @@ public class Reservation {
     @Column(name="transaction_id")
     private String transactionId;
 
+    // ▼▼▼ [수정] 이 부분을 추가해주세요. ▼▼▼
+    @Column(name = "total_price")
+    private Integer totalPrice;
+    // ▲▲▲ [수정] 여기까지 ▲▲▲
+
     // ▼ 추가: 스키마에 created_at이 있다면 매핑 (없으면 이 필드/매핑 둘 다 삭제)
     @Column(name="created_at", updatable = false, insertable = false)
     private Instant createdAt;

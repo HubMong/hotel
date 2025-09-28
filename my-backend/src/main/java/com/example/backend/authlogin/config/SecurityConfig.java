@@ -5,6 +5,7 @@ import com.example.backend.authlogin.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -66,9 +67,10 @@ public class SecurityConfig {
     .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/reservations/hold")
         .hasAnyRole("USER","ADMIN") // ← 단순 authenticated()도 가능, 역할 요구시 이렇게
 
+                        // ▼▼▼ [추가] 마이페이지 수정 API는 인증된 사용자만 접근 가능하도록 명시 ▼▼▼
+                        .requestMatchers(HttpMethod.PATCH, "/api/users/**").authenticated()
+
     .anyRequest().authenticated())
-
-
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
                         .successHandler(oAuth2AuthenticationSuccessHandler))

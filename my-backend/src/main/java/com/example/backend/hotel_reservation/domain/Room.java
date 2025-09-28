@@ -65,11 +65,11 @@ public class Room {
     @Column(length = 50)
     private String payment;
 
-    @Column(name = "original_price")
-    private Integer originalPrice;
+    // @Column(name = "original_price")
+    // private Integer originalPrice;
 
-    @Column
-    private Integer price;
+    // @Column
+    // private Integer price;
 
     // 스키마에는 있지만 화면에서 안 쓰는 시간 필드(있으면 매핑/없으면 주석)
     @Column(name = "check_in_time")

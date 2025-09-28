@@ -38,6 +38,7 @@ public class ReservationDtos {
         private Instant startDate;
         private Instant endDate;
         private Instant createdAt; // ★★★ 예약한 시간 추가 ★★★
+        private Integer totalPrice; // 금액 추가
         
     }
 
@@ -54,5 +55,6 @@ public class ReservationDtos {
         private Instant startDate; // ISO
         private Instant endDate;
         private Instant createdAt; // ★★★ 예약한 시간 추가 ★★★
+        private Integer totalPrice; // 금액 추가
     }
 }
