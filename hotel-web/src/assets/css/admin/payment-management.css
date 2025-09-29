@@ -1,0 +1,66 @@
+.payment-management { 
+  padding: 24px;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+.page-toolbar { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-bottom: 12px; }
+.actions { display: flex; gap: 8px; align-items: center; }
+
+.btn { padding: 8px 12px; border: 1px solid #ddd; background: #fff; border-radius: 6px; cursor: pointer; }
+.btn-sm { padding: 4px 8px; font-size: 12px; }
+.btn-primary { background: #2c7be5; color: #fff; border-color: #2c7be5; }
+.btn-danger { background: #e55353; color: #fff; border-color: #e55353; }
+.text-right { text-align: right; }
+
+.table-section { background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.06); overflow: hidden; }
+.payments-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.payments-table th, .payments-table td { padding: 12px 10px; border-bottom: 1px solid #f1f3f5; }
+.payments-table th { background: #f8f9fa; color: #333; text-align: left; white-space: nowrap; user-select: none; }
+.payments-table th .sort { cursor: pointer; }
+.payments-table tr:hover { background: #fafafa; }
+.sort.asc::after { content: '\25b2'; font-size: 10px; margin-left: 4px; }
+.sort.desc::after { content: '\25bc'; font-size: 10px; margin-left: 4px; }
+
+.amount { text-align: right; font-variant-numeric: tabular-nums; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+.pagination { display: flex; justify-content: space-between; align-items: center; padding: 12px; gap: 8px; }
+.pagination .right { display: flex; align-items: center; gap: 8px; }
+.pagination .left select { margin-left: 6px; }
+.column-selector { display: grid; grid-template-columns: 1fr; gap: 6px; }
+
+.empty { text-align: center; padding: 40px 0; color: #666; }
+.empty .empty-icon { font-size: 36px; margin-bottom: 8px; }
+
+/* 드롭다운 */
+.dropdown { position: relative; }
+.dropdown-menu { position: absolute; right: 0; top: calc(100% + 6px); background: #fff; border: 1px solid #e9ecef; border-radius: 8px; padding: 10px; min-width: 200px; box-shadow: 0 10px 20px rgba(0,0,0,0.08); z-index: 10; }
+.dropdown-item { padding: 4px 2px; }
+
+/* 사이드 패널 */
+.side-panel { position: fixed; right: 0; top: 0; bottom: 0; width: 320px; background: #fff; box-shadow: -4px 0 20px rgba(0,0,0,0.1); z-index: 1000; display: flex; flex-direction: column; }
+.side-panel-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #eee; }
+.side-panel-body { padding: 12px 16px; display: grid; gap: 12px; }
+.side-panel-body .field label { font-size: 12px; color: #555; margin-bottom: 4px; }
+.side-panel-body .field input, .side-panel-body .field select { padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; }
+.side-panel-footer { padding: 12px 16px; border-top: 1px solid #eee; display: flex; gap: 8px; justify-content: flex-end; }
+
+/* 상태 배지 */
+.badge { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 12px; }
+.badge-success { background: #d4edda; color: #155724; }
+.badge-warning { background: #fff3cd; color: #856404; }
+.badge-danger { background: #f8d7da; color: #721c24; }
+.badge-info { background: #d1ecf1; color: #0c5460; }
+.badge-default { background: #e2e3e5; color: #383d41; }
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .payment-management {
+    padding: 16px;
+  }
+  .payments-table {
+    font-size: 12px;
+  }
+  .payments-table th, .payments-table td {
+    padding: 8px 6px;
+  }
+}

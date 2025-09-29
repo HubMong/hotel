@@ -1,0 +1,72 @@
+.user-management { 
+  padding: 24px; 
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.page-header { margin-bottom: 30px; }
+.page-header h1 { margin: 0 0 10px 0; font-size: 28px; font-weight: 700; color: #2c3e50; }
+.page-description { margin: 0; color: #7f8c8d; font-size: 16px; }
+
+/* 검색 섹션 */
+.search-section { background: white; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+.search-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; align-items: end; }
+.search-group { display: flex; flex-direction: column; gap: 8px; }
+.search-group label { font-weight: 500; color: #2c3e50; font-size: 14px; }
+.search-input, .search-select { padding: 10px 12px; border: 2px solid #e9ecef; border-radius: 6px; font-size: 14px; transition: border-color 0.3s ease; }
+.search-input:focus, .search-select:focus { outline: none; border-color: #3498db; }
+.search-buttons { display: flex; gap: 10px; }
+
+.btn { padding: 10px 20px; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease; }
+.btn-primary { background-color: #3498db; color: white; }
+.btn-primary:hover { background-color: #2980b9; }
+.btn-secondary { background-color: #95a5a6; color: white; }
+.btn-secondary:hover { background-color: #7f8c8d; }
+
+/* 테이블 섹션 */
+.table-section { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin-bottom: 24px; }
+.table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.table-header h2 { margin: 0; font-size: 20px; font-weight: 600; color: #2c3e50; }
+.total-count { font-size: 14px; color: #7f8c8d; font-weight: 500; }
+.loading, .no-data { text-align: center; padding: 40px; color: #7f8c8d; }
+
+.user-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+.user-table th, .user-table td { padding: 12px; text-align: left; border-bottom: 1px solid #e9ecef; }
+/* 줄바꿈 방지: 역할/상태/가입방식/역할변경 열 */
+.user-table td:nth-child(4), .user-table td:nth-child(5), .user-table td:nth-child(6), .user-table td:nth-child(8) { white-space: nowrap; }
+.user-table th { background-color: #f8f9fa; font-weight: 600; color: #2c3e50; font-size: 14px; }
+.user-table td { font-size: 14px; color: #2c3e50; }
+.user-row:hover { background-color: #f8f9fa; }
+
+/* 배지 스타일 */
+.role-badge, .status-badge, .provider-badge { padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 500; white-space: nowrap; display: inline-flex; align-items: center; }
+.role-user { background-color: #e3f2fd; color: #1976d2; }
+.role-business { background-color: #f3e5f5; color: #7b1fa2; }
+.role-admin { background-color: #ffebee; color: #d32f2f; }
+.status-active { background-color: #e8f5e8; color: #2e7d32; }
+.status-inactive { background-color: #fff3e0; color: #f57c00; }
+.status-suspended { background-color: #ffebee; color: #d32f2f; }
+.provider-badge { background-color: #f5f5f5; color: #616161; }
+
+.role-select { padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px; min-width: 100px; white-space: nowrap; }
+.role-select:disabled { background-color: #f5f5f5; color: #999; cursor: not-allowed; }
+
+/* 페이지네이션 */
+.pagination-section { display: flex; justify-content: center; margin-top: 30px; }
+.pagination { display: flex; align-items: center; gap: 10px; }
+.page-btn { padding: 8px 12px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; }
+.page-btn:hover:not(:disabled) { background-color: #3498db; color: white; border-color: #3498db; }
+.page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.page-info { padding: 0 15px; font-weight: 500; color: #2c3e50; }
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .user-management {
+    padding: 16px;
+  }
+  .search-form { grid-template-columns: 1fr; }
+  .search-buttons { justify-content: center; }
+  .table-header { flex-direction: column; gap: 10px; text-align: center; }
+  .user-table { font-size: 12px; }
+  .user-table th, .user-table td { padding: 8px 4px; }
+}

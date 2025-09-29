@@ -1,7 +1,7 @@
 /* ==========================================================================
    1. 기본 변수 및 전체 레이아웃 (Variables & Global Layout)
    ========================================================================== */
-:root {
+:root { 
   --line: #e5e7eb;
   --ink: #111827;
   --ink-light: #6b7280;
@@ -16,7 +16,6 @@
   padding-bottom: 60px;
   min-height: 100vh;
 }
-
 .reservation-page {
   max-width: 800px;
   margin: 40px auto;
@@ -28,7 +27,7 @@
   padding: 40px 32px;
   border: 1px solid var(--line);
   border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
 }
 
 .page-title {
@@ -48,7 +47,6 @@
   align-items: center;
   margin-bottom: 40px;
 }
-
 .hotel-image {
   width: 220px;
   height: 180px;
@@ -56,35 +54,29 @@
   border-radius: 12px;
   flex-shrink: 0;
 }
-
 .hotel-details h3 {
   font-size: 24px;
   font-weight: 700;
   margin: 0 0 12px;
 }
-
 .hotel-description {
   color: var(--ink-light);
   font-size: 15px;
   line-height: 1.6;
 }
-
 .hotel-meta {
   margin-top: 16px;
 }
-
 .hotel-rating {
   display: flex;
   align-items: baseline;
   gap: 8px;
 }
-
 .rating-score {
   font-size: 18px;
   font-weight: 700;
   color: var(--ink);
 }
-
 .rating-subs {
   font-size: 13px;
   color: var(--ink-light);
@@ -98,13 +90,10 @@
   padding-bottom: 8px;
   margin-bottom: 20px;
 }
-
 .detail-group {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0 40px;
+  display: flex;
+  flex-direction: column;
 }
-
 .detail-item {
   display: flex;
   justify-content: space-between;
@@ -112,25 +101,9 @@
   padding: 16px 8px;
   border-bottom: 1px solid var(--line);
 }
-
-.detail-item:last-child {
-  border-bottom: none;
-}
-
-.detail-label {
-  font-weight: 600;
-  color: #374151;
-}
-
-.detail-value {
-  font-weight: 500;
-  color: var(--ink);
-}
-
-.total-price {
-  grid-column: 1 / span 2;
-}
-
+.detail-item:last-child { border-bottom: none; }
+.detail-label { font-weight: 600; color: #374151; }
+.detail-value { font-weight: 500; color: var(--ink); }
 .total-price .detail-label,
 .total-price .detail-value {
   font-size: 18px;
@@ -149,7 +122,6 @@
   padding-top: 24px;
   border-top: 1px solid var(--line);
 }
-
 .status-message {
   text-align: center;
   padding: 60px 20px;
@@ -158,11 +130,7 @@
   background-color: var(--bg-white);
   border-radius: 12px;
 }
-
-.status-message.error {
-  color: var(--danger);
-}
-
+.status-message.error { color: var(--danger); }
 .status-info {
   font-size: 14px;
   color: var(--ink-light);
@@ -182,30 +150,25 @@
   transition: .2s ease;
   cursor: pointer;
 }
-
 .btn--small {
   height: 32px;
   padding: 0 16px;
   font-size: 13px;
 }
-
 .btn--ghost {
   background-color: var(--bg-white);
   color: var(--ink-light);
   border-color: var(--line);
 }
-
 .btn--ghost:hover {
   background-color: var(--bg-secondary);
   border-color: var(--ink-light);
   color: var(--ink);
 }
-
-.btn--danger {
+.btn--danger { /* btn--ghost와 함께 사용 */
   color: var(--danger);
   border-color: var(--danger);
 }
-
 .btn--danger:hover {
   background-color: var(--danger);
   color: var(--bg-white);
@@ -214,17 +177,14 @@
 
 .popup-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
 }
-
 .popup-content {
   background-color: #fff;
   border-radius: 12px;
@@ -233,7 +193,6 @@
   padding: 24px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
-
 .popup-header {
   display: flex;
   justify-content: space-between;
@@ -242,29 +201,18 @@
   padding-bottom: 12px;
   margin-bottom: 16px;
 }
-
-.popup-header h4 {
-  font-size: 18px;
-  margin: 0;
-}
-
-.popup-body {
-  font-size: 14px;
-  line-height: 1.6;
-}
-
+.popup-header h4 { font-size: 18px; margin: 0; }
+.popup-body { font-size: 14px; line-height: 1.6; }
 .popup-body h5 {
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
   font-size: 16px;
   font-weight: 600;
 }
-
 .popup-body ul {
   padding-left: 20px;
   margin: 0.5rem 0 1rem;
 }
-
 .close-btn {
   background: none;
   border: none;
@@ -277,9 +225,7 @@
    4. 반응형 (Responsive)
    ========================================================================== */
 @media (max-width: 768px) {
-  .reservation-container {
-    padding: 24px;
-  }
+  .reservation-container { padding: 24px; }
   .hotel-info-section {
     flex-direction: column;
     gap: 16px;

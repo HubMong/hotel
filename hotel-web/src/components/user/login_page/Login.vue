@@ -109,10 +109,13 @@ const response = await http.post("/users/login", {
 });
         console.log("로그인 성공:", response.data);
         
-        // JWT 토큰을 로컬 스토리지에 저장
+        // JWT 토큰과 사용자 정보를 저장
         if (response.data.token) {
-          localStorage.setItem('token', response.data.token);
-          localStorage.setItem('user', JSON.stringify(response.data.user));
+          localStorage.setItem('token', response.data.token)
+          localStorage.setItem('user', JSON.stringify(response.data.user))
+          if (response.data.user?.role) {
+            localStorage.setItem('userRole', response.data.user.role)
+          }
         }
         // 비밀번호 저장(remember) 처리
         if (this.remember) {
@@ -123,8 +126,13 @@ const response = await http.post("/users/login", {
           localStorage.removeItem('savedPassword');
         }
 
-        // 로그인 후 메인 페이지 이동
-        this.$router.push('/');
+        // 로그인 후 역할별 리다이렉트
+        const role = response.data.user?.role
+        if (role === 'ADMIN') {
+          this.$router.push('/admin')
+        } else {
+          this.$router.push('/')
+        }
       } catch (error) {
         console.error("로그인 실패:", error.response?.data || error.message);
         alert(error.response?.data || '로그인에 실패했습니다.');

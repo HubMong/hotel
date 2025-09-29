@@ -1,5 +1,6 @@
 package com.example.backend.authlogin.domain;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
@@ -8,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "users")
+@Table(name = "app_user")
 @Getter
 @NoArgsConstructor
 public class User {
@@ -27,6 +28,8 @@ public class User {
     private String password;
     private String address;
     private String profileImageUrl;
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
     
     private String providerId;
     
@@ -37,15 +40,18 @@ public class User {
     @Column(columnDefinition = "TEXT")
     private String socialProviders;
     
-    @Column(nullable = false)
+    @Column(name = "created_on", nullable = false)
     private LocalDateTime createdOn;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
 
+    @Column(name = "is_active", nullable = false)
+    private Boolean active = Boolean.TRUE;
+
     public enum Role {
-        USER, ADMIN
+        USER, ADMIN, BUSINESS
     }
 
     public enum Provider {
@@ -71,6 +77,7 @@ public class User {
         if (role == null) role = Role.USER;
         if (provider == null) provider = Provider.LOCAL;
         if (socialProviders == null) socialProviders = "{}";
+        if (active == null) active = Boolean.TRUE;
     }
     
     public User update(String name, String profileImageUrl) {
@@ -102,4 +109,6 @@ public class User {
     public void setAddress(String address) { this.address = address; }
     public void setProvider(Provider provider) { this.provider = provider; }
     public void setRole(Role role) { this.role = role; }
+    public void setActive(Boolean active) { this.active = active; }
+    public void setDateOfBirth(LocalDate dateOfBirth) { this.dateOfBirth = dateOfBirth; }
 }

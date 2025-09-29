@@ -22,8 +22,11 @@
 
             <li @click="$router.push('/search')">호텔 검색</li>
             <li @click="$router.push('/wishlist')">찜 목록</li>
-            <li @click="$router.push('/allreservation')">내 예약</li>
+            <li @click="$router.push('/myreservation')">내 예약</li>
             <li @click="$router.push('/mypage')">마이페이지</li>
+            <template v-if="isLoggedIn && user?.role === 'USER'">
+              <li @click="$router.push('/business/apply')">사업자 등록 신청</li>
+            </template>
             <li @click="$router.push('/support')">고객센터</li>
 
             <template v-if="isLoggedIn">

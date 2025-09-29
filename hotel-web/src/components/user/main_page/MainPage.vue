@@ -9,7 +9,6 @@
       <div class="hero-text-container">
         <div class="hero-text">
           <p class="hero-subtitle">
-            검색을 통해 요금을 비교하고 무료 취소 포함한 특가도 확인하세요!
           </p>
         </div>
       </div>
@@ -25,7 +24,8 @@
         :modules="modules"
         :slides-per-view="4"
         :space-between="20"
-        :loop="true"
+        :breakpoints="swiperBreakpoints"
+        :loop="false"
         :navigation="true"
         :pagination="{ clickable: true }"
         class="destination-swiper"
@@ -103,32 +103,31 @@
 </template>
 
 <style scoped src="@/assets/css/homepage/mainpage.css"></style> 
-<script>
 
+<script>
 import Header from "@/components/user/main_page/Header.vue";
 import Footer from "@/components/user/main_page/Footer.vue";
 import SearchForm from "@/components/user/main_page/SearchForm.vue";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import { Navigation, Pagination } from "swiper/modules";
-
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 export default {
   name: "MainPage",
-  components: {
-    Header,
-    SearchForm,
-    Swiper,
-    SwiperSlide,
-    Footer
-  },
+  components: { Header, SearchForm, Swiper, SwiperSlide, Footer },
   data() {
     return {
       isLoggedIn: false,
       user: { name: "홍길동" },
-      // 국내 여행지
+      swiperBreakpoints: {
+        0:    { slidesPerView: 1.1, spaceBetween: 12 },
+        480:  { slidesPerView: 1.4, spaceBetween: 12 },
+        640:  { slidesPerView: 2,   spaceBetween: 14 },
+        840:  { slidesPerView: 3,   spaceBetween: 18 },
+        1200: { slidesPerView: 4,   spaceBetween: 20 }
+      },
       destinationsDomestic: [
         { name: "서울", description: "한국의 수도, 쇼핑과 문화의 중심지", image: "src/images/gangreung.jpg" },
         { name: "부산", description: "바다와 해운대, 맛있는 해산물", image: "src/images/gangreung.jpg" },
@@ -139,7 +138,6 @@ export default {
         { name: "경주", description: "천년 고도의 역사 여행", image: "src/images/gangreung.jpg" },
         { name: "인천", description: "국제공항과 차이나타운", image: "src/images/gangreung.jpg" }
       ],
-      // 해외 여행지
       destinationsOverseas: [
         { name: "도쿄", description: "일본의 수도, 전통과 현대의 조화", image: "/src/images/gangreung.jpg" },
         { name: "파리", description: "낭만의 도시, 에펠탑과 루브르", image: "src/images/gangreung.jpg" },
@@ -150,15 +148,12 @@ export default {
         { name: "시드니", description: "오페라하우스와 아름다운 항구", image: "https://source.unsplash.com/400x250/?sydney" },
         { name: "하와이", description: "천국 같은 휴양지", image: "https://source.unsplash.com/400x250/?hawaii" }
       ],
-      // 인기 호텔
       popularHotels: [
         { name: "롯데호텔 서울", city: "서울", price: "₩250,000 / 1박", rating: 4.7, image: "src/images/paradiseHotel.jpg" },
         { name: "파라다이스 호텔", city: "부산", price: "₩200,000 / 1박", rating: 4.5, image: "src/images/paradiseHotel.jpg" },
         { name: "신라호텔", city: "제주", price: "₩300,000 / 1박", rating: 4.9, image: "src/images/paradiseHotel.jpg" },
         { name: "라마다 프라자", city: "인천", price: "₩180,000 / 1박", rating: 4.4, image: "src/images/paradiseHotel.jpg" }
       ],
-
-      // 여행 팁
       travelTips: [
         { title: "제주도 여행 전 필수 체크리스트", description: "렌트카 예약, 숙소, 맛집 예약까지! 미리 준비하면 편리해요." },
         { title: "유럽 여행 시 꿀팁", description: "유레일 패스로 교통비 절약하고 인기 명소는 사전 예약 필수!" },
@@ -166,31 +161,21 @@ export default {
       ]
     };
   },
-  mounted() {
-    // 로그인 상태 확인 (로컬스토리지나 쿠키에서 토큰/사용자 정보 확인)
-    this.checkAuthStatus();
-  },
+  mounted() { this.checkAuthStatus(); },
   methods: {
     checkAuthStatus() {
-      // JWT 토큰이나 사용자 정보를 확인하여 로그인 상태 설정
       const token = localStorage.getItem('token');
       const userInfo = localStorage.getItem('user');
-      
       if (token && userInfo) {
         this.isLoggedIn = true;
         this.user = JSON.parse(userInfo);
       }
     },
     handleLogout() {
-      // 로그아웃 시 상태 초기화
       this.isLoggedIn = false;
       this.user = { name: "홍길동" };
     }
   },
-  setup() {
-    return {
-      modules: [Navigation, Pagination], 
-    };
-  }
+  setup() { return { modules: [Navigation, Pagination] }; }
 };
 </script>

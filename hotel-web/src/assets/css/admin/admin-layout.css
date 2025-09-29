@@ -1,0 +1,156 @@
+.admin-layout { min-height: 100vh; display: block; --sidebar-width: 280px; }
+.sidebar { position: fixed; top: 0; left: 0; bottom: 0; background: #2c3e50; color: #fff; width: var(--sidebar-width); overflow-y: auto; transition: transform 0.25s ease; }
+.sidebar-header { padding: 24px; border-bottom: 1px solid #34495e; }
+.sidebar-header h2 { margin: 0; font-size: 18px; font-weight: 600; }
+.menu { display: flex; flex-direction: column; padding: 8px 0 16px; }
+.menu-item { padding: 12px 20px; color: #bdc3c7; text-decoration: none; transition: background 0.2s ease, color 0.2s ease, border-left-color 0.2s ease; border-left: 3px solid transparent; outline: none; }
+.menu-item:hover { background: #34495e; color: #fff; }
+.menu-item.active { background: #2f4153; color: #fff; border-left-color: #3498db; }
+.menu-item:focus-visible { box-shadow: 0 0 0 2px rgba(52,152,219,0.4) inset; }
+
+.main-content { margin-left: var(--sidebar-width); min-height: 100vh; background: #fff; }
+.top-nav { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; background: #fff; padding: 0 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.06); height: 64px; }
+.nav-left h1 { margin: 0; font-size: 20px; font-weight: 600; color: #2c3e50; }
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.btn-logout { background: #fff; color: #e74c3c; border: 1px solid #e74c3c; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+.btn-logout:hover { background: #e74c3c; color: #fff; }
+
+.content { padding: 0; min-height: calc(100vh - 64px); overflow: auto; }
+
+/* 공통 페이지 래퍼: 모든 관리자 화면 통일된 캔버스 제공 */
+.admin-page {
+  min-height: calc(100vh - 64px - 48px);
+  /* 64: top-nav 높이, 48: 여백 보정 */
+  background: #fff;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-x: hidden;
+}
+
+/* 비어있는 상태에서도 화면이 허전해 보이지 않도록 중앙 정렬 유틸 */
+/* 자식 컴포넌트까지 적용 */
+.admin-page :deep(.no-data),
+.admin-page :deep(.loading) {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 통일된 헤더/설명 간격 */
+.admin-page :deep(.page-header) { margin-bottom: 24px; }
+.admin-page :deep(.page-header h1) { margin: 0 0 8px 0; font-size: 24px; font-weight: 700; color: #2c3e50; }
+.admin-page :deep(.page-description) { margin: 0; color: #7f8c8d; }
+
+/* 공통 섹션 박스 여백/반경 기본값 보정 (있는 경우) */
+.admin-page :deep(.table-section),
+.admin-page :deep(.search-section),
+.admin-page :deep(.filter-section) {
+  border-radius: 12px;
+}
+
+/* Note: following margins revert to component defaults */
+
+/* 각 화면의 루트 컨테이너를 세로 플렉스 레이아웃으로 변경하여 공간 채움 */
+.admin-page > :deep(div) {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+/* 주요 데이터 섹션이 남는 공간을 채우도록 */
+.admin-page :deep(.table-section) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 햄버거 버튼 */
+.burger { display: none; width: 40px; height: 40px; margin-right: 8px; background: transparent; border: none; padding: 0; cursor: pointer; align-items: center; justify-content: center; }
+.burger span { display: block; width: 20px; height: 2px; background: #2c3e50; margin: 3px 0; transition: background 0.2s; }
+.burger:focus-visible { outline: 2px solid #3498db; border-radius: 4px; }
+
+/* 모바일 사이드바 & 오버레이 */
+.sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 9; }
+
+@media (max-width: 1024px) {
+  .admin-layout { --sidebar-width: 240px; }
+  .main-content { margin-left: 0; }
+  .sidebar { transform: translateX(-100%); z-index: 10; }
+  .sidebar.open { transform: translateX(0); }
+  .burger { display: inline-flex; }
+  .admin-page { border-radius: 0; padding: 16px 0; }
+}
+
+/* Admin 화면에서는 전역 #app, body의 중앙 정렬을 비활성화 */
+:global(#app) { max-width: none; margin: 0; padding: 0; }
+:global(body) { display: block; place-items: initial; }
+.admin-page, .admin-page * { box-sizing: border-box; }
+
+/* 모든 관리자 화면 루트 컨테이너를 가로 100%로 강제, 가운데 정렬 제거 */
+.admin-page :deep(.admin-dashboard),
+.admin-page :deep(.user-management),
+.admin-page :deep(.coupon-management),
+.admin-page :deep(.hotel-management),
+.admin-page :deep(.business-management),
+.admin-page :deep(.reservation-monitoring),
+.admin-page :deep(.payment-management),
+.admin-page :deep(.review-management),
+.admin-page :deep(.sales-management) {
+  max-width: none !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* --------- Subtle, consistent polish across admin pages --------- */
+/* Cards/sections: consistent radius and soft shadow */
+.admin-page :deep(.card),
+.admin-page :deep(.stat-card),
+.admin-page :deep(.table-section),
+.admin-page :deep(.search-section),
+.admin-page :deep(.filter-section),
+.admin-page :deep(.chart-container),
+.admin-page :deep(.top-hotels-section),
+.admin-page :deep(.table-container) {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  background: #fff;
+}
+
+/* Section spacing standardization */
+.admin-page :deep(.table-section),
+.admin-page :deep(.search-section),
+.admin-page :deep(.filter-section),
+.admin-page :deep(.charts-section),
+.admin-page :deep(.top-hotels-section),
+.admin-page :deep(.pagination-container) {
+  margin-bottom: 20px;
+}
+
+/* Headings and descriptions */
+.admin-page :deep(.page-header h1),
+.admin-page :deep(.management-header h2) {
+  letter-spacing: -0.2px;
+}
+.admin-page :deep(.page-description) {
+  line-height: 1.6;
+}
+
+/* Buttons */
+.admin-page :deep(.btn) {
+  border-radius: 8px;
+  padding: 8px 14px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.admin-page :deep(.btn:hover) {
+  transform: translateY(-1px);
+}
+.admin-page :deep(.btn:focus-visible) {
+  outline: 2px solid rgba(52,152,219,0.35);
+  outline-offset: 2px;
+}

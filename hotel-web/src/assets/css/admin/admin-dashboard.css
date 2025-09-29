@@ -1,0 +1,569 @@
+/* 대시보드 전체 컨테이너 */
+.admin-dashboard {
+  padding: 24px;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.page-header {
+  margin-bottom: 32px;
+  padding: 0;
+}
+
+.page-header h1 {
+  margin: 0 0 8px 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.page-description {
+  margin: 0 0 16px 0;
+  color: #6c757d;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.page-toolbar { 
+  display: flex; 
+  align-items: center; 
+  justify-content: flex-end; 
+  gap: 10px; 
+  margin-top: 16px; 
+  margin-bottom: 0; 
+}
+
+.last-updated {
+  color: #6c757d;
+  font-size: 14px;
+}
+
+/* 요약 카드 스타일 개선 */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin: 0 0 28px 0;
+  padding: 0;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.2s ease;
+  border: 1px solid #e9ecef;
+  position: relative;
+  overflow: hidden;
+  min-height: 100px;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--card-accent);
+  transition: none;
+}
+
+.card:hover { 
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.card:hover::before {
+  width: 4px;
+}
+
+.card.users { --card-accent: #f39c12; }
+.card.businesses { --card-accent: #27ae60; }
+.card.reservations { --card-accent: #3498db; }
+.card.revenue { --card-accent: #e74c3c; }
+.card.reviews { --card-accent: #9b59b6; }
+.card.coupons { --card-accent: #1abc9c; }
+
+.card-icon {
+  font-size: 24px;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: none;
+  color: #6c757d;
+  flex-shrink: 0;
+}
+
+.card-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-content h3 {
+  margin: 8px 0 0 0;
+  font-size: 14px;
+  color: #6c757d;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.card-number {
+  margin: 0 0 8px 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: #343a40;
+  line-height: 1.2;
+}
+
+/* 차트 섹션 개선 */
+.charts-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin: 0 0 28px 0;
+  padding: 0;
+}
+
+.chart-container {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.chart-container:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+}
+
+.chart-header {
+  margin-bottom: 24px;
+  border-bottom: 2px solid #f1f3f4;
+  padding-bottom: 16px;
+  position: relative;
+}
+
+.chart-header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border-radius: 1px;
+}
+
+.chart-header h3 {
+  color: #2c3e50;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: -0.3px;
+}
+
+.chart-content {
+  height: 300px;
+  position: relative;
+}
+
+.chart-loading {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  font-size: 16px;
+}
+
+.chart-loading i {
+  margin-right: 10px;
+}
+
+.mb-16 { margin-bottom: 16px; }
+.kpi { font-size: 22px; font-weight: 700; margin-top: 6px; }
+
+/* 인기 호텔 섹션 개선 */
+.top-hotels-section {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin: 0;
+  transition: all 0.3s ease;
+}
+
+.top-hotels-section:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+}
+
+.section-header {
+  margin-bottom: 20px;
+  border-bottom: 2px solid #f1f3f4;
+  padding-bottom: 16px;
+  position: relative;
+}
+
+.section-header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, #43e97b 0%, #52d788 100%);
+  border-radius: 1px;
+}
+
+.section-header h3 {
+  color: #2c3e50;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: -0.3px;
+}
+
+.top-hotels-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.hotel-item {
+  display: flex;
+  align-items: center;
+  padding: 18px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: 8px;
+}
+
+.hotel-item:last-child {
+  margin-bottom: 0;
+}
+
+.hotel-item:hover {
+  background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+  transform: translateX(6px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.hotel-item.rank-1 {
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4a 100%);
+  color: #2c3e50;
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
+}
+
+.hotel-item.rank-2 {
+  background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
+  color: #2c3e50;
+  box-shadow: 0 6px 20px rgba(192, 192, 192, 0.3);
+}
+
+.hotel-item.rank-3 {
+  background: linear-gradient(135deg, #cd7f32 0%, #daa520 100%);
+  color: white;
+  box-shadow: 0 6px 20px rgba(205, 127, 50, 0.3);
+}
+
+.hotel-rank {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 20px;
+  min-width: 60px;
+}
+
+.rank-number {
+  font-size: 24px;
+  font-weight: 700;
+  width: 30px;
+  text-align: center;
+}
+
+/* icon styles removed */
+
+.hotel-info {
+  flex: 1;
+  margin-right: 20px;
+}
+
+.hotel-info h4 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.hotel-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #6c757d;
+  background: rgba(108, 117, 125, 0.1);
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.detail-item .icon {
+  font-size: 12px;
+}
+
+.business-name {
+  margin: 0;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.hotel-item.rank-1 .business-name,
+.hotel-item.rank-2 .business-name,
+.hotel-item.rank-3 .business-name {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.hotel-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+}
+
+.stat {
+  text-align: center;
+  min-width: 100px;
+}
+
+.stat .label {
+  display: block;
+  font-size: 12px;
+  color: #6c757d;
+  margin-bottom: 2px;
+}
+
+.hotel-item.rank-1 .stat .label,
+.hotel-item.rank-2 .stat .label,
+.hotel-item.rank-3 .stat .label {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.stat .value {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.stat .value i {
+  color: #ffc107;
+  margin-right: 2px;
+}
+
+.no-data {
+  text-align: center;
+  padding: 40px;
+  color: #6c757d;
+  font-size: 16px;
+}
+
+.no-data i {
+  margin-right: 8px;
+}
+
+/* 버튼 스타일 */
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  justify-content: center;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* 설정 드로어 */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 1000;
+}
+
+.drawer {
+  width: min(360px, 90vw);
+  background: #fff;
+  height: 100%;
+  box-shadow: -4px 0 12px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.drawer-body {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.drawer-footer {
+  margin-top: auto;
+  padding: 12px 20px;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  justify-content: flex-end;
+}
+
+
+/* 로딩 오버레이 */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1200px) {
+  .charts-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .summary-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .hotel-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .hotel-rank {
+    margin-right: 0;
+  }
+  
+  .hotel-stats {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .hotel-details {
+    justify-content: center;
+  }
+  
+  .dashboard-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  /* 모바일에서 카드 크기 및 여백 조정 */
+  .admin-dashboard {
+    padding: 16px;
+  }
+
+  .summary-cards {
+    padding: 0;
+    gap: 16px;
+  }
+
+  .card {
+    padding: 20px 16px;
+    min-height: 90px;
+    gap: 12px;
+  }
+
+  .card-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+
+  .card-number {
+    font-size: 28px;
+  }
+
+  .charts-section,
+  .top-hotels-section {
+    margin: 0;
+    padding: 20px;
+  }
+
+  .chart-container {
+    padding: 20px;
+  }
+}

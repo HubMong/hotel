@@ -109,6 +109,9 @@ import hotel5Image from '@/images/hotel5.png'
 
 const route = useRoute()
 
+// 최소 검색어 길이 (SearchForm와 동일 정책 권장)
+const MIN_QUERY_LEN = 2
+
 // 서버 결과
 const isLoading = ref(false)
 const loadError = ref(null)
@@ -137,12 +140,25 @@ function buildQueryFromRoute() {
   return qObj
 }
 
+// q 관련 상태 (정규화 & 가드)
+const qRaw = computed(() => String(route.query.q ?? '').trim().replace(/\s+/g, ' '))
+const canSearchQ = computed(() => qRaw.value === '' || qRaw.value.length >= MIN_QUERY_LEN)
+
 // API 호출
 async function fetchResults () {
   isLoading.value = true
   loadError.value = null
+  results.value = []
+
   try {
     const params = buildQueryFromRoute()
+
+    // q가 있는데 너무 짧으면 호출 중단
+    if (params.q && params.q.length < MIN_QUERY_LEN) {
+      loadError.value = `검색어는 최소 ${MIN_QUERY_LEN}글자 이상 입력해주세요. (예: '서울')`
+      return
+    }
+
     const { data } = await http.get('/hotels', { params })
     const list = Array.isArray(data) ? data : (Array.isArray(data?.content) ? data.content : [])
     results.value = list
@@ -162,7 +178,15 @@ async function fetchResults () {
 onMounted(fetchResults)
 watch(() => route.query, fetchResults, { deep: true })
 
-// 필터 적용
+// 문자열 정규화 & 토큰 prefix 매칭
+const normalize = s => (s ?? '').toString().normalize('NFKC').toLowerCase().trim()
+const tokenStartsWith = (text, q) => {
+  const T = normalize(text), Q = normalize(q)
+  if (!T || !Q) return false
+  return T.split(/\s+/).some(tok => tok.startsWith(Q))
+}
+
+// 필터 적용 (가격/등급 + 텍스트)
 const filteredResults = computed(() => {
   return results.value.filter(h => {
     const p = h.lowestPrice ?? 0
@@ -172,7 +196,12 @@ const filteredResults = computed(() => {
         ? true
         : selectedTypes.value.includes(h.rating)
     const amenityOK = true
-    return priceOK && typeOK && amenityOK
+
+    // 텍스트 필터: q가 있으면 city 또는 name 토큰 시작 일치만 통과
+    const textOK =
+      !qRaw.value || tokenStartsWith(h.city, qRaw.value) || tokenStartsWith(h.name, qRaw.value)
+
+    return priceOK && typeOK && amenityOK && textOK
   })
 })
 
@@ -210,6 +239,8 @@ function thumbOf (id) {
 .price-range { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: #666; }
 .price-slider { width: 100%; cursor: pointer; }
 .loading, .error, .no-results { padding: 24px 8px; color: #666; }
+
+/* 반응형 */
 @media (max-width: 992px) {
   .search-layout { flex-direction: column; gap: 24px; padding: 12px 20px 40px; }
   .filter-sidebar { border-right: none; border-bottom: 1px solid var(--line, #eee); padding-right: 0; padding-bottom: 20px; margin-bottom: 8px; }

@@ -31,6 +31,18 @@
                 <input type="email" id="email" v-model="email" placeholder="이메일" />
                 </div>
 
+                <!-- 생일 & 전화번호 -->
+                <div class="name-row">
+                <div class="input-group half">
+                    <label for="birthday">생일</label>
+                    <input type="date" id="birthday" v-model="birthday" />
+                </div>
+                <div class="input-group half">
+                    <label for="phoneNumber">전화번호</label>
+                    <input type="tel" id="phoneNumber" v-model="phoneNumber" placeholder="010-0000-0000" />
+                </div>
+                </div>
+
                 <!-- 비밀번호 -->
                 <div class="input-group">
                     <label for="password">비밀번호</label>
@@ -102,6 +114,8 @@ export default {
       firstName: "",
       lastName: "",
       email: "",
+      birthday: "",
+      phoneNumber: "",
       password: "",
       confirmPassword: "",
       agree: false,
@@ -133,6 +147,16 @@ export default {
         return;
       }
       
+      if (!this.birthday || this.birthday.trim() === "") {
+        alert("생일을 입력해주세요.");
+        return;
+      }
+      
+      if (!this.phoneNumber || this.phoneNumber.trim() === "") {
+        alert("전화번호를 입력해주세요.");
+        return;
+      }
+      
       if (!this.password || this.password.trim() === "") {
         alert("비밀번호를 입력해주세요.");
         return;
@@ -147,6 +171,13 @@ export default {
       const emailRegex = /^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
       if (!emailRegex.test(this.email)) {
         alert("올바른 이메일 형식을 입력해주세요.");
+        return;
+      }
+      
+      // 전화번호 형식 검증 (한국 형식: 010-0000-0000 또는 01000000000)
+      const phoneRegex = /^(010|011|016|017|018|019)-?\d{3,4}-?\d{4}$/;
+      if (!phoneRegex.test(this.phoneNumber.replace(/\s/g, ''))) {
+        alert("올바른 전화번호 형식을 입력해주세요. (예: 010-0000-0000)");
         return;
       }
       
@@ -173,8 +204,9 @@ export default {
           name: this.lastName + this.firstName,
           email: this.email,
           password: this.password,
-          phone: "010-0000-0000",
-          address: "서울"
+          phone: this.phoneNumber,
+          address: "서울",
+          dateOfBirth: this.birthday
         });
         alert("회원가입 성공!");
         this.$router.push("/login");

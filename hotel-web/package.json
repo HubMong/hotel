@@ -17,21 +17,27 @@
     "preview": "vite preview --port 5173"
   },
   "dependencies": {
-    "@tosspayments/payment-sdk": "^1.9.1",
-    "@tosspayments/tosspayments-sdk": "^2.4.0",
+    "@fullcalendar/core": "6.1.19",
+    "@fullcalendar/daygrid": "6.1.19",
+    "@fullcalendar/interaction": "6.1.19",
+    "@fullcalendar/vue3": "6.1.19",
+    "@tosspayments/tosspayments-sdk": "2.4.0",
     "axios": "^1.12.2",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
+    "chart.js": "^4.5.0",
     "flatpickr": "^4.6.13",
     "swiper": "^11.2.10",
     "vue": "^3.5.18",
+    "vue-chartjs": "^5.3.2",
     "vue-flatpickr-component": "^11.0.5",
-    "vue-router": "^4.5.1"
+    "vue-router": "^4.5.1",
+    "vuedraggable": "4.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.1",
     "concurrently": "^8.2.2",
-    "vite": "^7.1.7",
+    "vite": "^7.0.6",
     "vite-plugin-vue-devtools": "^8.0.0"
   }
 }

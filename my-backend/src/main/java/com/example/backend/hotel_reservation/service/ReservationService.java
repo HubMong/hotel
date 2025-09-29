@@ -1,48 +1,49 @@
 package com.example.backend.hotel_reservation.service;
 
-import com.example.backend.hotel_reservation.domain.*;
+import com.example.backend.hotel_reservation.domain.Reservation;
+import com.example.backend.hotel_reservation.domain.ReservationStatus;
+import com.example.backend.hotel_reservation.domain.RoomInventory;
 import com.example.backend.hotel_reservation.dto.ReservationDtos;
-import com.example.backend.hotel_reservation.dto.ReservationDtos.*;
-import com.example.backend.hotel_reservation.repository.*;
+import com.example.backend.hotel_reservation.dto.ReservationDtos.HoldRequest;
+import com.example.backend.hotel_reservation.dto.ReservationDtos.HoldResponse;
+import com.example.backend.hotel_reservation.repository.ReservationRepository;
+import com.example.backend.hotel_reservation.repository.RoomInventoryRepository;
+import com.example.backend.HotelOwner.repository.RoomRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.*;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
+
     private final RoomInventoryRepository invRepo;
     private final ReservationRepository resRepo;
     private final RoomRepository roomRepo;
 
-    // ▼▼▼ [추가] 가격 조회를 위해 새로운 Repository를 주입받습니다. ▼▼▼
-    private final RoomPricePolicyRepository pricePolicyRepo;
-
     private static LocalDate parseYmd(String s) {
-        return LocalDate.parse(s); // 'YYYY-MM-DD' 가정
+        return LocalDate.parse(s);
     }
 
     private static Instant toStartOfDayUtc(LocalDate d) {
         return d.atStartOfDay(ZoneOffset.UTC).toInstant();
     }
 
-    // [checkIn, checkOut) 날짜 리스트
     private static List<LocalDate> days(LocalDate startInclusive, LocalDate endExclusive) {
         List<LocalDate> list = new ArrayList<>();
         for (LocalDate d = startInclusive; d.isBefore(endExclusive); d = d.plusDays(1)) list.add(d);
         return list;
     }
 
-    // 없으면 기본 5객실 생성 (데모용)
     private RoomInventory getOrCreateLocked(Long roomId, LocalDate date) {
         return invRepo.findWithLock(roomId, date)
                 .orElseGet(() -> invRepo.save(RoomInventory.builder()
@@ -55,6 +56,7 @@ public class ReservationService {
 
     @Transactional
     public HoldResponse hold(HoldRequest req) {
+        if (req.getUserId() == null) throw new IllegalArgumentException("userId is required (from JWT)");
         if (req.getQty() == null || req.getQty() < 1) throw new IllegalArgumentException("qty must be >= 1");
 
         LocalDate ci = parseYmd(req.getCheckIn());
@@ -64,34 +66,19 @@ public class ReservationService {
         int qty = req.getQty();
         List<LocalDate> stay = days(ci, co);
 
-        // 1) 모든 날짜 락 + 재고 확인
         List<RoomInventory> locked = new ArrayList<>();
         for (LocalDate d : stay) {
-            RoomInventory ri = getOrCreateLocked(req.getRoomId(), d); // PESSIMISTIC_WRITE
+            RoomInventory ri = getOrCreateLocked(req.getRoomId(), d);
             if (ri.getAvailableQuantity() < qty) {
                 throw new IllegalStateException("재고부족: " + d);
             }
             locked.add(ri);
         }
 
-        // 2) 차감
         locked.forEach(ri -> ri.setAvailableQuantity(ri.getAvailableQuantity() - qty));
         invRepo.saveAllAndFlush(locked);
-        
-        // ▼▼▼ [수정된 부분] 총 결제 금액 계산 로직 ▼▼▼
-        // RoomPricePolicyRepository를 통해 체크인 날짜의 1박 가격을 조회합니다.
-        Integer pricePerNight = pricePolicyRepo.findApplicablePrice(req.getRoomId(), ci)
-                .orElseThrow(() -> new IllegalStateException("객실 ID " + req.getRoomId() + "의 " + ci + " 날짜에 대한 가격 정책이 없습니다."));
 
-        // 숙박일수 계산
-        long nights = ChronoUnit.DAYS.between(ci, co);
-        
-        // 총 결제 금액 계산
-        int totalPrice = pricePerNight * (int)nights * qty;
-        // ▲▲▲ [수정된 부분] 총 결제 금액 계산 로직 ▲▲▲
-
-        // 3) PENDING 예약(홀드) 생성 + 만료시간
-        int holdSec = Optional.ofNullable(req.getHoldSeconds()).orElse(90);
+        int holdSec = Optional.ofNullable(req.getHoldSeconds()).orElse(30);
         Instant now = Instant.now();
         Reservation r = Reservation.builder()
                 .userId(req.getUserId())
@@ -103,12 +90,11 @@ public class ReservationService {
                 .endDate(toStartOfDayUtc(co))
                 .status(ReservationStatus.PENDING)
                 .expiresAt(now.plusSeconds(holdSec))
-                .totalPrice(totalPrice)
                 .build();
         resRepo.save(r);
 
-        log.info("[HOLD] reservationId={} room={} dates={}~{} qty={} expiresAt={} totalPrice={}",
-                r.getId(), r.getRoomId(), ci, co.minusDays(1), qty, r.getExpiresAt(), totalPrice);
+        log.info("[HOLD] userId={} reservationId={} room={} {}~{} qty={} expiresAt={}",
+                r.getUserId(), r.getId(), r.getRoomId(), ci, co.minusDays(1), qty, r.getExpiresAt());
 
         return HoldResponse.builder()
                 .reservationId(r.getId())
@@ -122,18 +108,21 @@ public class ReservationService {
         Reservation r = resRepo.findById(reservationId)
                 .orElseThrow(() -> new NoSuchElementException("예약 없음"));
 
-        if (r.getStatus() != ReservationStatus.PENDING) {
-            throw new IllegalStateException("이미 처리됨: " + r.getStatus());
+        if (r.getStatus() == ReservationStatus.COMPLETED) {
+            log.info("[CONFIRM] reservationId={} 이미 COMPLETED (idempotent)", r.getId());
+            return;
+        }
+        if (r.getStatus() == ReservationStatus.CANCELLED) {
+            throw new IllegalStateException("취소된 예약은 확정 불가");
         }
         if (r.getExpiresAt() != null && Instant.now().isAfter(r.getExpiresAt())) {
-            // 시간초과 → 재고 복구 후 CANCELLED
             cancelInternal(r);
             throw new IllegalStateException("시간초과로 예약이 만료되었습니다.");
         }
-        r.setStatus(ReservationStatus.CONFIRMED); 
-    resRepo.save(r);
-    log.info("[CONFIRM] reservationId={} CONFIRMED", r.getId()); // 로그 메시지도 함께 수정
-}
+        r.setStatus(ReservationStatus.COMPLETED);
+        resRepo.save(r);
+        log.info("[CONFIRM] reservationId={} COMPLETED", r.getId());
+    }
 
     @Transactional
     public void cancel(Long reservationId) {
@@ -143,7 +132,21 @@ public class ReservationService {
         log.info("[CANCEL] reservationId={} CANCELLED", r.getId());
     }
 
-    // PENDING 이면 재고 복구
+    // ★ 오너가 자기 호텔 예약을 취소
+    @Transactional
+    public void cancelByOwner(Long reservationId, Long ownerId) {
+        Reservation r = resRepo.findById(reservationId)
+                .orElseThrow(() -> new NoSuchElementException("예약 없음"));
+
+        boolean allowed = resRepo.isOwnedBy(reservationId, ownerId);
+        if (!allowed) {
+            throw new SecurityException("본인 소유 호텔의 예약만 취소할 수 있습니다.");
+        }
+
+        cancelInternal(r);
+        log.info("[OWNER-CANCEL] ownerId={} reservationId={} -> CANCELLED", ownerId, reservationId);
+    }
+
     private void cancelInternal(Reservation r) {
         if (r.getStatus() != ReservationStatus.PENDING) {
             r.setStatus(ReservationStatus.CANCELLED);
@@ -156,7 +159,7 @@ public class ReservationService {
 
         int qty = Optional.ofNullable(r.getNumRooms()).orElse(1);
         for (LocalDate d : stay) {
-            RoomInventory ri = getOrCreateLocked(r.getRoomId(), d); // 락 후 복구
+            RoomInventory ri = getOrCreateLocked(r.getRoomId(), d);
             ri.setAvailableQuantity(ri.getAvailableQuantity() + qty);
             invRepo.save(ri);
         }
@@ -168,9 +171,7 @@ public class ReservationService {
     public ReservationDtos.ReservationDetail get(Long id) {
         Reservation r = resRepo.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("예약 없음"));
-                
         Long hotelId = roomRepo.findHotelIdByRoomId(r.getRoomId());
-                
         return ReservationDtos.ReservationDetail.builder()
                 .id(r.getId())
                 .status(r.getStatus().name())
@@ -183,19 +184,17 @@ public class ReservationService {
                 .children(r.getNumKid())
                 .startDate(r.getStartDate())
                 .endDate(r.getEndDate())
-                .createdAt(r.getCreatedAt()) // 이 라인을 추가하세요.
-                .totalPrice(r.getTotalPrice())
                 .build();
     }
 
     @Transactional(readOnly = true)
-    public java.util.List<ReservationDtos.ReservationSummary> getByUserId(Long userId, int page, int size) {
+    public List<ReservationDtos.ReservationSummary> getByUserId(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "startDate"));
         var pageRes = resRepo.findByUserId(userId, pageable);
 
-        java.util.List<ReservationDtos.ReservationSummary> list = new java.util.ArrayList<>(pageRes.getNumberOfElements());
+        List<ReservationDtos.ReservationSummary> list = new ArrayList<>(pageRes.getNumberOfElements());
         for (Reservation r : pageRes.getContent()) {
-            Long hotelId = roomRepo.findHotelIdByRoomId(r.getRoomId());   // 이미 쓰던 메서드 재사용
+            Long hotelId = roomRepo.findHotelIdByRoomId(r.getRoomId());
             list.add(ReservationDtos.ReservationSummary.builder()
                     .id(r.getId())
                     .status(r.getStatus().name())
@@ -207,10 +206,9 @@ public class ReservationService {
                     .children(r.getNumKid())
                     .startDate(r.getStartDate())
                     .endDate(r.getEndDate())
-                    .createdAt(r.getCreatedAt()) // 이 라인을 추가하세요.
-                    .totalPrice(r.getTotalPrice())
                     .build());
         }
+        log.info("[MY] userId={} -> {} rows", userId, list.size());
         return list;
     }
 }

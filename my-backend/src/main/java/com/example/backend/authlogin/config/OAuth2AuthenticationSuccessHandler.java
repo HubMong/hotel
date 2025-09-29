@@ -25,10 +25,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                                         Authentication authentication) throws IOException {
         
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
-var authorities = authentication.getAuthorities();            // ★ 추가
-String email = oAuth2User.getUser().getEmail();
-
-String token = jwtUtil.generateToken(email, authorities);
+        String token = jwtUtil.generateToken(oAuth2User.getUser());
         
         log.info("OAuth2 인증 성공 - 사용자: {}, 토큰 생성됨", oAuth2User.getUser().getEmail());
         

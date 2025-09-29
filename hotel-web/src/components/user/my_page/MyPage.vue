@@ -167,6 +167,7 @@ import { useRouter } from 'vue-router';
 import http from '@/api/http';
 import Header from "@/components/user/main_page/Header.vue";
 import Footer from "@/components/user/main_page/Footer.vue";
+// 💡 [필수 수정] cancel 함수를 명시적으로 import
 import { getMy, cancel } from '@/api/ReservationApi';
 import UserApi from '@/api/UserApi';
 
@@ -250,7 +251,7 @@ const fetchReservations = async () => {
     });
     reservations.value = await Promise.all(promises);
   } catch (e) {
-    console.error("예약 내역 조회 실패", e);
+    console.error("예약 내역 조회 실패:", e);
     reservations.value = [];
   } finally {
     isLoading.history = false;
@@ -262,14 +263,12 @@ const goToReservationDetail = (reservationId) => {
   router.push(`/reservations/${reservationId}`);
 };
 
-// 💡 예약 취소 함수: http.delete 대신 API 모듈의 cancel 함수를 사용
+// 💡 예약 취소 함수: API 모듈의 cancel 함수를 사용
 const cancelReservation = async (reservationId) => {
   if (!confirm("정말로 이 예약을 취소하시겠습니까?")) return;
   
   try {
     console.log(`예약 취소 요청: POST /reservations/${reservationId}/cancel`);
-    
-    // 이 줄이 핵심 변경 사항입니다.
     await cancel(reservationId); 
     
     alert("예약이 성공적으로 취소되었습니다.");
@@ -363,13 +362,17 @@ const cancelEditing = () => {
   isEditing.value = false;
 };
 
+// 💡 [수정됨] saveAllChanges 함수: 단일 API 호출로 통합
 const saveAllChanges = async () => {
   if (!user.id) {
     alert("사용자 ID가 없어 정보를 수정할 수 없습니다.");
     return;
   }
+  
   const isEmailChanged = editableUser.email !== user.email;
   const isPasswordChanged = editableUser.newPassword !== '';
+  
+  // 유효성 검사 로직
   if (isPasswordChanged) {
     if (!editableUser.currentPassword) {
       alert('비밀번호 변경을 원하시면 현재 비밀번호를 입력해주세요.');
@@ -385,21 +388,38 @@ const saveAllChanges = async () => {
     isEditing.value = false;
     return;
   }
+
+  // 💡 단일 API에 보낼 페이로드 객체 준비
+  const payload = {
+    email: editableUser.email,
+    currentPassword: editableUser.currentPassword,
+    newPassword: editableUser.newPassword,
+  };
+
   try {
-    if (isEmailChanged) {
-      await http.patch(`/users/${user.id}`, { email: editableUser.email });
-    }
-    if (isPasswordChanged) {
-      await http.patch(`/users/${user.id}/password`, {
-        currentPassword: editableUser.currentPassword,
-        newPassword: editableUser.newPassword,
-      });
-    }
+    // 🏆 [단일 API 호출] UserApi.updateProfileAndPass만 호출하도록 변경
+    await UserApi.updateProfileAndPass(user.id, payload);
+
+    // 성공 처리: 트랜잭션이 성공했으므로 두 작업 모두 적용되었습니다.
     alert("정보가 성공적으로 수정되었습니다. 보안을 위해 다시 로그인해주세요.");
+    
+    // 로컬 user 객체 및 localStorage 업데이트 (이메일 변경 시 필수)
+    if (isEmailChanged) {
+        user.email = editableUser.email;
+        localStorage.setItem('user', JSON.stringify(user));
+    }
     handleLogout(false);
+
   } catch (err) {
     console.error("정보 수정 실패:", err);
-    alert(err.response?.data?.message || "정보 수정에 실패했습니다.");
+    // 오류 메시지 강화: 백엔드에서 400 Bad Request 등을 기대
+    const status = err.response ? err.response.status : 'N/W';
+    const errorMessage = err.response?.data?.message || `네트워크 오류 (코드: ${status})`;
+    
+    // 💡 이제 오류는 트랜잭션 내부 실패 (예: 비밀번호 불일치)로 인한 것입니다.
+    alert(`정보 수정에 실패했습니다. (오류: ${errorMessage})`);
+    
+    isEditing.value = false;
   }
 };
 

@@ -1,6 +1,6 @@
 package com.example.backend.hotel_search.repository;
 
-import com.example.backend.fe_hotel_detail.domain.Hotel; // 네 엔티티 경로 유지
+import com.example.backend.HotelOwner.domain.Hotel; // 네 엔티티 경로 유지
 import com.example.backend.hotel_search.dto.HotelProjectionOnly;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

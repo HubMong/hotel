@@ -8,6 +8,12 @@ import ReservationApi from '@/api/ReservationApi'
 const route = useRoute()
 const router = useRouter()
 
+// ---- 추가: 로그인 체크/리다이렉트 유틸 (최소 변경)
+const isLoggedIn = () => !!localStorage.getItem('token')
+const currentFullPath = () => router.currentRoute.value.fullPath
+const redirectToLogin = () =>
+  router.push({ path: '/login', query: { redirect: currentFullPath() } })
+
 // 상태
 const isLoading = ref(true)
 const loadError = ref(null)
@@ -86,9 +92,15 @@ async function reserve(room) {
   const qty = Number(room.qty || 1)
   if (!Number.isFinite(qty) || qty < 1) { alert('수량을 1 이상'); return }
 
+  // ---- 추가: 미로그인 → 로그인 페이지로 보냄 (원래 페이지로 돌아오도록 redirect 유지)
+  if (!isLoggedIn()) {
+    alert('예약은 로그인 후 이용할 수 있어요.');
+    return redirectToLogin();
+  }
+
   reserving.value = true
   try {
-    const res = await ReservationApi.hold({
+    const payload = {
       userId: 1,           // 데모
       roomId: room.id,
       qty,
@@ -97,10 +109,22 @@ async function reserve(room) {
       adults: adultsUrl.value ?? 1,
       children: childrenUrl.value ?? 0,
       holdSeconds: 60 // 비관적 타임 시간
-    })
+    }
+
+    // (선택) 만약 ReservationApi가 토큰을 자동으로 붙이지 않는 구조라면, 아래 두 줄을 활성화
+    // const token = localStorage.getItem('token')
+    // const res = await ReservationApi.hold(payload, { headers: { Authorization: `Bearer ${token}` }})
+
+    const res = await ReservationApi.hold(payload)
     // 체크아웃 페이지로 이동
     router.push({ name: 'ReservationCheckout', params: { id: res.reservationId }, query: { hotelId: route.params.id } })
   } catch (e) {
+    const status = e?.response?.status
+    // ---- 추가: 인증/권한 오류시 로그인으로 유도
+    if (status === 401 || status === 403) {
+      alert('로그인이 필요합니다.');
+      return redirectToLogin();
+    }
     alert(e?.response?.data?.message || '홀드 실패')
     console.error(e)
   } finally {

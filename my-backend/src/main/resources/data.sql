@@ -1,5 +1,6 @@
 -- ====================== EGODA SCHEMA + SEED (SAFE) ======================
-SET NAMES utf8mb4;
+SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';
+SET collation_connection = 'utf8mb4_unicode_ci'; -- [추가]
 SET time_zone = '+09:00';
 
 CREATE DATABASE IF NOT EXISTS `hotel`
@@ -187,33 +188,34 @@ ALTER TABLE `Reservation` -- 1) 예약에 '잡은 객실 수' 칼럼 추가
   CREATE INDEX idx_res_status_expires ON `Reservation` (`status`, `expires_at`);
 
 -- 11) 결제
-CREATE TABLE `payment` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `reservation_id` bigint(20) NOT NULL,
-  `payment_method` varchar(50) NOT NULL DEFAULT 'CARD',             -- ★ 기본값
-  `base_price` int(11) NOT NULL DEFAULT 0,                          -- ★ 기본값
-  `total_price` int(11) GENERATED ALWAYS AS                         -- ★ 생성 칼럼
-      (base_price + tax - discount) STORED,
-  `tax` int(11) NOT NULL DEFAULT 0,
-  `discount` int(11) NOT NULL DEFAULT 0,
-  `status` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `refunded_at` timestamp NULL DEFAULT NULL,
-  `receipt_url` varchar(512) DEFAULT NULL,
-  `amount` int(11) NOT NULL,
-  `customer_name` varchar(255) DEFAULT NULL,
-  `email` varchar(255) DEFAULT NULL,
-  `order_id` varchar(255) DEFAULT NULL,
-  `order_name` varchar(255) DEFAULT NULL,
-  `payment_key` varchar(255) DEFAULT NULL,
-  `phone` varchar(255) DEFAULT NULL,
-  `user_id` bigint(20) DEFAULT NULL,
+CREATE TABLE IF NOT EXISTS `Payment` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `reservation_id` BIGINT NOT NULL,
+  `payment_method` VARCHAR(50) NOT NULL DEFAULT 'UNKNOWN',
+  `base_price` INT NOT NULL,
+  `total_price` INT NOT NULL,
+  `tax` INT NOT NULL DEFAULT 0,
+  `discount` INT NOT NULL DEFAULT 0,
+  `amount` INT NULL,
+  `order_id` VARCHAR(100) NOT NULL,
+  `order_name` VARCHAR(255) NULL,
+  `payment_key` VARCHAR(100) NULL,
+  `status` ENUM('PENDING','PAID','CANCELLED','REFUNDED','FAILED') NOT NULL DEFAULT 'PENDING',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `refunded_at` TIMESTAMP NULL,
+  `receipt_url` VARCHAR(512) NULL,
+  `user_id` BIGINT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_payment_order_id` (`order_id`),
   UNIQUE KEY `uq_receipt_url` (`receipt_url`),
   KEY `idx_pay_res` (`reservation_id`),
+  KEY `idx_pay_user` (`user_id`),
   CONSTRAINT `FK_Reservation_TO_Payment_1`
-    FOREIGN KEY (`reservation_id`) REFERENCES `reservation` (`id`)
+    FOREIGN KEY (`reservation_id`) REFERENCES `Reservation` (`id`),
+  CONSTRAINT `FK_User_TO_Payment`
+    FOREIGN KEY (`user_id`) REFERENCES `app_user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- 12) 쿠폰
 CREATE TABLE IF NOT EXISTS `Coupon` (
