@@ -3,7 +3,6 @@ package com.example.backend.HotelOwner.service;
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
@@ -214,7 +213,6 @@ public class HotelService {
                     User user = userMap.get(reservation.getUserId());
                     Room room = roomMap.get(reservation.getRoomId());
                     if (user == null || room == null) return null;
-                    // ▼ 여기 수정
                     return ReservationDtos.OwnerReservationResponse.fromEntity(reservation, user, room);
                 })
                 .filter(dto -> dto != null)
@@ -291,8 +289,10 @@ public class HotelService {
         List<Reservation> checkIns = reservationRepository.findCheckInsForOwnerByDateRange(ownerId, startOfDay, endOfDay);
         List<Reservation> checkOuts = reservationRepository.findCheckOutsForOwnerByDateRange(ownerId, startOfDay, endOfDay);
 
-        LocalDateTime threeDaysAgo = LocalDateTime.now().minus(3, ChronoUnit.DAYS);
-        List<Reservation> recentReservations = reservationRepository.findRecentReservationsForOwner(ownerId, threeDaysAgo, PageRequest.of(0, 5));
+        // ← 여기 Instant로 통일
+        Instant threeDaysAgo = Instant.now().minus(3, ChronoUnit.DAYS);
+        List<Reservation> recentReservations =
+            reservationRepository.findRecentReservationsForOwner(ownerId, threeDaysAgo, PageRequest.of(0, 5));
 
         List<Reservation> allReservations = Stream.of(checkIns, checkOuts, recentReservations)
             .flatMap(List::stream)
@@ -314,7 +314,6 @@ public class HotelService {
             User user = userMap.get(reservation.getUserId());
             Room room = roomMap.get(reservation.getRoomId());
             if (user == null || room == null) return null;
-            // ▼ 여기도 수정
             return ReservationDtos.OwnerReservationResponse.fromEntity(reservation, user, room);
         };
 

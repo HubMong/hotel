@@ -15,7 +15,6 @@ public class DashboardDto {
     private long totalPayments;
     private long totalReviews;
     private long totalCoupons;
-    private long pendingInquiries;
     private long recentRevenue;
     private long totalRevenue;
     private long todayReservations;

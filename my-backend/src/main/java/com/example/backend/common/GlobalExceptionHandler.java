@@ -9,6 +9,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.example.backend.admin.dto.ApiResponse;
 
@@ -60,6 +61,14 @@ public class GlobalExceptionHandler {
             message = "Duplicate entry - record already exists";
         }
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.fail(message));
+    }
+
+    // 404는 404로 내려주기 (컨트롤러 매핑 없음)
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNoResource(NoResourceFoundException ex) {
+        log.warn("No resource: {}", ex.getResourcePath());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.fail("Not found: " + ex.getResourcePath()));
     }
 
     @ExceptionHandler(Exception.class)

@@ -129,9 +129,20 @@ public class ReservationService {
         Reservation r = resRepo.findById(reservationId)
                 .orElseThrow(() -> new NoSuchElementException("예약 없음"));
         cancelInternal(r);
+                r.setStatus(ReservationStatus.CANCELLED);
+        resRepo.save(r);
         log.info("[CANCEL] reservationId={} CANCELLED", r.getId());
     }
 
+        @Transactional
+    public void expire(Long reservationId) {
+        Reservation r = resRepo.findById(reservationId)
+                .orElseThrow(() -> new NoSuchElementException("예약 없음"));
+        cancelInternal(r);
+                r.setStatus(ReservationStatus.EXPIRED);
+        resRepo.save(r);
+        log.info("[CANCEL] reservationId={} CANCELLED", r.getId());
+    }
     // ★ 오너가 자기 호텔 예약을 취소
     @Transactional
     public void cancelByOwner(Long reservationId, Long ownerId) {
@@ -149,8 +160,6 @@ public class ReservationService {
 
     private void cancelInternal(Reservation r) {
         if (r.getStatus() != ReservationStatus.PENDING) {
-            r.setStatus(ReservationStatus.CANCELLED);
-            resRepo.save(r);
             return;
         }
         LocalDate ci = r.getStartDate().atZone(ZoneOffset.UTC).toLocalDate();
@@ -163,8 +172,7 @@ public class ReservationService {
             ri.setAvailableQuantity(ri.getAvailableQuantity() + qty);
             invRepo.save(ri);
         }
-        r.setStatus(ReservationStatus.CANCELLED);
-        resRepo.save(r);
+
     }
 
     @Transactional(readOnly = true)

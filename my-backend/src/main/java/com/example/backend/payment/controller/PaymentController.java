@@ -286,7 +286,7 @@ public class PaymentController {
                         ("DONE".equalsIgnoreCase(root.path("cancelStatus").asText())) ||
                         (root.path("cancels").isArray()
                                 && root.path("cancels").size() > 0
-                                && "DONE".equalsIgnoreCase(root.path("cancels").get(0).path("status").asText()));
+                                && "DONE".equalsIgnoreCase(root.path("cancels").get(0).path("cancelStatus").asText()));
 
                 if (statusCanceled && done) {
                     p.setStatus(Payment.Status.CANCELLED);

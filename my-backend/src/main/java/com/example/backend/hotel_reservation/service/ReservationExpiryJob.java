@@ -38,7 +38,7 @@ public class ReservationExpiryJob {
                     invRepo.save(inv);
                 }
             }
-            r.setStatus(ReservationStatus.CANCELLED);
+            r.setStatus(ReservationStatus.EXPIRED);
             resRepo.save(r);
             log.info("[EXPIRE] reservationId={} → CANCELLED", r.getId());
         }

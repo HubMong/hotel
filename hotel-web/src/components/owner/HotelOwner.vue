@@ -8,6 +8,7 @@
           <li :class="{ active: activeMenu === 'hotels' }" @click="activeMenu = 'hotels'">호텔/객실 관리</li>
           <li :class="{ active: activeMenu === 'reservations' }" @click="activeMenu = 'reservations'">예약 관리</li>
           <li :class="{ active: activeMenu === 'reviews' }" @click="activeMenu = 'reviews'">리뷰 관리</li>
+          <li :class="{ active: activeMenu === 'inquiries' }" @click="activeMenu = 'inquiries'">문의 관리</li>
         </ul>
       </nav>
 
@@ -507,6 +508,80 @@
         </div>
       </div>
 
+      <section v-if="activeMenu === 'inquiries'" class="inquiries-section">
+      <div class="header-actions">
+        <h2>호텔 문의 관리</h2>
+        <div class="user-actions">
+          <span v-if="user" class="user-name">{{ user.name }}님</span>
+          <button class="logout-btn" @click="logoutAndGoHome">로그아웃</button>
+        </div>
+      </div>
+
+      <div class="inquiry-controls">
+        <select v-model="inquiryFilter.hotelId" class="filter-select" @change="fetchHotelInquiries">
+          <option value="ALL">모든 호텔</option>
+          <option v-for="hotel in myHotels" :key="hotel.id" :value="hotel.id">{{ hotel.name }}</option>
+        </select>
+        <select v-model="inquiryFilter.status" class="filter-select" @change="fetchHotelInquiries">
+          <option value="PENDING">미답변 (처리 대기)</option>
+          <option value="ANSWERED">답변 완료</option>
+          <option value="ALL">모든 문의</option>
+        </select>
+      </div>
+
+      <div class="inquiry-list">
+        <div v-for="inquiry in allHotelInquiries" :key="inquiry.id" 
+             class="inquiry-card" 
+             :class="{ 'answered': inquiry.replyContent }"
+             @click="showInquiryDetails(inquiry)">
+          
+          <div class="inquiry-header">
+            <span class="inquiry-hotel-name">{{ getHotelNameById(inquiry.hotelId) }}</span>
+            <span :class="['status-badge', inquiry.replyContent ? 'answered' : 'pending']">
+              {{ inquiry.replyContent ? '답변 완료' : '미답변' }}
+            </span>
+          </div>
+          <p class="inquiry-title">{{ inquiry.title }}</p>
+          <div class="inquiry-footer">
+            <span>문의자: {{ inquiry.userName || '고객' }}</span>
+            <span>작성일: {{ formatDateTime(inquiry.createdAt) }}</span>
+          </div>
+        </div>
+        <div v-if="allHotelInquiries.length === 0" class="no-inquiries">
+          해당 조건의 문의 내역이 없습니다.
+        </div>
+      </div>
+    </section>
+
+    <div v-if="selectedInquiry" class="modal-overlay" @click.self="closeInquiryDetails">
+      <div class="modal-content review-modal">
+        <button class="modal-close-btn" @click="closeInquiryDetails">✕</button>
+        <h3>문의 상세 및 답변</h3>
+        
+        <div class="review-detail-content">
+          <h4 class="inquiry-detail-hotel">{{ getHotelNameById(selectedInquiry.hotelId) }}</h4>
+          <p class="review-detail-text"><strong>제목:</strong> {{ selectedInquiry.title }}</p>
+          <div class="author-info">
+            <strong>문의자: {{ selectedInquiry.userName || '고객' }}</strong>
+            <span>작성일: {{ formatDateTime(selectedInquiry.createdAt) }}</span>
+          </div>
+          <p class="inquiry-message-content">{{ selectedInquiry.message }}</p>
+        </div>
+        
+        <div class="reply-section">
+          <h4>사장님 답변</h4>
+          <textarea v-model="replyContent" placeholder="답변을 작성해주세요..."></textarea>
+          <div class="reply-actions">
+            <button class="btn-primary" @click="submitReply" :disabled="!replyContent.trim()">답변 등록/수정</button>
+          </div>
+          
+          <p v-if="selectedInquiry.repliedAt" class="reply-status">
+            최종 답변일: {{ formatDateTime(selectedInquiry.repliedAt) }}
+          </p>
+        </div>
+      </div>
+    </div>
+
     </main>
   </div>
 </template>
@@ -523,6 +598,9 @@ import interactionPlugin from '@fullcalendar/interaction';
 import draggable from 'vuedraggable';
 import flatpickr from 'flatpickr';
 import SalesChart from './SalesChart.vue'; 
+
+// ✅ 오너 전용 API 베이스
+const OWNER_BASE = '/api/owner/hotels';
 
 export default {
   components: {
@@ -641,11 +719,20 @@ export default {
         replied: 'ALL',
       },
 
+      // ⭐ [추가] 호텔 문의 관리 상태
+      allHotelInquiries: [], // 오너가 받은 모든 문의 목록
+      selectedInquiry: null, // 상세 보기/답변할 문의
+      inquiryFilter: {
+        hotelId: 'ALL', // 선택된 호텔 ID
+        status: 'PENDING', // 답변 상태 (PENDING/ANSWERED/ALL)
+      },
+      replyContent: '', // 답변 입력 폼 내용
+
       activeTab: 'check-in',
       todaysCheckIns: [],
       todaysCheckOuts: [],
       recentReservations: [],
-      recentReviews: [ { id: 1, name: '조하윤', rating: 5, comment: '정말 최고의 경험이었어요!' } /* ... */ ],
+      
     };
   },
 
@@ -746,6 +833,12 @@ export default {
         };
       });
     },
+     getHotelNameById() {
+        return (hotelId) => {
+            const hotel = this.myHotels.find(h => h.id === hotelId);
+            return hotel ? hotel.name : '알 수 없음';
+        };
+    },
   },
 
 
@@ -757,7 +850,7 @@ export default {
       const headers = this.getAuthHeaders();
       if (!headers) return;
       try {
-        const response = await axios.get('/api/hotels/dashboard/sales-summary', { headers });
+        const response = await axios.get(`${OWNER_BASE}/dashboard/sales-summary`, { headers });
         this.dashboardSummary = response.data;
       } catch (error) {
         console.error("대시보드 요약 정보 조회 실패:", error);
@@ -854,7 +947,7 @@ export default {
       };
 
       try {
-        const response = await axios.post('/api/hotels/dashboard/daily-sales', requestBody, { headers });
+        const response = await axios.post(`${OWNER_BASE}/dashboard/daily-sales`, requestBody, { headers });
         this.chartData = this.fillMissingDates(response.data, startDate, endDate);
       } catch (error) {
         console.error("차트 데이터 조회 실패:", error);
@@ -899,7 +992,7 @@ export default {
       const headers = this.getAuthHeaders();
       if (!headers) return;
       try {
-        const response = await axios.get('/api/hotels/dashboard/activity', { headers });
+        const response = await axios.get(`${OWNER_BASE}/dashboard/activity`, { headers });
         const data = response.data;
         this.todaysCheckIns = data.checkIns;
         this.todaysCheckOuts = data.checkOuts;
@@ -969,10 +1062,10 @@ export default {
       }
 
       // 2. API 호출 직전
-      console.log("2. fetchHotels: /api/hotels/my-hotels API 호출 시작");
+      console.log("2. fetchHotels:", `${OWNER_BASE}/my-hotels`, "API 호출 시작");
 
       try {
-        const res = await axios.get(`/api/hotels/my-hotels`, { headers });
+        const res = await axios.get(`${OWNER_BASE}/my-hotels`, { headers });
         // 3. API 응답 데이터 확인
         console.log("3. fetchHotels: API 응답 데이터", res.data);
         this.myHotels = res.data;
@@ -985,7 +1078,7 @@ export default {
       const headers = this.getAuthHeaders();
       if (!headers) return;
       try {
-        const response = await axios.get('/api/hotels/amenities', { headers });
+        const response = await axios.get(`${OWNER_BASE}/amenities`, { headers });
         this.allAmenities = response.data;
         console.log("전체 편의시설 목록:", this.allAmenities);
       } catch (err) {
@@ -1000,9 +1093,9 @@ export default {
     async fetchRooms(hotelId) {
       const headers = this.getAuthHeaders();
       if (!headers) return;
-      console.log("1. [객실 조회] API 호출 시작:", `/api/hotels/${hotelId}/rooms`);
+      console.log("1. [객실 조회] API 호출 시작:", `${OWNER_BASE}/${hotelId}/rooms`);
       try {
-        const res = await axios.get(`/api/hotels/${hotelId}/rooms`, { headers });
+        const res = await axios.get(`${OWNER_BASE}/${hotelId}/rooms`, { headers });
         console.log("2. [객실 조회] API 응답 데이터:", res.data);
         this.rooms = res.data;
       } catch (err) {
@@ -1133,7 +1226,7 @@ export default {
       const headers = this.getAuthHeaders();
       if (!headers) return;
       try {
-        await axios.post("/api/hotels", formData, { headers });
+        await axios.post(`${OWNER_BASE}`, formData, { headers });
         alert("호텔이 성공적으로 등록되었습니다.");
         this.goToList();
       } catch (err) {
@@ -1146,7 +1239,7 @@ export default {
       if (!headers) return;
 
       // 1. 수정 API 호출 직전 데이터 확인
-      console.log("1. [수정] API 호출 시작:", `/api/hotels/${this.editingHotel.id}`);
+      console.log("1. [수정] API 호출 시작:", `${OWNER_BASE}/${this.editingHotel.id}`);
       console.log("   [수정] 전송할 데이터 (FormData):", formData);
       // FormData의 내용을 확인하려면 아래와 같이 각 key를 직접 로깅해야 합니다.
       for (let [key, value] of formData.entries()) {
@@ -1154,7 +1247,7 @@ export default {
       }
 
       try {
-        await axios.post(`/api/hotels/${this.editingHotel.id}`, formData, { headers });
+        await axios.post(`${OWNER_BASE}/${this.editingHotel.id}`, formData, { headers });
         // 2. 수정 성공 시
         console.log("2. [수정] API 호출 성공");
         alert("호텔 정보가 성공적으로 수정되었습니다.");
@@ -1171,10 +1264,10 @@ export default {
       if (!headers) return;
 
       // 1. 삭제 API 호출 직전 ID 확인
-      console.log("1. [삭제] API 호출 시작:", `/api/hotels/${id}`);
+      console.log("1. [삭제] API 호출 시작:", `${OWNER_BASE}/${id}`);
 
       try {
-        await axios.delete(`/api/hotels/${id}`, { headers });
+        await axios.delete(`${OWNER_BASE}/${id}`, { headers });
         // 2. 삭제 성공 시
         console.log("2. [삭제] API 호출 성공");
         alert("호텔이 삭제되었습니다.");
@@ -1246,7 +1339,7 @@ export default {
       const headers = this.getAuthHeaders();
       if (!headers) return;
       try {
-        await axios.post(`/api/hotels/${this.selectedHotel.id}/rooms`, formData, { headers});
+        await axios.post(`${OWNER_BASE}/${this.selectedHotel.id}/rooms`, formData, { headers});
         alert("객실이 등록되었습니다.");
         this.showRoomList(this.selectedHotel);
       } catch(err) {
@@ -1259,7 +1352,7 @@ export default {
       const headers = this.getAuthHeaders();
       if (!headers) return;
       try {
-        await axios.put(`/api/hotels/rooms/${this.editingRoom.id}`, formData, { headers });
+        await axios.put(`${OWNER_BASE}/rooms/${this.editingRoom.id}`, formData, { headers });
         alert("객실 정보가 수정되었습니다.");
         this.showRoomList(this.selectedHotel);
       } catch(err) {
@@ -1272,7 +1365,7 @@ export default {
       const headers = this.getAuthHeaders();
       if (!headers) return;
       try {
-        await axios.delete(`/api/hotels/rooms/${roomId}`, { headers });
+        await axios.delete(`${OWNER_BASE}/rooms/${roomId}`, { headers });
         alert("객실이 삭제되었습니다.");
         this.fetchRooms(this.selectedHotel.id);
       } catch(err) {
@@ -1280,6 +1373,84 @@ export default {
         alert("객실 삭제에 실패했습니다.");
       }
     },
+
+    // --- 문의 관리 메소드 ---
+    async fetchHotelInquiries() {
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+
+        const params = {
+            hotelId: this.inquiryFilter.hotelId === 'ALL' ? null : this.inquiryFilter.hotelId,
+            status: this.inquiryFilter.status === 'ALL' ? null : this.inquiryFilter.status,
+        };
+
+        console.log("[문의 조회] 필터:", params);
+        try {
+            // [주의] 백엔드에서 오너의 소유 호텔 목록과 필터링된 문의를 반환해야 합니다.
+            const response = await axios.get(`${OWNER_BASE}/inquiries`, { headers, params }); 
+            
+            // 백엔드에서 user, hotelName 정보가 포함된 형태로 반환된다고 가정
+            this.allHotelInquiries = response.data.map(i => ({
+                ...i,
+                // 백엔드에서 'replyContent' 필드가 넘어온다고 가정
+                replyContent: i.replyContent || '' 
+            })); 
+            
+        } catch (error) {
+            console.error("호텔 문의 목록 조회 실패:", error);
+            alert("문의 목록을 불러오는 데 실패했습니다.");
+        }
+    },
+
+    showInquiryDetails(inquiry) {
+        this.selectedInquiry = inquiry;
+        this.replyContent = inquiry.replyContent || '';
+    },
+
+    closeInquiryDetails() {
+        this.selectedInquiry = null;
+        this.replyContent = '';
+    },
+
+    async submitReply() {
+        if (!this.replyContent.trim()) {
+            alert("답변 내용을 입력해주세요.");
+            return;
+        }
+        if (!confirm("답변을 등록/수정하시겠습니까?")) return;
+
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+
+        const inquiryId = this.selectedInquiry.id;
+        const requestBody = {
+            replyContent: this.replyContent.trim()
+        };
+
+        try {
+            // [주의] 백엔드 API 경로 확인
+            await axios.post(`${OWNER_BASE}/inquiries/${inquiryId}/reply`, requestBody, { headers });
+            alert("답변이 성공적으로 등록되었습니다.");
+            
+            this.closeInquiryDetails();
+            await this.fetchHotelInquiries(); // 목록 새로고침
+
+        } catch (error) {
+            console.error("답변 등록 실패:", error.response?.data || error);
+            alert(`답변 등록에 실패했습니다: ${error.response?.data?.message || error.message}`);
+        }
+    },
+
+    // formatDateTime 유틸리티 함수 추가
+    formatDateTime(dateString) {
+        if (!dateString) return '';
+        // 이전에 정의된 formatTimeAgo와 구별되도록 다른 날짜 포맷 사용
+        return new Date(dateString).toLocaleString('ko-KR', { 
+            year: 'numeric', month: '2-digit', day: '2-digit', 
+            hour: '2-digit', minute: '2-digit' 
+        });
+    },
+
     
     checkLoginStatus() {
       const userInfo = localStorage.getItem('user');
@@ -1331,7 +1502,7 @@ export default {
         { id: 'R1001', hotelName: '강릉 씨마크 호텔', guestName: '김철수', guestPhone: '010-1234-5678', roomType: '디럭스룸', checkIn: '2025-09-22', checkOut: '2025-09-24', nights: 2, adults: 2, children: 0, status: 'COMPLETED', statusLabel: '예약 완료', requests: '바다 전망 객실로 부탁드립니다.' },
         { id: 'R1002', hotelName: '강릉 씨마크 호텔', guestName: '박영희', guestPhone: '010-2222-3333', roomType: '스위트룸', checkIn: '2025-09-23', checkOut: '2025-09-26', nights: 3, adults: 2, children: 1, status: 'PENDING', statusLabel: '예약 대기', requests: '아기 침대가 필요해요.' },
         { id: 'R1003', hotelName: '파라다이스 호텔 부산', guestName: '이민준', guestPhone: '010-4567-8901', roomType: '스탠다드룸', checkIn: '2025-09-25', checkOut: '2025-09-26', nights: 1, adults: 1, children: 0, status: 'CANCELLED', statusLabel: '예약 취소' },
-        { id: 'R1004', hotelName: '강릉 씨마크 호텔', guestName: '최유나', guestPhone: '010-8888-9999', roomType: '디럭스룸', checkIn: '2025-10-03', checkOut: '2025-10-05', nights: 2, adults: 2, children: 0, status: 'COMPLETED', statusLabel: '예약 완료' },
+        { id: 'R1004', hotelName: '강릉 씨마크 호텔', guestName: '최유나', roomType: '디럭스룸', checkIn: '2025-10-03', checkOut: '2025-10-05', nights: 2, adults: 2, children: 0, status: 'COMPLETED', statusLabel: '예약 완료' },
       ];
 
       this.allReservations = mockData;
@@ -1353,12 +1524,10 @@ export default {
       if (!headers) return;
 
       try {
-        // ✨ API 호출 경로를 HotelController에 맞게 수정합니다.
-        await axios.post(`/api/hotels/reservations/${reservationId}/owner-cancel`, {}, { headers });
+        await axios.post(`${OWNER_BASE}/reservations/${reservationId}/owner-cancel`, {}, { headers });
         
         alert("예약이 성공적으로 취소되었습니다.");
 
-        // 모달을 닫고, 최신 데이터를 다시 불러와 화면을 갱신합니다.
         this.closeReservationDetails();
         await this.fetchReservations();
         await this.fetchDashboardActivity();
@@ -1391,7 +1560,7 @@ export default {
         if (!headers) return;
 
         try {
-            const response = await axios.get(`/api/hotels/owner/${this.user.id}/reservations`, { headers });
+            const response = await axios.get(`${OWNER_BASE}/owner/${this.user.id}/reservations`, { headers });
             
             this.allReservations = response.data
                 .filter(r => r.status !== 'PENDING'); // PENDING 상태 제외
@@ -1425,6 +1594,17 @@ export default {
         this.calendarOptions.events = newEvents;
       },
       immediate: true
+    },
+
+    // ⭐ [추가] 메뉴 변경 감지 로직 ⭐
+    activeMenu: {
+      handler(newMenu) {
+        // '문의 관리' 메뉴로 이동할 때만 데이터를 새로 불러옵니다.
+        if (newMenu === 'inquiries') {
+          this.fetchHotelInquiries();
+        }
+      },
+      // immediate: true가 없으므로 대시보드(초기값)에서는 호출되지 않습니다.
     }
   },
 
@@ -2561,5 +2741,101 @@ export default {
   font-size: 12px;
   font-weight: 700;
   z-index: 2;
+}
+/* 문의 관리 섹션 */
+.inquiry-controls {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.inquiry-controls .filter-select {
+    width: 200px;
+}
+
+.inquiry-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+}
+
+.inquiry-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    padding: 20px;
+    cursor: pointer;
+    transition: transform .2s, box-shadow .2s;
+    border-left: 5px solid #f59e0b; /* 미답변 (PENDING) 색상 */
+}
+
+.inquiry-card.answered {
+    border-left: 5px solid #10b981; /* 답변 완료 색상 */
+}
+
+.inquiry-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px #0000001f;
+}
+
+.inquiry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.inquiry-hotel-name {
+    font-weight: 700;
+    font-size: 16px;
+    color: #4b5563;
+}
+
+.inquiry-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 5px 0 10px;
+    color: #111827;
+}
+
+.inquiry-footer {
+    display: flex;
+    gap: 15px;
+    font-size: 13px;
+    color: #9ca3af;
+}
+
+.no-inquiries {
+    text-align: center;
+    padding: 40px;
+    color: #9ca3af;
+    background: #fff;
+    border-radius: 12px;
+}
+
+/* 문의 상세 모달 스타일 (리뷰 모달 스타일 재사용) */
+.inquiry-detail-hotel {
+    font-size: 18px;
+    color: #3b82f6;
+    margin-bottom: 10px !important;
+    padding-bottom: 0 !important;
+    border-bottom: none !important;
+}
+
+.inquiry-message-content {
+    background: #fff;
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    white-space: pre-wrap; /* 줄바꿈 유지 */
+    margin-top: 10px;
+}
+.reply-status {
+    margin-top: 15px;
+    font-size: 12px;
+    color: #6b7280;
 }
 </style>

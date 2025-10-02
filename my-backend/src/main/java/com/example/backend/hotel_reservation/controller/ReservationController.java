@@ -52,6 +52,11 @@ public class ReservationController {
         service.cancel(id);
     }
 
+        @PostMapping("/{id}/expire")
+    public void expire(@PathVariable Long id) {
+        service.expire(id);
+    }
+
     @GetMapping("/{id}")
     public ReservationDetail get(@PathVariable Long id) {
         return service.get(id);

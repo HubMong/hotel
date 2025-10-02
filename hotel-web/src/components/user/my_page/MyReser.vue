@@ -1,13 +1,17 @@
+<!-- src/components/user/my_page/MyReser.vue -->
 <template>
   <div class="reservation-page-layout">
     <Header :isLoggedIn="isLoggedIn" :user="user" @logout="handleLogout" />
     <div class="reservation-page">
+      <!-- 1) 로딩/에러 -->
       <div v-if="isLoading" class="status-message">예약 정보를 불러오는 중...</div>
       <div v-else-if="error" class="status-message error">{{ error }}</div>
 
+      <!-- 2) 성공 -->
       <div v-else-if="reservation && hotel" class="reservation-container">
         <h2 class="page-title">예약 상세 정보</h2>
 
+        <!-- 호텔 정보 -->
         <div class="hotel-info-section">
           <img :src="displayHotel.image" :alt="displayHotel.name" class="hotel-image" />
           <div class="hotel-details">
@@ -22,6 +26,7 @@
           </div>
         </div>
 
+        <!-- 예약 정보 -->
         <div class="reservation-details-section">
           <h3 class="section-title">내 예약 정보</h3>
           <div class="detail-group">
@@ -41,7 +46,14 @@
               <span class="detail-label">투숙 인원</span>
               <span class="detail-value">성인 {{ displayReservation.adults }}명, 아동 {{ displayReservation.children }}명</span>
             </div>
-            
+
+            <div class="detail-item total-price">
+              <span class="detail-label">총 결제 금액</span>
+              <span class="detail-value">
+                {{ Number(displayReservation.totalPrice ?? 0).toLocaleString() }}원
+              </span>
+            </div>
+
             <div class="detail-item">
               <span class="detail-label">현재 예약 상태</span>
               <span class="detail-value">{{ displayReservation.statusText }}</span>
@@ -58,17 +70,10 @@
               <span class="detail-label">예약 생성 시각</span>
               <span class="detail-value">{{ displayReservation.createdAt }}</span>
             </div>
-
-            <div class="detail-item total-price">
-              <span class="detail-label">총 결제 금액</span>
-              <span class="detail-value">
-                {{ Number(displayReservation.totalPrice ?? 0).toLocaleString() }}원
-              </span>
-            </div>
-
           </div>
         </div>
 
+        <!-- 액션 -->
         <div class="actions-section">
           <button class="btn btn--small btn--ghost" @click="openPopup">약관(요금, 투숙)</button>
           <div>
@@ -85,6 +90,7 @@
       </div>
     </div>
 
+    <!-- 약관 팝업 -->
     <div v-if="isPopupVisible" class="popup-overlay" @click.self="closePopup">
       <div class="popup-content">
         <div class="popup-header">
@@ -125,17 +131,16 @@ const router = useRouter();
 
 const reservation = ref(null);
 const hotel = ref(null);
-const room = ref(null);
+const room = ref(null); // 체크인/아웃 시간용
 const isPopupVisible = ref(false);
 
 const isLoggedIn = ref(false);
 const user = reactive({});
 
-const statusMap = {
-  PENDING: "예약 대기중",
-  CONFIRMED: "예약 확정",
-  COMPLETED: "이용 완료",
-  CANCELLED: "예약 취소됨"
+// 상태 매핑
+const statusMap = {  
+  COMPLETED: "예약 완료",
+  CANCELLED: "예약 취소"
 };
 
 const checkAuthStatus = () => {
@@ -160,24 +165,14 @@ const formatDate = (isoString) => {
   if (!isoString) return '';
   return new Date(isoString).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
 };
-
 const formatDateTime = (isoString) => {
   if (!isoString) return '—';
-  
-  const correctedIsoString = isoString.endsWith('Z') ? isoString.slice(0, -1) : isoString;
-  const date = new Date(correctedIsoString);
-  
-  return date.toLocaleString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
+  const d = new Date(isoString);
+  return d.toLocaleString('ko-KR', {
+    year: 'numeric', month: 'long', day: 'numeric',
+    hour: '2-digit', minute: '2-digit'
   });
 };
-
 const formatTime = (t) => {
   if (!t) return '—';
   if (typeof t === 'string') return t.slice(0,5);
@@ -190,8 +185,17 @@ const loadReservationDetails = async () => {
   try {
     const reservationId = route.params.id;
     if (!reservationId) throw new Error("예약 ID가 없습니다.");
+
+    // 1) 예약 상세
     const resData = await ReservationApi.get(reservationId);
+
+    // 2) 호텔
     const hotelDataResponse = await http.get(`/hotels/${resData.hotelId}`);
+
+    // 3) 결제(총액/생성시각)
+    const payment = await http.get(`/payments/${reservationId}/byreservation`);
+
+    // 4) 룸(체크인/아웃 시간 우선 소스) — 없으면 폴백
     let roomData = null;
     try {
       const roomRes = await http.get(`/rooms/${resData.roomId}`);
@@ -199,10 +203,14 @@ const loadReservationDetails = async () => {
     } catch {
       roomData = null;
     }
+
     reservation.value = resData;
+    reservation.value.totalPrice = payment.data.totalPrice ?? reservation.value.totalPrice ?? 0;
+    reservation.value.createdAt  = payment.data.createdAt ?? reservation.value.createdAt ?? null;
     hotel.value = hotelDataResponse.data.hotel;
     room.value = roomData;
-  } catch (err) { // <--- 마침표(.)를 삭제하고 여는 중괄호({)를 추가해야 합니다.
+
+  } catch (err) {
     console.error("예약 상세 정보를 불러오는 데 실패:", err);
     error.value = "예약 정보를 불러올 수 없습니다. 다시 시도해주세요.";
   } finally {
@@ -210,12 +218,31 @@ const loadReservationDetails = async () => {
   }
 };
 
+// ✅ 멱등/성공 처리: 결제 취소만 호출(서버가 예약도 CANCELLED로 동기화)
 const cancelReservation = async () => {
   if (!reservation.value) return;
   const ok = confirm('정말로 이 예약을 취소하시겠습니까?');
   if (!ok) return;
+
   try {
-    await ReservationApi.cancel(reservation.value.id);
+    // 이 예약의 최신 결제 찾기
+    const payment = await http.get(`/payments/${reservation.value.id}/byreservation`);
+    const paymentId = payment.data.id;
+
+    // 결제 취소 (POST + query param)
+    try {
+      await http.post(`/payments/cancel/${paymentId}`, null, {
+        params: { reason: '사용자 취소' }
+      });
+    } catch (e) {
+      const status = e?.response?.status;
+      const msg = e?.response?.data?.message;
+      // 이미 취소됨은 성공으로 간주 (백엔드가 200을 주도록 수정했지만 방어 코드 유지)
+      if (!(status === 200 || (status === 400 && msg === 'already cancelled'))) {
+        throw e;
+      }
+    }
+
     alert('예약이 성공적으로 취소되었습니다.');
     router.push('/mypage');
   } catch (err) {
@@ -224,6 +251,7 @@ const cancelReservation = async () => {
   }
 };
 
+// 호텔 카드 표시용
 const displayHotel = computed(() => {
   if (!hotel.value) return {};
   const formatRating = (ratingData) => {
@@ -243,6 +271,7 @@ const displayHotel = computed(() => {
   };
 });
 
+// 예약 상세 표시용
 const displayReservation = computed(() => {
   if (!reservation.value) return {};
   return {
@@ -258,6 +287,7 @@ const displayReservation = computed(() => {
   };
 });
 
+// 체크인/체크아웃 시간(Room → Hotel → 기본값)
 const displayTimes = computed(() => {
   const ci = room.value?.checkInTime ?? hotel.value?.checkInTime ?? '15:00';
   const co = room.value?.checkOutTime ?? hotel.value?.checkOutTime ?? '11:00';
@@ -267,9 +297,12 @@ const displayTimes = computed(() => {
   };
 });
 
-const canCancel = computed(() => 
-  reservation.value?.status === 'PENDING' || reservation.value?.status === 'CONFIRMED'
-);
+const canCancel = computed(() => { 
+  const today = new Date(); 
+  const startDate = new Date(reservation.value?.startDate);
+  const endDate = new Date(reservation.value?.endDate);
+  return (reservation.value?.status === 'COMPLETED' && startDate >= today && endDate >= today);
+});
 
 onMounted(() => {
   checkAuthStatus();

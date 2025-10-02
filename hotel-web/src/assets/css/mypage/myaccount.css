@@ -1,7 +1,7 @@
-/* ==========================================================================
- * 1. 기본 변수 및 전체 레이아웃 (Variables & Global Layout)
- * ========================================================================== */
-:root {
+/* ========================================================================== 
+   1. 기본 변수 및 전체 레이아웃 (Variables & Global Layout)
+   ========================================================================== */
+:root { 
   --line: #e5e7eb;
   --ink: #111827;
   --ink-light: #6b7280;
@@ -19,7 +19,7 @@
   padding: 40px 24px;
   border: 1px solid var(--line);
   border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
   max-width: 720px;
   margin: 40px auto;
 }
@@ -31,9 +31,9 @@
   margin-bottom: 24px;
 }
 
-/* ==========================================================================
- * 2. 프로필 및 탭 메뉴 (Profile & Tab Menu)
- * ========================================================================== */
+/* ========================================================================== 
+   2. 프로필 및 탭 메뉴 (Profile & Tab Menu)
+   ========================================================================== */
 .image {
   display: flex;
   justify-content: center;
@@ -70,17 +70,16 @@
   border-color: var(--brand-primary);
 }
 
-/* ==========================================================================
- * 3. 계정 정보 섹션 및 폼 (Account Info Section & Form)
- * ========================================================================== */
+/* ========================================================================== 
+   3. 계정 정보 섹션 (Account Info Section)
+   ========================================================================== */
 .info-item {
   display: flex;
-  align-items: flex-start; /* 라벨 상단 정렬 */
+  align-items: center;
   justify-content: space-between;
   padding: 16px 8px;
   border-bottom: 1px solid var(--line);
 }
-
 .info-item:last-child {
   border-bottom: none;
 }
@@ -90,7 +89,6 @@
   flex-shrink: 0;
   font-weight: 600;
   color: #374151;
-  padding-top: 8px; /* input과 세로 정렬 맞추기 */
 }
 
 .value {
@@ -98,7 +96,6 @@
   color: var(--ink);
   text-align: left;
   margin-right: 1rem;
-  padding-top: 8px;
 }
 
 .input-edit {
@@ -106,65 +103,34 @@
   border: 1px solid var(--line);
   border-radius: 6px;
   width: 100%;
-  box-sizing: border-box;
+  flex-grow: 1;
+  margin-right: 1rem;
   transition: border-color 0.2s;
 }
-
 .input-edit:focus {
   outline: none;
   border-color: var(--brand-primary);
 }
 
-/* 비밀번호 섹션 컨테이너 */
-.password-edit-section .input-group {
+.password-edit-form {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  align-items: flex-start;
+  width: 100%;
   gap: 8px;
 }
-
-/* 비밀번호 토글 기능 관련 스타일 */
-.password-input-wrapper {
-  position: relative;
-  display: flex; /* 인풋과 버튼을 한 줄에 배치 */
-  margin-bottom: 10px;
+.password-edit-form .input-edit {
+  width: calc(100% - 100px); 
+  box-sizing: border-box;
+}
+.password-buttons {
+  margin-top: 8px;
 }
 
-.password-input-wrapper .input-edit {
-  flex-grow: 1;
-  padding-right: 70px; /* 버튼 공간 확보 */
-  margin-bottom: 0; /* 개별 margin-bottom 제거 */
-}
-
-.btn-toggle-password {
-  position: absolute;
-  right: 0px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 0.85rem;
-  color: var(--brand-primary); /* #007bff 대신 변수 사용 권장 */
-  padding: 5px 10px;
-  z-index: 10;
-  line-height: 1;
-}
-
-/* 폼 안내 문구 */
-.notice {
-  font-size: 12px;
-  color: #888;
-  text-align: left; /* 전체 섹션에 맞춰 왼쪽 정렬 */
-  margin-top: 4px;
-}
-
-/* ==========================================================================
- * 4. 버튼 및 액션 (Buttons & Actions)
- * ========================================================================== */
-.btn-change,
-.btn-save,
-.btn-cancel {
+/* ========================================================================== 
+   4. 버튼 스타일 (Buttons)
+   ========================================================================== */
+.btn-change, .btn-save, .btn-cancel {
   border: 1px solid var(--line);
   border-radius: 6px;
   padding: 6px 14px;
@@ -179,7 +145,6 @@
   background-color: var(--bg-white);
   color: var(--ink);
 }
-
 .btn-change:hover {
   border-color: var(--brand-primary);
   background-color: var(--brand-primary);
@@ -190,9 +155,9 @@
   background-color: var(--brand-primary);
   color: var(--bg-white);
   border-color: var(--brand-primary);
-  margin-left: 8px;
+  margin-left: auto;
+  margin-right: 8px;
 }
-
 .btn-save:hover {
   background-color: var(--brand-primary-hover);
   border-color: var(--brand-primary-hover);
@@ -203,34 +168,14 @@
   color: var(--bg-white);
   border-color: var(--ink-light);
 }
-
 .btn-cancel:hover {
   opacity: 0.8;
 }
 
-/* 액션 그룹 */
-.edit-actions {
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-  padding: 8px;
-  margin-bottom: 1rem;
-}
-
-.form-actions {
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-  padding: 16px 8px 0;
-  gap: 10px; /* 버튼 간격 통일 */
-}
-
-
-/* ==========================================================================
- * 5. 예약 내역 카드 (Reservation History Card)
- * ========================================================================== */
-.loading,
-.no-data {
+/* ========================================================================== 
+   5. 예약 내역 카드 (Reservation History Card)
+   ========================================================================== */
+.loading, .no-data {
   text-align: center;
   padding: 40px;
   color: var(--ink-light);
@@ -241,15 +186,13 @@
   border-radius: 12px;
   margin-bottom: 16px;
   background-color: var(--bg-white);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
   transition: all 0.3s ease;
 }
-
 .reservation-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
-
 .reservation-card.active {
   border-color: var(--brand-primary);
 }
@@ -263,31 +206,21 @@
   cursor: pointer;
 }
 
-.hotel-info {
-  display: flex;
-  flex-direction: column;
-  max-width: 65%;
+.hotel-info { 
+  display: flex; 
+  flex-direction: column; 
+  max-width: 65%; /* 호텔 정보 길이 제한 */
 }
 
-.hotel-name {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--ink);
-}
+.hotel-name { font-size: 18px; font-weight: 700; color: var(--ink); }
+.dates { font-size: 14px; color: var(--ink-light); margin-top: 4px; }
 
-.dates {
-  font-size: 14px;
-  color: var(--ink-light);
-  margin-top: 4px;
-}
-
-.summary-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-basis: 35%; 
-  flex-shrink: 0;
-  justify-content: flex-end;
+.summary-right { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  min-width: 180px; /* 항상 일정 너비 */
+  justify-content: flex-end; /* 항상 오른쪽 정렬 */
 }
 
 .status-badge {
@@ -300,34 +233,16 @@
   font-weight: 700;
   color: white;
 }
-
-/* 상태별 색상 */
-.status-badge.CONFIRMED {
-  background-color: #1d4ed8;
-}
-
-.status-badge.COMPLETED {
-  background-color: #10b981;
-}
-
-.status-badge.CANCELLED {
-  background-color: #dc3545;
-}
-
-.status-badge.HOLD {
-  background-color: #f59e0b;
-}
-
-.status-badge.PENDING {
-  background-color: #ffc107;
-  color: var(--ink); /* 배경색 대비를 위해 글자색 변경 */
-}
+.status-badge.CONFIRMED { background-color: #1d4ed8; }
+.status-badge.COMPLETED { background-color: #10b981; }
+.status-badge.CANCELLED { background-color: #dc3545; }
+.status-badge.HOLD { background-color: #f59e0b; }
+.status-badge.PENDING { background-color: #ffc107; color: var(--ink); }
 
 .arrow-icon {
   font-size: 16px;
   transition: transform 0.3s ease;
 }
-
 .reservation-card.active .arrow-icon {
   transform: rotate(180deg);
 }
@@ -344,7 +259,6 @@
   white-space: nowrap;
   font-size: 13px;
 }
-
 .btn-detail:hover {
   background-color: var(--brand-primary);
   color: var(--bg-white);
@@ -354,10 +268,9 @@
   max-height: 0;
   overflow: hidden;
   transition: all 0.4s ease-in-out;
-  padding: 0 4px;
+  padding: 0 4px; 
   border-top: 1px solid transparent;
 }
-
 .reservation-card.active .details {
   max-height: 500px;
   border-top: 1px solid var(--line);
@@ -377,7 +290,6 @@
   color: var(--ink-light);
   margin-bottom: 4px;
 }
-
 .detail-item .value {
   font-size: 15px;
   font-weight: 500;

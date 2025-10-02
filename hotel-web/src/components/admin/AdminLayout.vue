@@ -14,6 +14,8 @@
         <router-link class="menu-item" :class="{active: $route.path === '/admin/payments'}" to="/admin/payments">결제 관리</router-link>
         <router-link class="menu-item" :class="{active: $route.path === '/admin/reviews'}" to="/admin/reviews">리뷰 관리</router-link>
         <router-link class="menu-item" :class="{active: $route.path === '/admin/coupons'}" to="/admin/coupons">쿠폰 관리</router-link>
+        <router-link class="menu-item" :class="{active: $route.path === '/admin/inquiries'}" to="/admin/inquiries">문의 관리</router-link>
+
       </nav>
     </aside>
 
@@ -62,7 +64,9 @@ export default {
         '/admin/reservations': '예약 관리',
         '/admin/payments': '결제 관리',
         '/admin/reviews': '리뷰 관리',
-        '/admin/coupons': '쿠폰 관리'
+        '/admin/coupons': '쿠폰 관리',
+        '/admin/inquiries': '문의 관리'
+
       }
       return routeMap[this.$route.path] || '관리자 패널'
     }

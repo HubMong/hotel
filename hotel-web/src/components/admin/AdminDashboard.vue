@@ -53,6 +53,13 @@
           <h3>총 쿠폰</h3>
         </div>
       </div>
+      <!-- <div class="card inquires">
+        <div class="card-icon"></div>
+        <div class="card-content">
+          <p class="card-number">{{ formatNumber(dashboardData.totalInquires) }}</p>
+          <h3>총 문의</h3>
+        </div>
+      </div> -->
     </div>
 
   <div class="charts-section">
@@ -195,6 +202,7 @@ export default {
       totalRevenue: 0,
       totalReviews: 0,
       totalCoupons: 0,
+      totalInquires: 0,
       dailyRevenue: [],
       monthlySignups: [],
       topHotels: [],

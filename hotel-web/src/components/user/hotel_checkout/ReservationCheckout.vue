@@ -412,7 +412,7 @@ async function cancelHold(){
     busy.value = false
   }
 }
-async function safeCancel(){ try { await ReservationApi.cancel(id) } catch(_){ } }
+async function safeCancel(){ try { await ReservationApi.expire(id) } catch(_){ } }
 
 onMounted(load)
 onBeforeUnmount(stopTimer)

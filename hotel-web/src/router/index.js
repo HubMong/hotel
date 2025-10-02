@@ -15,10 +15,14 @@ import BusinessApply from "@/components/user/main_page/BusinessApply.vue"
 import HotelOwner from "@/components/owner/HotelOwner.vue"
 
 // ===== My page & etc =====
-import MyPage from "@/components/user/my_page/MyPage.vue"
+import MyAccount from "@/components/user/my_page/MyAccount.vue" // 계정 정보
+import MyHistory from "@/components/user/my_page/MyHistory.vue"  // 예약 내역
 import MyReserDetail from "@/components/user/my_page/MyReser.vue" // 예약 상세
 import MyReserList from "@/components/user/myreser/DetailMyReservation.vue" // 예약 목록
-import Support from "@/components/user/support_page/Support.vue"
+
+// ===== Support =====
+import HotelSupport from "@/components/user/support_page/HotelSupport.vue"
+import WebsiteSupport from "@/components/user/support_page/WebsiteSupport.vue"
 
 // ===== Hotel search/detail =====
 import Search from "@/components/user/hotel_page/Search.vue"
@@ -44,6 +48,7 @@ import ReviewManagement from '@/components/admin/ReviewManagement.vue'
 import CouponManagement from '@/components/admin/CouponManagement.vue'
 import SalesManagement from '@/components/admin/SalesManagement.vue'
 import HotelManagement from '@/components/admin/HotelManagement.vue'
+import InquiryManagement from '@/components/admin/InquiryManagement.vue'
 
 const routes = [
   { path: "/", name: "Home", component: MainPage },
@@ -63,10 +68,15 @@ const routes = [
   { path: "/payment/success", name: "PaymentSuccess", component: PaymentSuccess },
   { path: "/payment/fail",    name: "PaymentFailure",  component: PaymentFailure },
 
-  // 마이페이지/예약목록/고객센터
-  { path: "/mypage", name: "MyPage", component: MyPage },
+  // 마이페이지(계정,예약내역)/예약목록
+  { path: "/myaccount", name: "MyAccount", component: MyAccount },
+  { path: "/myhistory", name: "MyHistory", component: MyHistory },
   { path: "/myreservation", name: "MyReser", component: MyReserList },
-  { path: "/support", name: "Support", component: Support },
+
+
+  //고객센터
+  { path: "/hotelsupport", name: "HotelSupport", component: HotelSupport },
+  { path: "/websitesupport", name: "WebsiteSupport", component: WebsiteSupport },
 
   // 정책/비즈니스 신청
   { path: "/terms", name: "Terms", component: TermsPage },
@@ -100,7 +110,8 @@ const routes = [
       { path: 'payments',          name: 'AdminPayments',          component: PaymentManagement },
       { path: 'reviews',           name: 'AdminReviews',           component: ReviewManagement },
       { path: 'sales',             name: 'AdminSales',             component: SalesManagement },
-      { path: 'coupons',           name: 'AdminCoupons',           component: CouponManagement }
+      { path: 'coupons',           name: 'AdminCoupons',           component: CouponManagement },
+      { path: 'inquiries',           name: 'AdminInquiries',          component: InquiryManagement }
     ]
   },
 

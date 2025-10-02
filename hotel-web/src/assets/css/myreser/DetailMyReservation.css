@@ -1,3 +1,6 @@
+/*=====================================
+  전체 기본 레이아웃 (기존 유지)
+=====================================*/
 .my-reservation-page {
   display: flex;
   flex-direction: column;
@@ -6,107 +9,158 @@
 }
 
 .page-title {
-  font-size: 24px;
-  font-weight: bold;
-  margin: 20px 0;
+  font-size: 28px; /* 제목 크기 조금 키움 */
+  font-weight: 700; /* 폰트 두께 조정 */
+  margin: 30px 0 30px; /* 상하 마진 조정 */
   text-align: center;
+  color: #333; /* 글자색 진하게 */
 }
 
+/*=====================================
+  컨테이너 및 목록 배열 (수정 핵심 부분)
+=====================================*/
 .reservation-container {
   flex: 1;
-  padding: 20px;
+  padding: 20px 40px; /* 좌우 패딩을 넓혀 중앙 집중 효과 */
+  max-width: 1200px; /* 최대 너비 지정 */
+  margin: 0 auto; /* 중앙 정렬 */
+  width: 100%;
 }
 
 .loading,
 .no-data {
   text-align: center;
-  margin-top: 40px;
-  font-size: 16px;
-  color: #555;
+  margin-top: 60px;
+  font-size: 18px;
+  color: #777;
 }
 
 .reservation-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  /* 🔥 핵심 수정: Grid를 사용하여 3열 레이아웃 구현 */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 한 줄에 카드를 3개씩, 동일 너비 */
+  gap: 25px; /* 카드 사이 간격 넓힘 */
+  padding-bottom: 40px; /* 푸터와 겹치지 않도록 아래 여백 추가 */
 }
 
+/*=====================================
+  예약 카드 디자인 (명함 크기 및 정보 정렬)
+=====================================*/
 .reservation-card {
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  padding: 16px 20px;
+  border: 1px solid #e0e0e0; /* 테두리 추가 */
+  border-radius: 10px; /* 모서리 둥글기 유지 */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* 그림자 부드럽게 */
+  padding: 18px; /* 내부 패딩 조정 (명함 느낌) */
   display: flex;
   flex-direction: column;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+  /* 🔥 크기 조절: Card 자체가 Grid Item이므로 별도의 Width 지정 대신 Padding과 Grid Gap으로 조정 */
+  height: auto; /* 내용에 따라 높이 자동 조절 */
 }
 
 .reservation-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-5px); /* 호버 시 변화를 더 드라마틱하게 */
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 
 .reservation-header {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
+  flex-direction: column; /* 헤더 내용을 세로로 배치 */
+  justify-content: flex-start;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0; /* 구분선 추가 */
 }
 
 .hotel-name {
   font-size: 18px;
-  font-weight: 600;
-  color: #1d4ed8;
+  font-weight: 700;
+  color: #1a56db; /* 브랜드 색상 강조 */
+  margin-bottom: 4px;
 }
 
 .dates {
-  font-size: 14px;
-  color: #666;
+  font-size: 13px;
+  color: #777;
 }
 
 .reservation-body {
-  font-size: 14px;
+  flex-grow: 1; /* 바디 영역이 남은 공간을 차지하도록 */
+  font-size: 13px;
   color: #444;
-  margin-bottom: 12px;
+  margin-bottom: 15px;
 }
 
 .reservation-body p {
-  margin: 4px 0;
+  margin: 6px 0; /* 단락 간 간격 조정 */
+}
+
+.reservation-body strong {
+    font-weight: 600;
+    color: #333;
 }
 
 .reservation-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: auto; /* 항상 푸터를 맨 아래에 위치 */
 }
 
+/*=====================================
+  배지 및 버튼 (기존 스타일 조정)
+=====================================*/
 .status-badge {
-  padding: 4px 10px;
-  border-radius: 8px;
+  padding: 6px 12px;
+  border-radius: 15px; /* 둥근 모양으로 변경 */
   font-size: 12px;
   font-weight: bold;
-  text-transform: uppercase;
+  text-transform: capitalize; /* 소문자로 시작하도록 변경 (깔끔함) */
 }
 
 .status-badge.confirmed {
-  background: #d1fae5;
-  color: #065f46;
+  background: #dcfce7; /* 더 연한 녹색 */
+  color: #16a34a;
 }
 
 .status-badge.canceled {
-  background: #fee2e2;
-  color: #991b1b;
+  background: #ffe4e6; /* 더 연한 빨간색 */
+  color: #e11d48;
 }
 
 .btn-detail {
   background: #1d4ed8;
   color: #fff;
   border: none;
-  padding: 6px 12px;
-  border-radius: 8px;
+  padding: 8px 16px; /* 버튼 크기 키움 */
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 500;
   transition: background 0.2s;
 }
 
 .btn-detail:hover {
-  background: #2563eb;
+  background: #3b82f6; /* 호버 색상 변경 */
+}
+
+/*=====================================
+  반응형 디자인 (선택 사항: 화면이 좁아지면 카드를 1~2개로 줄임)
+=====================================*/
+@media (max-width: 992px) {
+  .reservation-list {
+    grid-template-columns: repeat(2, 1fr); /* 태블릿: 2열 */
+  }
+}
+
+@media (max-width: 600px) {
+  .reservation-container {
+      padding: 15px;
+  }
+  .reservation-list {
+    grid-template-columns: 1fr; /* 모바일: 1열 */
+    gap: 15px;
+  }
 }

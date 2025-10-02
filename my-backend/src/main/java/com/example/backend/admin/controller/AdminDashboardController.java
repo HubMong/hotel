@@ -55,7 +55,6 @@ public class AdminDashboardController {
                 .totalPayments(paymentRepository.count())
                 .totalReviews(reviewRepository.count())
                 .totalCoupons(couponRepository.count())
-                .pendingInquiries(inquiryRepository.countByStatus(com.example.backend.admin.domain.Inquiry.Status.PENDING))
                 .recentRevenue(recentRevenue != null ? recentRevenue : 0L)
                 .todayReservations(reservationRepository.countByCreatedAtBetween(startOfDayI, nowI))
                 .totalRevenue(allRevenue != null ? allRevenue : 0L)

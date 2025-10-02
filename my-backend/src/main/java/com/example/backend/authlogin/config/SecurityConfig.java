@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -20,6 +21,8 @@ import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
+@EnableMethodSecurity // 👈 이 어노테이션을 추가해주세요!(관리자)
+
 public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
@@ -31,7 +34,7 @@ public class SecurityConfig {
     CorsConfigurationSource corsSource() {
         CorsConfiguration c = new CorsConfiguration();
         c.setAllowedOrigins(List.of("http://localhost:5173"));
-        c.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS","PATCH"));
+        c.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
         c.setAllowedHeaders(List.of("*"));
         c.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource s = new UrlBasedCorsConfigurationSource();
@@ -58,11 +61,6 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/admins/register").permitAll()
                 .requestMatchers("/api/password/**", "/api/test/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/hotels", "/api/hotels/**").permitAll() // ← 공개 조회
-                
-                // 💡 [추가] PATCH /api/users/** 경로를 명시적으로 authenticated() 처리합니다.
-                // 이는 .anyRequest().authenticated()보다 먼저 실행되어 Spring Security가 올바른 권한 검사를 수행하게 합니다.
-                .requestMatchers(HttpMethod.PATCH, "/api/users/**").authenticated() 
-
                 .anyRequest().authenticated()
             )
             // ★ 로그인 페이지로 리다이렉트 금지 → 401 반환
