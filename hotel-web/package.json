@@ -1,0 +1,44 @@
+{
+  "name": "hotel-web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "dev:fe": "vite",
+    "dev:be:win": "cd my-backend && mvnw.cmd spring-boot:run",
+    "dev:be:nix": "cd my-backend && ./mvnw spring-boot:run",
+    "dev:win": "concurrently -k -n FE,BE -c green,cyan \"npm:dev:fe\" \"npm:dev:be:win\"",
+    "dev:nix": "concurrently -k -n FE,BE -c green,cyan \"npm:dev:fe\" \"npm:dev:be:nix\"",
+    "build": "vite build",
+    "preview": "vite preview --port 5173"
+  },
+  "dependencies": {
+    "@fullcalendar/core": "6.1.19",
+    "@fullcalendar/daygrid": "6.1.19",
+    "@fullcalendar/interaction": "6.1.19",
+    "@fullcalendar/vue3": "6.1.19",
+    "@tosspayments/tosspayments-sdk": "2.4.0",
+    "axios": "^1.12.2",
+    "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.13.1",
+    "chart.js": "^4.5.0",
+    "chartjs-plugin-datalabels": "^2.2.0",
+    "flatpickr": "^4.6.13",
+    "swiper": "^11.2.10",
+    "vue": "^3.5.18",
+    "vue-chartjs": "^5.3.2",
+    "vue-flatpickr-component": "^11.0.5",
+    "vue-router": "^4.5.1",
+    "vuedraggable": "4.1.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.1",
+    "concurrently": "^8.2.2",
+    "vite": "^7.0.6",
+    "vite-plugin-vue-devtools": "^8.0.0"
+  }
+}

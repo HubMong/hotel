@@ -1,0 +1,89 @@
+/* ---------------- Header (Sticky) ---------------- */
+.main-header {
+  background-color: #fff;
+  box-shadow: 0 4px 16px rgba(17, 34, 17, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 1200;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* 헤더 폭이 너무 넓어서 내용이 분산되거나 잘리는 걸 방지 */
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 clamp(12px, 2vw, 24px);
+  /* 노트북에서 과대 높이 방지 */
+  height: clamp(56px, 8svh, 72px);
+  gap: clamp(8px, 2vw, 24px);
+}
+
+/* 좌측/우측 폭 배분: 왼쪽은 수축 허용, 오른쪽은 한 줄 유지 */
+.header-left  { display:flex; align-items:center; gap:16px; flex: 1 1 0; min-width:0; }
+.header-right { display:flex; align-items:center; gap:16px; flex: 0 0 auto; white-space: nowrap; }
+
+/* 로고 */
+.logo-container { display:flex; align-items:center; gap:4px; margin-left:4px; }
+.egoda-logo { height: clamp(32px, 5.5svh, 48px); width:auto; object-fit:contain; }
+
+/* 오/좌측 텍스트 */
+.header-right { font-size: 14px; font-weight: 600; color: #121211; }
+.login-text, .register-text, .logout-text, .user-name {
+  cursor:pointer; transition: color .2s ease;
+}
+.login-text:hover, .register-text:hover, .logout-text:hover, .user-name:hover {
+  color:#4ec89f;
+}
+
+/* 구분자 파이프 */
+.divider { opacity:.55; margin: 0 6px; }
+
+/* 햄버거 */
+.hamburger-menu { border:none; background:none; cursor:pointer; padding:8px; }
+.hamburger-menu svg { width:28px; height:28px; stroke:#333; transition: stroke .2s; }
+.hamburger-menu:hover svg { stroke:#4ec89f; }
+
+/* ---------------- Sidebar / Overlay Layering ---------------- */
+.sidebar {
+  position: fixed; top: 0; left: 0;
+  width: min(80vw, 280px); height: 100%;
+  background-color: #fff;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+  padding: 20px;
+  transform: translateX(-100%);
+  transition: transform .3s ease;
+  will-change: transform;
+  z-index: 1400;
+}
+.sidebar.open { transform: translateX(0); }
+.sidebar .close-btn { font-size:24px; border:none; background:none; cursor:pointer; margin-bottom:20px; display:block; }
+.sidebar ul { list-style:none; padding:0; margin:0; }
+.sidebar ul li { padding:12px 0; font-size:16px; font-weight:600; cursor:pointer; transition: color .2s; }
+.sidebar ul li:hover { color:#4ec89f; }
+
+.overlay {
+  position: fixed; inset: 0;
+  background-color: rgba(0,0,0,0.4);
+  z-index: 1300;
+}
+
+/* ---------------- Responsive Tweaks ---------------- */
+@media (max-width: 1366px) {
+  .header-right { gap: 12px; font-size: 13px; }
+  .divider { display: none; }     /* 노트북 폭에서 구분자 제거 → 폭 확보 */
+}
+
+@media (max-width: 1024px) {
+  .header-right { font-size: 12px; gap: 10px; }
+  .egoda-logo { height: 36px; }   /* 로고도 살짝 축소 */
+  .hamburger-menu svg { width: 26px; height: 26px; }
+}
+
+@media (max-width: 768px) {
+  .header-content { padding: 0 4%; }
+  .header-right { font-size: 12px; gap: 8px; }
+  .egoda-logo { height: 34px; }
+}

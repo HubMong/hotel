@@ -1,0 +1,56 @@
+/* reset(가벼움) */
+html, body, #app { margin: 0; padding: 0; }
+#app { max-width: none; }
+:root{
+  --brand:#223454; --ink:#1d2939; --line:#e5e7eb; --bg:#fff;
+}
+body { background: var(--bg); color: var(--ink);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+/* 사용자 사이트 스코프 */
+.site .container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+
+/* 헤더 */
+.site .topbar{
+  position: sticky; top: 0; z-index: 100;
+  height: 64px; background: #fff; border-bottom: 1px solid var(--line);
+  box-shadow: 0 .5px 0 rgba(0,0,0,.04);
+}
+.site .topbar__inner{ height: 100%; display: flex; align-items: center; gap: 16px; }
+.site .logo{ font-weight:800; font-size:22px; color: var(--brand); text-decoration: none; }
+.site .actions{ margin-left:auto; display:flex; gap:10px; }
+.site .btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  height:36px; padding:0 14px; border-radius:18px; font-weight:600; font-size:14px;
+  border:1px solid transparent; text-decoration:none; transition:.15s ease;
+}
+.site .btn--ghost{ background:#fff; color:#344054; border-color: var(--line); }
+.site .btn--ghost:hover{ background:#f8fafc; }
+.site .btn--primary{ background:var(--brand); color:#fff; border-color:var(--brand); }
+.site .btn--primary:hover{ filter:brightness(1.05); }
+
+/* 검색바 */
+.site .sticky-search{ position: sticky; top: 64px; z-index: 90; }
+.site .searchbar{ background:#fff; border-bottom:1px solid #eee; }
+.site .searchgrid{
+  display:grid; gap:10px; align-items:end;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr 120px;
+  padding: 12px 0;
+}
+.site .field{ display:grid; gap:4px; }
+.site .field label{ font-size:12px; color:#777; }
+.site .field input, .site .ghost{
+  height:40px; padding:0 10px; border:1px solid #ddd; border-radius:10px; background:#fff;
+  text-align:left;
+}
+.site .ghost{ cursor: default; }
+
+/* 본문 여백 */
+.site .page{ padding: 16px 0 40px; }
+
+/* 반응형 */
+@media (max-width: 960px){
+  .site .searchgrid{ grid-template-columns: 1fr 1fr; }
+  .site .btn--primary{ grid-column: 1 / -1; }
+}
