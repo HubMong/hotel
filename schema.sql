@@ -207,6 +207,70 @@ CREATE TABLE IF NOT EXISTS `Review` (
   CONSTRAINT `FK_Reservation_TO_Review_1` FOREIGN KEY (`reservation_id`) REFERENCES `Reservation` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 14) 공지 사항
+CREATE TABLE `notice` (
+	`id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+	`is_active` BIT(1) NOT NULL,
+	`content` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_general_ci',
+	`created_at` DATETIME(6) NOT NULL,
+	`is_pinned` BIT(1) NOT NULL,
+	`title` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_general_ci',
+	`updated_at` DATETIME(6) NULL DEFAULT NULL,
+	PRIMARY KEY (`id`) USING BTREE
+)
+COLLATE='utf8mb4_general_ci'
+ENGINE=InnoDB
+;
+
+
+-- 15) 호텔 문의
+CREATE TABLE `hotel_inquiry` (
+	`id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+	`created_at` DATETIME(6) NOT NULL,
+	`message` TINYTEXT NOT NULL COLLATE 'utf8mb4_general_ci',
+	`replied_at` DATETIME(6) NULL DEFAULT NULL,
+	`reply_content` LONGTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_general_ci',
+	`reservation_id` BIGINT(20) NOT NULL,
+	`status` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_general_ci',
+	`title` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_general_ci',
+	`user_id` BIGINT(20) NOT NULL,
+	`admin_reply` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8mb4_general_ci',
+	`room_id` BIGINT(20) NOT NULL,
+	`hotel_id` BIGINT(20) NOT NULL,
+	PRIMARY KEY (`id`) USING BTREE,
+	INDEX `FKesf5qfqlk79k3f1acjc4d1gst` (`reservation_id`) USING BTREE,
+	INDEX `FKf4dl8mplay65tb4klhhc8mrpe` (`room_id`) USING BTREE,
+	INDEX `FKlab6wpsvlg5hbsw5ayamxnoyw` (`user_id`) USING BTREE,
+	CONSTRAINT `FKesf5qfqlk79k3f1acjc4d1gst` FOREIGN KEY (`reservation_id`) REFERENCES `reservation` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	CONSTRAINT `FKf4dl8mplay65tb4klhhc8mrpe` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	CONSTRAINT `FKlab6wpsvlg5hbsw5ayamxnoyw` FOREIGN KEY (`user_id`) REFERENCES `app_user` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
+)
+COLLATE='utf8mb4_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=41
+;
+
+-- 16) 웹사이트 문의
+CREATE TABLE `website_inquiry` (
+	`id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+	`admin_reply` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_general_ci',
+	`category` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_general_ci',
+	`created_at` DATETIME(6) NULL DEFAULT NULL,
+	`message` TEXT NOT NULL COLLATE 'utf8mb4_general_ci',
+	`replied_at` DATETIME(6) NULL DEFAULT NULL,
+	`status` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_general_ci',
+	`title` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_general_ci',
+	`user_id` BIGINT(20) NULL DEFAULT NULL,
+	PRIMARY KEY (`id`) USING BTREE,
+	INDEX `FKdm3tl0kogapbenbvpsxvn5546` (`user_id`) USING BTREE,
+	CONSTRAINT `FKdm3tl0kogapbenbvpsxvn5546` FOREIGN KEY (`user_id`) REFERENCES `app_user` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
+)
+COLLATE='utf8mb4_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=6
+;
+
+
 -- ====================== 샘플 데이터 ======================
 -- 유저 1명(호텔 소유자)
 INSERT INTO app_user (id, name, phone, email, password, date_of_birth, address, role)

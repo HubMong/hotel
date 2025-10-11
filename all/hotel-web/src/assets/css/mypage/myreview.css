@@ -1,0 +1,91 @@
+/* ========================================================================== 
+   리뷰 페이지 (MyReview)
+   ========================================================================== */
+
+.review-tab {
+  padding: 20px;
+}
+
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.review-card {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px;
+  background-color: var(--bg-white);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.review-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.review-hotel {
+  font-weight: 700;
+  color: var(--ink);
+  font-size: 16px;
+}
+
+.review-date {
+  font-size: 13px;
+  color: var(--ink-light);
+}
+
+.review-content {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+
+.review-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.btn-edit, .btn-delete {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-edit {
+  background-color: var(--brand-primary);
+  color: var(--bg-white);
+  border: 1px solid var(--brand-primary);
+}
+.btn-edit:hover {
+  background-color: var(--brand-primary-hover);
+}
+
+.btn-delete {
+  background-color: var(--danger);
+  color: var(--bg-white);
+  border: 1px solid var(--danger);
+}
+.btn-delete:hover {
+  opacity: 0.85;
+}
+
+.empty-review {
+  text-align: center;
+  color: var(--ink-light);
+  padding: 40px;
+  font-size: 15px;
+}

@@ -1,0 +1,100 @@
+/* ========================================================================== 
+   찜 목록 페이지 (MyWishlist)
+   ========================================================================== */
+
+.wishlist-tab {
+  padding: 20px;
+}
+
+.wishlist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.wishlist-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  background-color: var(--bg-white);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.wishlist-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+}
+
+.hotel-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+}
+
+.hotel-image {
+  width: 100px;
+  height: 80px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid var(--line);
+}
+
+.hotel-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.hotel-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.hotel-address {
+  font-size: 14px;
+  color: var(--ink-light);
+  margin-top: 4px;
+}
+
+.hotel-actions {
+  text-align: right;
+  min-width: 140px;
+}
+
+.hotel-price {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--brand-primary);
+}
+
+.per-night {
+  font-size: 13px;
+  color: var(--ink-light);
+}
+
+.delete-btn {
+  margin-top: 8px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--danger);
+  background-color: var(--danger);
+  color: var(--bg-white);
+  transition: all 0.2s ease;
+}
+.delete-btn:hover {
+  opacity: 0.85;
+}
+
+.empty {
+  text-align: center;
+  padding: 40px;
+  color: var(--ink-light);
+  font-size: 15px;
+}
