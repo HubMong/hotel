@@ -1,4 +1,4 @@
-## Prometheus + Grafana 모니터링 가이드 (초보자용)
+## Prometheus + Grafana 모니터링 가이드
 
 이미 **EC2 Front/Back + RDS** 배포가 끝났다는 가정으로,
 여기서는 **모니터링 EC2 + Prometheus + Grafana** 부분만 정리합니다.
