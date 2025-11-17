@@ -95,6 +95,28 @@ public class LoginService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public Optional<User> loginWithPreloadedUser(User user, String rawPassword) {
+        if (user == null || rawPassword == null || rawPassword.trim().isEmpty()) {
+            return Optional.empty();
+        }
+
+        if (user.getProvider() != User.Provider.LOCAL) {
+            return Optional.empty();
+        }
+
+        String encodedPassword = user.getPassword();
+        if (encodedPassword == null || encodedPassword.trim().isEmpty()) {
+            return Optional.empty();
+        }
+
+        boolean passwordMatches = passwordEncoder.matches(rawPassword, encodedPassword);
+        if (passwordMatches) {
+            return Optional.of(user);
+        }
+        return Optional.empty();
+    }
+
     // 사용자 조회
     public Optional<User> findById(Long id) {
         return loginRepository.findById(id);

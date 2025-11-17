@@ -257,5 +257,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
       """, nativeQuery = true)
   java.util.List<Object[]> fetchTopHotels(@Param("year") Integer year);
 
-  Iterable<Payment> findByExpireAtBeforeAndStatus(LocalDateTime expireAt, Payment.Status status);
+    Iterable<Payment> findByExpireAtBeforeAndStatus(LocalDateTime expireAt, Payment.Status status);
+
+    Page<Payment> findByExpireAtBeforeAndStatus(LocalDateTime expireAt, Payment.Status status, Pageable pageable);
 }

@@ -11,17 +11,29 @@ import com.example.backend.HotelOwner.repository.HotelRepository;
 import com.example.backend.HotelOwner.repository.RoomRepository;
 import com.example.backend.fe_hotel_detail.dto.HotelDetailDto;
 import com.example.backend.review.service.UserReviewService;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.regex.Pattern;
 
+@Slf4j
 @Service("feHotelDetailService")
 @RequiredArgsConstructor
 public class FeHotelDetailService {
 
-    private static final String PUBLIC_UPLOAD_BASE = "https://hwiyeong.shop";
+    private static final String DEFAULT_ORIGIN = "https://hwiyeong.shop";
+    private static final String UPLOAD_SEGMENT = "/uploads";
+    private static final Pattern UUID_PREFIX = Pattern.compile(
+            "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            Pattern.CASE_INSENSITIVE);
     private static final Set<String> LEGACY_MEDIA_HOSTS = Set.of("localhost", "127.0.0.1", "images.example.com");
 
     private final HotelRepository hotelRepository;
@@ -29,6 +41,35 @@ public class FeHotelDetailService {
     private final RoomRepository roomRepository;
     private final HotelAmenityRepository hotelAmenityRepository;
     private final UserReviewService userReviewService;
+
+    @Value("${file.upload.url:https://hwiyeong.shop/uploads}")
+    private String configuredUploadBase;
+
+    @Value("${file.upload.fallback-url:https://hwiyeong.shop/images}")
+    private String configuredFallbackBase;
+
+    @Value("${file.upload.fallback-default:hotel-placeholder.webp}")
+    private String fallbackDefaultImage;
+
+    @Value("${file.upload-dir:./uploads}")
+    private String uploadDirectory;
+
+    private Path uploadRootPath;
+    private String uploadOriginBase;
+    private String fallbackBaseNormalized;
+
+    @PostConstruct
+    void initialiseMediaBases() {
+        this.uploadOriginBase = stripUploadsSuffix(normalizeBase(configuredUploadBase));
+        this.fallbackBaseNormalized = normalizeBase(configuredFallbackBase);
+        try {
+            this.uploadRootPath = Paths.get(uploadDirectory).toAbsolutePath().normalize();
+            Files.createDirectories(this.uploadRootPath);
+        } catch (Exception ex) {
+            log.warn("업로드 디렉터리를 확인할 수 없어 기본 경로를 사용합니다. dir={}", uploadDirectory, ex);
+            this.uploadRootPath = null;
+        }
+    }
 
     public HotelDetailDto getHotelDetail(Long id) {
         Hotel h = hotelRepository.findById(id)
@@ -132,14 +173,125 @@ public class FeHotelDetailService {
         return (r.getRoomType() != null) ? r.getRoomType().name() : "객실";
     }
 
+    private String buildUploadOrFallback(String path, String originalValue) {
+        String normalized = ensureUploadsPrefix(path != null ? path : originalValue);
+        if (uploadResourceExists(normalized)) {
+            return composePublicUrl(normalized);
+        }
+        log.debug("업로드 리소스를 찾을 수 없어 대체 이미지를 사용합니다. path={}", normalized);
+        return fallbackMediaUrl(originalValue != null ? originalValue : normalized);
+    }
+
+    private boolean uploadResourceExists(String normalizedPath) {
+        if (normalizedPath == null || uploadRootPath == null) {
+            return false;
+        }
+        String relative = normalizedPath.startsWith(UPLOAD_SEGMENT)
+                ? normalizedPath.substring(UPLOAD_SEGMENT.length())
+                : normalizedPath;
+        relative = relative.replaceFirst("^/+", "");
+        if (relative.isBlank()) {
+            return false;
+        }
+        Path candidate = uploadRootPath.resolve(relative);
+        try {
+            return Files.exists(candidate);
+        } catch (Exception ex) {
+            log.debug("업로드 파일 확인 실패 path={}", candidate, ex);
+            return false;
+        }
+    }
+
+    private String fallbackMediaUrl(String originalValue) {
+        String filename = extractOriginalFilename(originalValue);
+        if (filename == null || filename.isBlank()) {
+            return fallbackDefaultUrl();
+        }
+        return joinUrl(fallbackBaseNormalized, filename);
+    }
+
+    private String extractOriginalFilename(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        String sanitized = value;
+        int queryIdx = sanitized.indexOf('?');
+        if (queryIdx >= 0) {
+            sanitized = sanitized.substring(0, queryIdx);
+        }
+        int slashIdx = sanitized.lastIndexOf('/');
+        String candidate = slashIdx >= 0 ? sanitized.substring(slashIdx + 1) : sanitized;
+        if (candidate.isBlank()) {
+            return null;
+        }
+        int underscoreIdx = candidate.indexOf('_');
+        if (underscoreIdx > 0) {
+            String prefix = candidate.substring(0, underscoreIdx);
+            if (UUID_PREFIX.matcher(prefix).matches()) {
+                candidate = candidate.substring(underscoreIdx + 1);
+            }
+        }
+        return candidate;
+    }
+
+    private String fallbackDefaultUrl() {
+        if (fallbackDefaultImage != null && fallbackDefaultImage.startsWith("http")) {
+            return fallbackDefaultImage;
+        }
+        String candidate = (fallbackDefaultImage == null || fallbackDefaultImage.isBlank())
+                ? "hotel-placeholder.webp"
+                : fallbackDefaultImage;
+        return joinUrl(fallbackBaseNormalized, candidate);
+    }
+
+    private String joinUrl(String base, String path) {
+        if (path == null || path.isBlank()) {
+            return getUploadOriginBase() + UPLOAD_SEGMENT;
+        }
+        if (path.startsWith("http://") || path.startsWith("https://")) {
+            return path;
+        }
+        String effectiveBase = (base == null || base.isBlank()) ? getUploadOriginBase() : base;
+        String trimmedBase = effectiveBase.endsWith("/") && effectiveBase.length() > 1
+                ? effectiveBase.substring(0, effectiveBase.length() - 1)
+                : effectiveBase;
+        String normalisedPath = path.startsWith("/") ? path : "/" + path;
+        return trimmedBase + normalisedPath;
+    }
+
+    private String getUploadOriginBase() {
+        return (uploadOriginBase == null || uploadOriginBase.isBlank()) ? DEFAULT_ORIGIN : uploadOriginBase;
+    }
+
+    private String normalizeBase(String value) {
+        if (value == null || value.isBlank()) {
+            return DEFAULT_ORIGIN;
+        }
+        String trimmed = value.trim();
+        while (trimmed.endsWith("/") && trimmed.length() > 1) {
+            trimmed = trimmed.substring(0, trimmed.length() - 1);
+        }
+        return trimmed.isEmpty() ? DEFAULT_ORIGIN : trimmed;
+    }
+
+    private String stripUploadsSuffix(String value) {
+        if (value == null || value.isBlank()) {
+            return DEFAULT_ORIGIN;
+        }
+        if (value.endsWith(UPLOAD_SEGMENT)) {
+            return value.substring(0, value.length() - UPLOAD_SEGMENT.length());
+        }
+        return value;
+    }
+
     private String normalizeMediaUrl(String raw) {
         if (raw == null) {
-            return null;
+            return fallbackDefaultUrl();
         }
 
         String value = raw.trim();
         if (value.isEmpty()) {
-            return null;
+            return fallbackDefaultUrl();
         }
 
         try {
@@ -152,18 +304,17 @@ public class FeHotelDetailService {
             }
 
             String normalizedHost = host.toLowerCase(Locale.ROOT);
-            if (normalizedHost.equals("hwiyeong.shop")) {
-                if (path != null && path.startsWith("/uploads")) {
-                    return composePublicUrl(path);
-                }
-                if ("http".equalsIgnoreCase(uri.getScheme())) {
-                    return value.replaceFirst("^http://", "https://");
-                }
-                return value;
+
+            if (path != null && path.contains(UPLOAD_SEGMENT)) {
+                return buildUploadOrFallback(path, value);
             }
 
             if (LEGACY_MEDIA_HOSTS.contains(normalizedHost)) {
-                return composePublicUrl(path);
+                return buildUploadOrFallback(path, value);
+            }
+
+            if ("http".equalsIgnoreCase(uri.getScheme())) {
+                return value.replaceFirst("^http://", "https://");
             }
 
             return value;
@@ -174,38 +325,46 @@ public class FeHotelDetailService {
 
     private String resolveRelative(String path) {
         if (path == null || path.isBlank()) {
-            return PUBLIC_UPLOAD_BASE + "/uploads";
+            return fallbackDefaultUrl();
         }
-        if (path.startsWith("/uploads") || path.startsWith("uploads")) {
-            return PUBLIC_UPLOAD_BASE + ensureUploadsPrefix(path);
+        if (path.startsWith(UPLOAD_SEGMENT) || path.startsWith(UPLOAD_SEGMENT.substring(1))) {
+            String normalized = ensureUploadsPrefix(path);
+            if (uploadResourceExists(normalized)) {
+                return composePublicUrl(normalized);
+            }
+            log.debug("상대 업로드 경로를 찾을 수 없어 대체 이미지를 반환합니다. path={}", path);
+            return fallbackMediaUrl(path);
         }
         String normalised = path.startsWith("/") ? path : "/" + path;
-        return PUBLIC_UPLOAD_BASE + normalised;
+        return getUploadOriginBase() + normalised;
     }
 
     private String composePublicUrl(String path) {
         if (path == null || path.isBlank()) {
-            return PUBLIC_UPLOAD_BASE + "/uploads";
+            return getUploadOriginBase() + UPLOAD_SEGMENT;
         }
-        return PUBLIC_UPLOAD_BASE + ensureUploadsPrefix(path);
+        return getUploadOriginBase() + ensureUploadsPrefix(path);
     }
 
     private String ensureUploadsPrefix(String path) {
+        if (path == null || path.isBlank()) {
+            return UPLOAD_SEGMENT;
+        }
+
         String normalized = path.startsWith("/") ? path : "/" + path;
 
-        if (normalized.equals("/uploads") || normalized.startsWith("/uploads/")) {
+        if (normalized.equals(UPLOAD_SEGMENT) || normalized.startsWith(UPLOAD_SEGMENT + "/")) {
             return normalized;
         }
 
-        if (normalized.startsWith("/uploads")) {
-            String remainder = normalized.substring("/uploads".length());
-            if (remainder.startsWith("/")) {
-                return "/uploads" + remainder;
-            }
-            return "/uploads/" + remainder;
+        int idx = normalized.indexOf(UPLOAD_SEGMENT);
+        if (idx >= 0) {
+            String remainder = normalized.substring(idx + UPLOAD_SEGMENT.length());
+            remainder = remainder.startsWith("/") ? remainder : "/" + remainder;
+            return UPLOAD_SEGMENT + remainder;
         }
 
-        return "/uploads" + normalized;
+        return UPLOAD_SEGMENT + normalized;
     }
 
     private HotelDetailDto.Rating buildRating(Long hotelId) {

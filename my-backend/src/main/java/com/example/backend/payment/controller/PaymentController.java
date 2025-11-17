@@ -17,7 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -25,6 +28,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 @RestController
@@ -39,6 +43,7 @@ public class PaymentController {
     private final AdminPaymentNotificationService notificationService;
     private final TaskExecutor notificationExecutor;
     private final ReservationService reservationService;
+    private final TransactionTemplate transactionTemplate;
 
     public PaymentController(
             PaymentRepository repository,
@@ -47,7 +52,8 @@ public class PaymentController {
             RestTemplate restTemplate,
             AdminPaymentNotificationService notificationService,
             ReservationService reservationService,
-            @Qualifier("notificationExecutor") TaskExecutor notificationExecutor) {
+            @Qualifier("notificationExecutor") TaskExecutor notificationExecutor,
+            PlatformTransactionManager transactionManager) {
         this.repository = repository;
         this.reservationRepository = reservationRepository;
         this.userRepository = userRepository;
@@ -55,6 +61,9 @@ public class PaymentController {
         this.notificationService = notificationService;
         this.notificationExecutor = notificationExecutor;
         this.reservationService = reservationService;
+        this.transactionTemplate = new TransactionTemplate(transactionManager);
+        this.transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+        this.transactionTemplate.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
     }
 
     private String currentUserEmail() {
@@ -156,7 +165,6 @@ public class PaymentController {
     }
 
     /** 결제 승인 + 예약 확정 */
-    @Transactional
     @PostMapping("/confirm")
     public ResponseEntity<?> confirm(@RequestBody Map<String, Object> body) {
         String orderId = String.valueOf(body.get("orderId"));
@@ -225,61 +233,85 @@ public class PaymentController {
         && responseBody != null
         && responseBody.contains("\"status\":\"DONE\"")) {
 
-            // 토스 응답 → 결제수단/영수증 저장(표시용)
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                JsonNode root = mapper.readTree(responseBody);
+            PaymentGatewayAttributes gatewayAttributes = parseGatewayAttributes(responseBody, orderId);
 
-                String method = root.path("method").asText(null);
-                String easyProvider = root.path("easyPay").path("provider").asText(null);
-                String receiptUrl = null;
-                JsonNode receiptNode = root.path("receipt");
-                if (receiptNode != null && !receiptNode.isMissingNode()) {
-                    receiptUrl = receiptNode.path("url").asText(null);
-                }
-                if (receiptUrl == null || receiptUrl.isBlank()) {
-                    receiptUrl = root.path("receiptUrl").asText(null);
+            AtomicReference<ResponseEntity<?>> txFailure = new AtomicReference<>();
+            PaymentFinalizePayload finalizePayload = transactionTemplate.execute(status -> {
+                Payment managedPayment = repository.findById(pay.getId()).orElse(null);
+                if (managedPayment == null) {
+                    txFailure.set(ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("code", "PAYMENT_NOT_FOUND")));
+                    status.setRollbackOnly();
+                    return null;
                 }
 
-                String computedMethod;
-                if (easyProvider != null && !easyProvider.isBlank()) {
-                    computedMethod = "TOSS:" + easyProvider;
-                } else if (method != null && !method.isBlank()) {
-                    computedMethod = "TOSS:" + method;
-                } else {
-                    computedMethod = "TOSS";
+                if (managedPayment.getStatus() != Payment.Status.PENDING) {
+                    txFailure.set(ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("code", "PAYMENT_NOT_PENDING")));
+                    status.setRollbackOnly();
+                    return null;
                 }
 
-                pay.setPaymentMethod(computedMethod);
-                if (receiptUrl != null && !receiptUrl.isBlank()) {
-                    pay.setReceiptUrl(receiptUrl);
+                Reservation managedReservation = reservationRepository.findById(managedPayment.getReservationId()).orElse(null);
+                if (managedReservation == null) {
+                    txFailure.set(ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("code", "RESERVATION_NOT_FOUND")));
+                    status.setRollbackOnly();
+                    return null;
                 }
-            } catch (IOException ex) {
-                log.warn("토스 결제 응답 파싱 실패 - orderId={}", orderId, ex);
+
+                if (managedReservation.getStatus() == Reservation.Status.CANCELLED) {
+                    txFailure.set(ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("code", "RESERVATION_CANCELLED")));
+                    status.setRollbackOnly();
+                    return null;
+                }
+
+                if (managedReservation.getStatus() == Reservation.Status.COMPLETED) {
+                    txFailure.set(ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("code", "RESERVATION_COMPLETED")));
+                    status.setRollbackOnly();
+                    return null;
+                }
+
+                managedPayment.setPaymentKey(paymentKey);
+                if (gatewayAttributes.paymentMethod() != null) {
+                    managedPayment.setPaymentMethod(gatewayAttributes.paymentMethod());
+                }
+                if (gatewayAttributes.receiptUrl() != null && !gatewayAttributes.receiptUrl().isBlank()) {
+                    managedPayment.setReceiptUrl(gatewayAttributes.receiptUrl());
+                }
+                managedPayment.setStatus(Payment.Status.COMPLETED);
+
+                managedReservation.setStatus(Reservation.Status.COMPLETED);
+                managedReservation.setTransactionId(paymentKey);
+
+                repository.save(managedPayment);
+                reservationRepository.save(managedReservation);
+
+                Payment emailPayment = snapshotPayment(managedPayment);
+                Reservation emailReservation = snapshotReservation(managedReservation);
+
+                Map<String, Object> responsePayload = Map.of(
+                        "paymentId", managedPayment.getId(),
+                        "reservationId", managedReservation.getId(),
+                        "status", "COMPLETED");
+
+                return new PaymentFinalizePayload(emailPayment, emailReservation, responsePayload);
+            });
+
+            if (txFailure.get() != null) {
+                return txFailure.get();
             }
 
-            pay.setStatus(Payment.Status.COMPLETED);
-            repository.save(pay);
-
-            rv.setStatus(Reservation.Status.COMPLETED);
-            rv.setTransactionId(paymentKey);
-            reservationRepository.save(rv);
-
-            Payment emailPayment = snapshotPayment(pay);
-            Reservation emailReservation = snapshotReservation(rv);
+            if (finalizePayload == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("code", "PAYMENT_FINALIZE_FAILED"));
+            }
 
             notificationExecutor.execute(() -> {
                 try {
-                    notificationService.sendPaymentCompletedNotification(emailPayment, emailReservation);
+                    notificationService.sendPaymentCompletedNotification(finalizePayload.payment(), finalizePayload.reservation());
                 } catch (RuntimeException emailException) {
-                    log.error("결제 완료 알림 이메일 발송 중 오류 - paymentId={}", pay.getId(), emailException);
+                    log.error("결제 완료 알림 이메일 발송 중 오류 - paymentId={}", finalizePayload.payment().getId(), emailException);
                 }
             });
 
-            return ResponseEntity.ok(Map.of(
-                    "paymentId", pay.getId(),
-                    "reservationId", rv.getId(),
-                    "status", "COMPLETED"));
+            return ResponseEntity.ok(finalizePayload.responseBody());
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("code", "TOSS_CONFIRM_FAILED"));
     }
@@ -386,6 +418,63 @@ public class PaymentController {
         snapshot.setUserId(source.getUserId());
 
         return snapshot;
+    }
+
+    private PaymentGatewayAttributes parseGatewayAttributes(String responseBody, String orderId) {
+        String computedMethod = null;
+        String receiptUrl = null;
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(responseBody);
+
+            String method = root.path("method").asText(null);
+            String easyProvider = root.path("easyPay").path("provider").asText(null);
+            JsonNode receiptNode = root.path("receipt");
+            if (receiptNode != null && !receiptNode.isMissingNode()) {
+                receiptUrl = receiptNode.path("url").asText(null);
+            }
+            if (receiptUrl == null || receiptUrl.isBlank()) {
+                receiptUrl = root.path("receiptUrl").asText(null);
+            }
+
+            if (easyProvider != null && !easyProvider.isBlank()) {
+                computedMethod = "TOSS:" + easyProvider;
+            } else if (method != null && !method.isBlank()) {
+                computedMethod = "TOSS:" + method;
+            } else {
+                computedMethod = "TOSS";
+            }
+        } catch (IOException ex) {
+            log.warn("토스 결제 응답 파싱 실패 - orderId={}", orderId, ex);
+        }
+        return new PaymentGatewayAttributes(computedMethod, receiptUrl);
+    }
+
+    private static final class PaymentFinalizePayload {
+        private final Payment payment;
+        private final Reservation reservation;
+        private final Map<String, Object> responseBody;
+
+        private PaymentFinalizePayload(Payment payment, Reservation reservation, Map<String, Object> responseBody) {
+            this.payment = payment;
+            this.reservation = reservation;
+            this.responseBody = responseBody;
+        }
+
+        public Payment payment() {
+            return payment;
+        }
+
+        public Reservation reservation() {
+            return reservation;
+        }
+
+        public Map<String, Object> responseBody() {
+            return responseBody;
+        }
+    }
+
+    private record PaymentGatewayAttributes(String paymentMethod, String receiptUrl) {
     }
 
     private Reservation snapshotReservation(Reservation source) {

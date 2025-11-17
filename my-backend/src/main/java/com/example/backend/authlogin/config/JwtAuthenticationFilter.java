@@ -91,8 +91,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     var authorities = java.util.List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
                     UsernamePasswordAuthenticationToken auth =
                             new UsernamePasswordAuthenticationToken(email, null, authorities);
-                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(auth);
+                        // Attach the loaded domain User as authentication details so controllers
+                        // can access user id without parsing the Authorization header again.
+                        auth.setDetails(user);
+                        SecurityContextHolder.getContext().setAuthentication(auth);
                 }
             }
         }

@@ -107,6 +107,8 @@ file:
   upload:
     dir: uploads
     url: https://hwiyeong.shop/uploads
+    fallback-url: ${MEDIA_FALLBACK_BASE:https://hwiyeong.shop/images}
+    fallback-default: ${MEDIA_FALLBACK_DEFAULT:hotel-placeholder.webp}
   upload-dir: ./uploads
 
 jwt:
@@ -129,3 +131,14 @@ management:
     export:
       prometheus:
         enabled: true
+
+reservation:
+  expiry:
+    fixed-delay-ms: 60000   # 1분 간격으로 만료 스케줄 실행
+    batch-size: 200         # 실행당 최대 만료 처리 건수
+    max-iterations: 3       # 한 번 실행에서 반복 처리 횟수 제한
+
+payment:
+  expired:
+    fixed-delay-ms: 300000  # 5분 간격으로 결제 만료 스케줄 실행
+    batch-size: 150         # 한 번에 처리할 만료 결제 수

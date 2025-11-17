@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.transaction.CannotCreateTransactionException;
 
 import com.example.backend.admin.dto.ApiResponse;
 
@@ -67,6 +68,13 @@ public class GlobalExceptionHandler {
             message = "Duplicate entry - record already exists";
         }
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.fail(message));
+    }
+
+    @ExceptionHandler(CannotCreateTransactionException.class)
+    public ResponseEntity<ApiResponse<Void>> handleCannotCreateTransaction(CannotCreateTransactionException ex) {
+        log.error("Database connection unavailable", ex);
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(ApiResponse.fail("현재 요청이 많아 잠시 후 다시 시도해주세요."));
     }
 
     // 404는 404로 내려주기 (컨트롤러 매핑 없음)

@@ -18,6 +18,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     List<Reservation> findTop500ByStatusAndExpiresAtBefore(Reservation.Status status, Instant cutoff);
 
+    Page<Reservation> findByStatusAndExpiresAtBefore(Reservation.Status status, Instant cutoff, Pageable pageable);
+
     // 마이페이지(사용자별)
     @Query("""
            SELECT r

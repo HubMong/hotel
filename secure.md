@@ -274,4 +274,4 @@ sudo systemctl start grafana-server
 3. Grafana
    - `http://<MONITOR_PUBLIC_IP>:3000` 접속 가능 (내 IP에서만)
    - Prometheus 데이터소스 `Save & Test` 성공
-   - 대시보드에서 HTTP, JVM 등의 그래프가 움직이는지 확인
+   - 대시보드에서 HTTP, JVM 등의 그래프가 움직이는지 확인 

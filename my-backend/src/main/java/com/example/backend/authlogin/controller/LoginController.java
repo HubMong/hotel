@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.function.Supplier;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -48,7 +49,7 @@ public class LoginController {
     private final JwtUtil jwtUtil;
     private final LoginRepository loginRepository;
     private final EmailService emailService;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
     @Value("${RECAPTCHA_SECRET:}")
     private String recaptchaSecret;
 
@@ -160,13 +161,14 @@ public class LoginController {
     String normalizedEmail = email != null ? email.trim().toLowerCase(Locale.ROOT) : null;
         String emailKey = normalizedEmail != null && !normalizedEmail.isEmpty() ? normalizedEmail : UNKNOWN_USER_KEY;
         String ipKey = clientIp != null && !clientIp.isEmpty() ? clientIp : UNKNOWN_IP_KEY;
+        Supplier<Optional<User>> userSupplier = memoizedUserSupplier(normalizedEmail);
 
-        if (isLocked(LONG_LOCKS, emailKey, now)) {
+        if (isLocked(LONG_LOCKS, emailKey, now, userSupplier)) {
             log.warn("Login blocked (24h lock) for email: {} from IP: {}", normalizedEmail, clientIp);
             return ResponseEntity.status(423).body("보안상의 이유로 24시간 동안 로그인 시도가 제한되었습니다. 고객센터로 문의해 주세요.");
         }
 
-        if (isLocked(SHORT_LOCKS, emailKey, now)) {
+        if (isLocked(SHORT_LOCKS, emailKey, now, userSupplier)) {
             log.warn("Login blocked (15min lock) for email: {} from IP: {}", normalizedEmail, clientIp);
             return ResponseEntity.status(423).body("로그인 시도가 반복적으로 실패하여 15분 동안 로그인이 제한되었습니다. 안내 이메일을 확인해주세요.");
         }
@@ -193,7 +195,7 @@ public class LoginController {
         }
 
         try {
-            Optional<User> user = loginService.login(email.trim(), password);
+            Optional<User> user = loginService.loginWithPreloadedUser(userSupplier.get().orElse(null), password);
 
             if (user.isPresent()) {
                 String token = jwtUtil.generateToken(user.get());
@@ -212,12 +214,12 @@ public class LoginController {
         httpResponse.addHeader(HttpHeaders.SET_COOKIE, authCookie.toString());
 
         log.info("Login successful for email: {}", email);
-        resetFailures(emailKey, ipKey);
+        resetFailures(emailKey, ipKey, userSupplier);
         return ResponseEntity.ok(response);
             } else {
                 log.warn("Login failed for email: {} - Invalid credentials", email);
-                registerFailure(emailKey, ipKey, now);
-                return handleFailureResponse(normalizedEmail, emailKey, ipKey, now);
+                registerFailure(emailKey, ipKey, now, userSupplier);
+                return handleFailureResponse(normalizedEmail, emailKey, ipKey, now, userSupplier);
             }
         } catch (Exception e) {
             log.error("Login error for email: {} - {}", email, e.getMessage());
@@ -282,41 +284,77 @@ public class LoginController {
         return request.getRemoteAddr();
     }
 
-    private boolean isLocked(Map<String, Instant> lockMap, String key, Instant now) {
+    private boolean isLocked(Map<String, Instant> lockMap, String key, Instant now,
+                             Supplier<Optional<User>> userSupplier) {
         Instant expiry = lockMap.get(key);
         if (expiry == null) {
-            if (key != null && !UNKNOWN_USER_KEY.equals(key)) {
-                loginRepository.findByEmail(key).ifPresent(user -> {
-                    LocalDateTime lockUntil = user.getLoginLockUntil();
-                    User.LoginLockType lockType = user.getLoginLockType();
-                    if (lockUntil != null && lockType != null) {
-                        Instant dbExpiry = toInstant(lockUntil);
-                        if (dbExpiry.isAfter(now)) {
-                            if (lockType == User.LoginLockType.LONG && lockMap == LONG_LOCKS) {
-                                LONG_LOCKS.put(key, dbExpiry);
-                            } else if (lockType == User.LoginLockType.SHORT && lockMap == SHORT_LOCKS) {
-                                SHORT_LOCKS.put(key, dbExpiry);
-                            }
-                        } else {
-                            clearUserLockIfExpired(key);
-                        }
+            Optional<User> userOpt = resolveUser(key, userSupplier);
+            if (userOpt.isEmpty()) {
+                return false;
+            }
+
+            User user = userOpt.get();
+            LocalDateTime lockUntil = user.getLoginLockUntil();
+            User.LoginLockType lockType = user.getLoginLockType();
+            if (lockUntil != null && lockType != null) {
+                Instant dbExpiry = toInstant(lockUntil);
+                if (dbExpiry.isAfter(now)) {
+                    if (lockType == User.LoginLockType.LONG && lockMap == LONG_LOCKS) {
+                        LONG_LOCKS.put(key, dbExpiry);
+                    } else if (lockType == User.LoginLockType.SHORT && lockMap == SHORT_LOCKS) {
+                        SHORT_LOCKS.put(key, dbExpiry);
                     }
-                });
-                expiry = lockMap.get(key);
-                if (expiry == null) {
+                    expiry = dbExpiry;
+                } else {
+                    clearUserLockIfExpired(key, userSupplier);
                     return false;
                 }
             } else {
                 return false;
             }
         }
+
         if (expiry.isAfter(now)) {
-            synchronizeUserLockState(key, expiry, lockMap == LONG_LOCKS ? User.LoginLockType.LONG : User.LoginLockType.SHORT);
+            synchronizeUserLockState(key, expiry,
+                    lockMap == LONG_LOCKS ? User.LoginLockType.LONG : User.LoginLockType.SHORT,
+                    userSupplier);
             return true;
         }
         lockMap.remove(key, expiry);
-        clearUserLockIfExpired(key);
+        clearUserLockIfExpired(key, userSupplier);
         return false;
+    }
+
+    private Supplier<Optional<User>> memoizedUserSupplier(String normalizedEmail) {
+        return new Supplier<>() {
+            private boolean initialized;
+            private Optional<User> cached = Optional.empty();
+
+            @Override
+            public Optional<User> get() {
+                if (!initialized) {
+                    if (normalizedEmail == null || normalizedEmail.isBlank()) {
+                        cached = Optional.empty();
+                    } else {
+                        cached = loginRepository.findByEmail(normalizedEmail);
+                    }
+                    initialized = true;
+                }
+                return cached;
+            }
+        };
+    }
+
+    private Optional<User> resolveUser(String emailKey, Supplier<Optional<User>> userSupplier) {
+        if (emailKey == null || UNKNOWN_USER_KEY.equals(emailKey) || userSupplier == null) {
+            return Optional.empty();
+        }
+        Optional<User> cached = userSupplier.get();
+        if (cached.isPresent() && cached.get().getEmail() != null
+                && cached.get().getEmail().equalsIgnoreCase(emailKey)) {
+            return cached;
+        }
+        return loginRepository.findByEmail(emailKey);
     }
 
     private boolean isCaptchaRequired(String emailKey, String ipKey, Instant now) {
@@ -325,14 +363,12 @@ public class LoginController {
         return userFailures >= CAPTCHA_THRESHOLD || ipFailures >= CAPTCHA_THRESHOLD;
     }
 
-    private void registerFailure(String emailKey, String ipKey, Instant now) {
+    private void registerFailure(String emailKey, String ipKey, Instant now,
+                                 Supplier<Optional<User>> userSupplier) {
         appendFailure(USER_FAILURES, emailKey, now);
         appendFailure(IP_FAILURES, ipKey, now);
 
-        Optional<User> userOpt = Optional.empty();
-        if (emailKey != null && !UNKNOWN_USER_KEY.equals(emailKey)) {
-            userOpt = loginRepository.findByEmail(emailKey);
-        }
+        Optional<User> userOpt = resolveUser(emailKey, userSupplier);
 
         int recentUserFailures = countRecentFailures(USER_FAILURES, emailKey, SHORT_WINDOW, now);
         int longUserFailures = countRecentFailures(USER_FAILURES, emailKey, LONG_WINDOW, now);
@@ -367,12 +403,13 @@ public class LoginController {
         }
     }
 
-    private ResponseEntity<?> handleFailureResponse(String normalizedEmail, String emailKey, String ipKey, Instant now) {
-        if (isLocked(LONG_LOCKS, emailKey, now)) {
+    private ResponseEntity<?> handleFailureResponse(String normalizedEmail, String emailKey, String ipKey,
+                                                   Instant now, Supplier<Optional<User>> userSupplier) {
+        if (isLocked(LONG_LOCKS, emailKey, now, userSupplier)) {
             return ResponseEntity.status(423).body("보안상의 이유로 24시간 동안 로그인 시도가 제한되었습니다. 고객센터로 문의해 주세요.");
         }
 
-        if (isLocked(SHORT_LOCKS, emailKey, now)) {
+        if (isLocked(SHORT_LOCKS, emailKey, now, userSupplier)) {
             return ResponseEntity.status(423).body("로그인 시도가 반복적으로 실패하여 15분 동안 로그인이 제한되었습니다. 안내 이메일을 확인해주세요.");
         }
 
@@ -386,13 +423,13 @@ public class LoginController {
         return ResponseEntity.status(401).body("로그인 실패: 이메일 또는 비밀번호가 일치하지 않습니다.");
     }
 
-    private void resetFailures(String emailKey, String ipKey) {
+    private void resetFailures(String emailKey, String ipKey, Supplier<Optional<User>> userSupplier) {
         if (emailKey != null) {
             USER_FAILURES.remove(emailKey);
             SHORT_LOCKS.remove(emailKey);
             LONG_LOCKS.remove(emailKey);
             if (!UNKNOWN_USER_KEY.equals(emailKey)) {
-                loginRepository.findByEmail(emailKey).ifPresent(user -> {
+                resolveUser(emailKey, userSupplier).ifPresent(user -> {
                     if (user.getLoginLockUntil() != null || user.getLoginLockType() != null) {
                         user.setLoginLockUntil(null);
                         user.setLoginLockType(null);
@@ -448,12 +485,13 @@ public class LoginController {
         }
     }
 
-    private void synchronizeUserLockState(String emailKey, Instant expiry, User.LoginLockType lockType) {
+    private void synchronizeUserLockState(String emailKey, Instant expiry, User.LoginLockType lockType,
+                                          Supplier<Optional<User>> userSupplier) {
         if (emailKey == null || UNKNOWN_USER_KEY.equals(emailKey)) {
             return;
         }
         LocalDateTime until = toLocalDateTime(expiry);
-        loginRepository.findByEmail(emailKey).ifPresent(user -> {
+        resolveUser(emailKey, userSupplier).ifPresent(user -> {
             LocalDateTime currentUntil = user.getLoginLockUntil();
             User.LoginLockType currentType = user.getLoginLockType();
             if (currentUntil == null || currentUntil.isBefore(until) || currentType != lockType) {
@@ -464,11 +502,11 @@ public class LoginController {
         });
     }
 
-    private void clearUserLockIfExpired(String emailKey) {
+    private void clearUserLockIfExpired(String emailKey, Supplier<Optional<User>> userSupplier) {
         if (emailKey == null || UNKNOWN_USER_KEY.equals(emailKey)) {
             return;
         }
-        loginRepository.findByEmail(emailKey).ifPresent(user -> {
+        resolveUser(emailKey, userSupplier).ifPresent(user -> {
             if (user.getLoginLockUntil() != null || user.getLoginLockType() != null) {
                 user.setLoginLockUntil(null);
                 user.setLoginLockType(null);
