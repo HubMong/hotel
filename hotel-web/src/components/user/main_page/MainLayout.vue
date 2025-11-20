@@ -54,7 +54,13 @@
             return;
           }
         } catch (error) {
-          console.warn("사용자 정보를 불러올 수 없습니다.", error);
+          // 401(Unauthorized)은 비로그인 상태이므로 로그 출력 생략
+          const status = error.response?.status;
+          if (status === 401 || error.message?.includes('401')) {
+            // pass
+          } else {
+            console.warn("사용자 정보를 불러올 수 없습니다.", error);
+          }
         }
 
         this.resetAuthState();

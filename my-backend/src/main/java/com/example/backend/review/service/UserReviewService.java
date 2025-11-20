@@ -338,6 +338,7 @@ public UserReviewResponseDto updateReview(
             .userName(userName)
             .hotelId(hotelId)              // ✅ 추가됨
             .hotelName(hotelName)
+            .reservationId(review.getReservation() != null ? review.getReservation().getId() : null)
             .rating(review.getRating())
             .content(review.getContent())
             .images(imageList)

@@ -105,8 +105,10 @@ const fetchUserProfile = async () => {
     profileImage.value = resolveImageUrl(data.profileImageUrl)
     setAuthUser(data)
     notifyAuthChanged()
-  } catch {
-    console.warn("사용자 정보를 불러올 수 없습니다.")
+  } catch (error) {
+    const status = error.response?.status
+    if (status === 401 || error.message?.includes('401')) return
+    console.warn("사용자 정보를 불러올 수 없습니다.", error)
   }
 }
 
@@ -134,7 +136,9 @@ const onFileChange = async (e) => {
 
 onMounted(() => {
   checkAuthStatus()
-  fetchUserProfile()
+  if (isLoggedIn.value) {
+    fetchUserProfile()
+  }
   syncTabWithRoute()
 })
 

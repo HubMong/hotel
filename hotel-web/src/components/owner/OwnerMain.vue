@@ -92,7 +92,12 @@ export default {
           return
         }
       } catch (error) {
-        console.warn('사업자 정보를 불러올 수 없습니다.', error)
+        const status = error.response?.status
+        if (status === 401 || error.message?.includes('401')) {
+          // 401 오류는 무시
+        } else {
+          console.warn('사업자 정보를 불러올 수 없습니다.', error)
+        }
       }
 
       this.$router.push('/login')

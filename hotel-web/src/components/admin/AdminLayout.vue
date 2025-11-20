@@ -218,16 +218,15 @@ export default {
             this.unansweredCount =
                 typeof res.data === 'number' ? res.data : res.data?.count || 0
         } catch (e) {
+          const status = e?.response?.status
+          if (status === 401) {
+            this.teardownSSE()
+            clearAuthUser()
+            notifyAuthChanged()
+            this.$router.push('/login')
+          } else {
             console.error('❌ 미답변 문의 수 로드 실패:', e)
-            
-            // 401 Unauthorized 오류 감지 시 강제 로그아웃/리디렉션
-      if (e?.response?.status === 401) {
-                console.warn('⚠️ 401 Unauthorized 감지. 강제 로그아웃 처리합니다.')
-                this.teardownSSE()
-    clearAuthUser()
-    notifyAuthChanged()
-                this.$router.push('/login')
-            }
+          }
         }
     },
 

@@ -5,16 +5,16 @@
   margin: 0 auto;
   font-family: 'Montserrat', sans-serif;
   min-height: 100vh;
-  background-color: #FAFBFC;
+  background-color: #fafbfc;
 }
 
 /* ---------------- Header ---------------- */
 .main-header {
   background-color: #fff;
   box-shadow: 0 4px 16px rgba(17, 34, 17, 0.05);
-  position: sticky;   /* ← 고정 헤더처럼 상단에 붙임 */
+  position: sticky;
   top: 0;
-  z-index: 1000;      /* 배너·오버레이보다 위 */
+  z-index: 1000;
 }
 
 .header-content {
@@ -65,19 +65,26 @@
 /* ---------------- Hero Section ---------------- */
 .hero-section {
   position: relative;
-  height: 450px;
+  height: 430px;
   background-size: cover;
   background-position: center;
   display: flex;
   justify-content: center;
+  
+  border-radius: 12px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);  
+  max-width: 1300px; 
+  margin: 0 auto;
 }
 
 .hero-bg {
-  /* Lighter default with responsive 1x/2x variants */
-  background-image: url('https://api.builder.io/api/v1/image/assets/TEMP/8646b4d9a3fc120edf8a5960adb52153b4b0e339?width=1440');
+  background-image: url(https://api.builder.io/api/v1/image/assets/TEMP/8646b4d9a3fc120edf8a5960adb52153b4b0e339?width=1440);
   background-image: image-set(
-    url('https://api.builder.io/api/v1/image/assets/TEMP/8646b4d9a3fc120edf8a5960adb52153b4b0e339?width=1440') 1x,
-    url('https://api.builder.io/api/v1/image/assets/TEMP/8646b4d9a3fc120edf8a5960adb52153b4b0e339?width=2880') 2x
+    url(https://api.builder.io/api/v1/image/assets/TEMP/8646b4d9a3fc120edf8a5960adb52153b4b0e339?width=1440) 1x,
+    url(https://api.builder.io/api/v1/image/assets/TEMP/8646b4d9a3fc120edf8a5960adb52153b4b0e339?width=2880) 2x
   );
 }
 
@@ -94,24 +101,27 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 0 4%;
+  padding: 0 15.5%;
   z-index: 1;
-}
+  align-items: flex-end;
+} 
 
 .hero-text {
   color: #fff;
   max-width: 600px;
-}
+  text-align: right;
+} 
 
 .hero-subtitle {
   font-size: 16px;
   opacity: 0.9;
-}
+  text-align: right;
+} 
 
 /* ---------------- Recommended Section ---------------- */
 .recommended-section {
   max-width: 1200px;
-  margin: 40px auto;
+  margin: 80px auto;
   padding: 0 20px;
 }
 
@@ -123,7 +133,6 @@
 
 .swiper-container {
   position: relative;
-  /* 버튼 표시/비표시 시 레이아웃 흔들림 방지를 위해 flex 제거 */
 }
 
 .destination-swiper {
@@ -161,12 +170,9 @@
 }
 
 .nav-button::before {
-  content: '';
+  content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: linear-gradient(135deg, #4ec89f 0%, #3bb08f 100%);
   border-radius: 50%;
   opacity: 0;
@@ -175,7 +181,7 @@
 }
 
 .nav-button-left {
-  left: -64px; /* 항상 자리를 유지하여 레이아웃 영향 제거 */
+  left: -64px;
   top: 50%;
   transform: translateY(-50%);
 }
@@ -236,13 +242,14 @@
 }
 
 .destination-card::before {
-  content: '';
+  content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(78, 200, 159, 0.05) 0%, rgba(59, 176, 143, 0.05) 100%);
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(78, 200, 159, 0.05) 0%,
+    rgba(59, 176, 143, 0.05) 100%
+  );
   opacity: 0;
   transition: opacity 0.4s ease;
   z-index: 1;
@@ -256,9 +263,8 @@
   width: 100%;
   height: 180px;
   object-fit: cover;
-  /* CLS 방지: 고정 높이 유지 + 비율 힌트 제공 */
-  aspect-ratio: 20 / 9; /* 400x180 기준 */
-  display: block; /* 인라인 이미지의 베이스라인 간극 제거 */
+  aspect-ratio: 20 / 9;
+  display: block;
 }
 
 .destination-info {
@@ -281,8 +287,7 @@
   max-width: 1200px;
   margin: 60px auto;
   padding: 0 20px;
-  overflow: hidden; /* 컨테이너 오버플로우 방지 */
-  /* 렌더 지연으로 초기 페인트 최적화 */
+  overflow: hidden;
   content-visibility: auto;
   contain-intrinsic-size: 800px;
 }
@@ -292,7 +297,6 @@
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 20px;
   max-width: 100%;
-  /* 4개 이하일 때는 자동으로 맞춰짐, 그 이상이면 반응형으로 줄바꿈 */
 }
 
 .hotel-card {
@@ -312,8 +316,7 @@
   width: 100%;
   height: 160px;
   object-fit: cover;
-  /* CLS 방지: 고정 높이 유지 + 비율 힌트 제공 */
-  aspect-ratio: 5 / 2; /* 400x160 기준 */
+  aspect-ratio: 5 / 2;
   display: block;
 }
 
@@ -348,7 +351,6 @@
   max-width: 1200px;
   margin: 60px auto;
   padding: 0 20px;
-  /* 아래 폴드 콘텐츠는 브라우저가 여유 있을 때 렌더 */
   content-visibility: auto;
   contain-intrinsic-size: 600px;
 }
@@ -429,11 +431,9 @@
   .tips-list {
     grid-template-columns: 1fr 1fr;
   }
-  
   .swiper-container {
     gap: 5px;
   }
-  
   .nav-button {
     width: 46px;
     height: 46px;
@@ -456,23 +456,19 @@
   .tips-list {
     grid-template-columns: 1fr;
   }
-  
   .swiper-container {
     gap: 3px;
   }
-  
   .nav-button {
     width: 42px;
     height: 42px;
     font-size: 18px;
   }
-  
   .recommended-section {
     padding: 0 10px;
   }
 }
 
-/* 작은 화면에서 추가 조정 */
 @media (max-width: 480px) {
   .hotel-section {
     padding: 0 10px;

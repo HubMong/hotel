@@ -411,7 +411,7 @@ export default {
         if (this.selectedStatus) params.status = this.selectedStatus
         const s = this.toApiSort(this.sort)
         if (s) params.sort = s
-        console.log('API 요청 파라미터:', params)
+        // console.log('API 요청 파라미터:', params)
 
         const resp = await http.get('/admin/hotels', { params })
         const page = resp?.data?.data || {}
@@ -438,13 +438,13 @@ export default {
       }
     },
     sortBy(prop) {
-      console.log('정렬 클릭:', prop, '현재 정렬:', this.sort)
+      // console.log('정렬 클릭:', prop, '현재 정렬:', this.sort)
       if (this.sort.prop === prop) {
         this.sort.order = this.sort.order === 'ascending' ? 'descending' : 'ascending'
       } else {
         this.sort = { prop, order: 'ascending' }
       }
-      console.log('새 정렬:', this.sort)
+      // console.log('새 정렬:', this.sort)
       this.currentPage = 0
       this.loadBusinesses()
     },

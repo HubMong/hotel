@@ -1159,7 +1159,7 @@ export default {
         if (exportForm.scope === 'SELECTION') {
           payload.selectedIds = Array.from(selectedRowIds.value)
         }
-        console.log('Export payload:', payload)
+        // console.log('Export payload:', payload)
         const res = await api.post('/admin/payments/export/jobs', payload)
         const status = res.data?.data ?? res.data
         if (!status || !status.jobId) {

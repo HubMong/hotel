@@ -113,7 +113,13 @@
     <section class="review-list">
       <h3>전체 후기 ({{ filteredReviews.length }})</h3>
       <ul>
-        <li v-for="r in sortedReviews" :key="r.id" class="review-item">
+        <li 
+          v-for="r in sortedReviews" 
+          :key="r.id" 
+          :id="'review-' + r.id"
+          class="review-item"
+          :class="{ 'highlighted-review': highlightId === r.id }"
+        >
           <strong>{{ r.userName || '익명 사용자' }}</strong>
           <p class="date">{{ formatDate(r.createdAt) }}</p>
           <p class="rating">⭐ {{ Number(r.rating).toFixed(1) }} / 5</p>
@@ -159,7 +165,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import http, { resolveBackendUrl } from '@/api/http'
 import { getAuthUser } from '@/utils/auth-storage'
@@ -178,6 +184,7 @@ const deleteImages = ref([])
 const editingReview = ref(null)
 const filterRating = ref('')
 const sortOption = ref('latest')
+const highlightId = ref(null)
 
 const showModal = ref(false)
 const modalImage = ref('')
@@ -340,6 +347,16 @@ async function fetchReviews() {
   const list = res.data.reviews || []
   reviews.value = list
   reviewStats.value = formatStats(res.data?.stats, list)
+
+  if (route.query.reviewId) {
+    const targetId = Number(route.query.reviewId)
+    highlightId.value = targetId
+    await nextTick()
+    const el = document.getElementById(`review-${targetId}`)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }
 }
 
 function handleFileChange(e) {

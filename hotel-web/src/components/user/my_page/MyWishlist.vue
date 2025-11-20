@@ -1,6 +1,7 @@
 <template>
   <div class="wishlist-tab">
-    <h2>찜 목록</h2>
+    <!-- <h2>찜 목록</h2> -->
+
     <ul v-if="wishlist.length > 0" class="wishlist-list">
       <li v-for="item in wishlist" :key="item.wishlistId" class="wishlist-item">
         <div class="hotel-info" @click="goToDetail(item.hotelId)">

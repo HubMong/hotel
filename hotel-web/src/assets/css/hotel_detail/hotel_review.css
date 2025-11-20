@@ -227,3 +227,10 @@ input[type="file"]{ margin-top:1rem; display:block; }
   .write-review > button{ width:100%; }
 }
 
+
+/* ===== 하이라이트 리뷰 ===== */
+.highlighted-review {
+  border: 2px solid var(--blue) !important;
+  box-shadow: 0 0 15px rgba(0, 113, 194, 0.5), 0 0 30px rgba(0, 113, 194, 0.2);
+}
+

@@ -167,7 +167,6 @@ const fetchOwnerHotels = async () => {
     const response = await http.get('/owner/hotels/my-hotels');
     userHotels.value = response.data || [];
   } catch (error) {
-    console.error('GET /owner/hotels/my-hotels 오류 발생:', error);
     userHotels.value = [];
   }
 };
@@ -176,7 +175,6 @@ const fetchOwnerHotels = async () => {
 const searchInquiries = async () => {
   if (userHotels.value.length === 0) {
     inquiries.value = [];
-    console.log('소유한 호텔이 없어 문의 조회를 건너뜜니다.');
     return;
   }
 
@@ -202,7 +200,6 @@ const searchInquiries = async () => {
       roomName: i.roomName || '정보 없음',
     }));
   } catch (error) {
-    console.error('문의 목록 로딩 오류:', error);
     alert('문의 목록을 불러오는데 실패했습니다. 서버 연결을 확인하세요.');
   }
 };
@@ -245,7 +242,6 @@ const submitReply = async () => {
     closeDetailModal();
     await searchInquiries();
   } catch (error) {
-    console.error('답변 등록 오류:', error);
     alert('답변 등록에 실패했습니다. 서버 응답을 확인하세요.');
   }
 };

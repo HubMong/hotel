@@ -61,7 +61,6 @@ async function getPayment(pid){
  }
     amount.value = Number(d.amount ?? 0) // ✅ 서버 계산 총액
   }catch(e){
-    console.error(e)
     alert("결제 정보를 불러오지 못했습니다.")
     router.replace("/")
   }
@@ -88,7 +87,7 @@ async function main(){
     try{
       await widgets.requestPayment(PaymentContent)
     }catch(err){
-      console.log(err)
+      // 결제 실패/취소 등
     }
   })
 }

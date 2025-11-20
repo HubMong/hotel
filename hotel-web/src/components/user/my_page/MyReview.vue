@@ -1,7 +1,5 @@
 <template>
   <div class="review-tab">
-    <h2>리뷰 목록</h2>
-
     <!-- ✅ 리뷰 통계 -->
     <div class="review-stats" v-if="stats.reviewCount > 0">
       <p>⭐ 평균 평점: {{ Number(stats.averageRating).toFixed(1) }}</p>
@@ -12,10 +10,16 @@
 
     <!-- ✅ 내가 쓴 리뷰 목록 -->
     <div v-if="reviews.length > 0" class="review-list">
-      <div v-for="review in reviews" :key="review.id" class="review-card">
+      <div 
+        v-for="review in reviews" 
+        :key="review.id" 
+        :id="'review-' + review.id"
+        class="review-card"
+        :class="{ 'highlight-review': highlightId == review.id }"
+      >
         <div class="review-header">
           <router-link
-            :to="`/hotels/${review.hotelId}`"
+            :to="`/hotels/${review.hotelId}/reviews?reviewId=${review.id}`"
             class="review-hotel"
           >
             {{ review.hotelName || '알 수 없는 숙소' }}
@@ -139,12 +143,15 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, nextTick } from 'vue'
+import { useRoute } from 'vue-router'
 import http, { resolveBackendUrl } from '@/api/http'
 import { getAuthUser } from '@/utils/auth-storage'
 
+const route = useRoute()
 const reviews = ref([])
 const stats = reactive({ averageRating: 0, reviewCount: 0 })
+const highlightId = ref(null)
 
 const editId = ref(null)
 const editContent = ref('')
@@ -212,8 +219,24 @@ async function fetchReviews() {
       stats.averageRating = 0
       stats.reviewCount = 0
     }
+
+    // ✅ 하이라이트 처리
+    if (route.query.highlight) {
+      const targetId = Number(route.query.highlight)
+      highlightId.value = targetId
+      await nextTick()
+      const el = document.getElementById(`review-${targetId}`)
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    }
   } catch (err) {
-    console.error('리뷰 불러오기 실패:', err)
+    const status = err.response?.status
+    if (status === 401 || err.message?.includes('401')) {
+      // 401 오류는 무시
+    } else {
+      console.error('리뷰 불러오기 실패:', err)
+    }
   }
 }
 

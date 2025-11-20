@@ -504,10 +504,7 @@ export default {
         if (filters.code) params.code = filters.code
         if (filters.name) params.name = filters.name
 
-        console.log('쿠폰 목록 요청 파라미터:', params)
-
         const response = await api.get('/admin/coupons', { params })
-        console.log('쿠폰 목록 응답:', response.data)
 
         const data = response?.data?.data || {}
         const items = Array.isArray(data.content) ? data.content : []
@@ -540,10 +537,7 @@ export default {
           last: data.last ?? true
         })
 
-        console.log('쿠폰 목록 매핑 완료:', coupons.value.length, '건')
-
       } catch (error) {
-        console.error('쿠폰 목록 로드 실패:', error)
         alert('쿠폰 목록을 불러오는데 실패했습니다.')
       } finally {
         loading.value = false
@@ -554,10 +548,8 @@ export default {
     const loadStats = async () => {
       try {
         const response = await api.get('/admin/coupons/stats')
-        console.log('쿠폰 통계 응답:', response.data)
         stats.value = response?.data?.data || response.data
       } catch (error) {
-        console.error('쿠폰 통계 로드 실패:', error)
       }
     }
 
@@ -585,10 +577,7 @@ export default {
           isActive: couponForm.status === 'ACTIVE'
         }
 
-        console.log('쿠폰 생성 요청 데이터:', formData)
-
         const resp = await api.post('/admin/coupons', formData)
-        console.log('쿠폰 생성 응답:', resp.data)
 
         alert('쿠폰이 성공적으로 생성되었습니다.')
         closeModals()
@@ -596,7 +585,6 @@ export default {
         await loadCoupons()
         await loadStats()
       } catch (error) {
-        console.error('쿠폰 생성 실패:', error)
         alert(error.response?.data?.message || '쿠폰 생성에 실패했습니다.')
       }
     }
@@ -629,7 +617,6 @@ export default {
         await loadCoupons()
         await loadStats()
       } catch (error) {
-        console.error('쿠폰 수정 실패:', error)
         alert(error.response?.data?.message || '쿠폰 수정에 실패했습니다.')
       }
     }
@@ -642,8 +629,6 @@ export default {
       if (!confirm(`정말로 이 쿠폰을 ${action}하시겠습니까?`)) return
 
       try {
-        console.log('쿠폰 상태 변경 요청:', { couponId: coupon.id, newStatus })
-        
         await api.put(`/admin/coupons/${coupon.id}/status`, {
           status: newStatus
         })
@@ -652,7 +637,6 @@ export default {
         await loadCoupons()
         await loadStats()
       } catch (error) {
-        console.error('쿠폰 상태 변경 실패:', error)
         alert(`쿠폰 ${action}에 실패했습니다.`)
       }
     }
@@ -673,7 +657,6 @@ export default {
         await loadCoupons()
         await loadStats()
       } catch (error) {
-        console.error('쿠폰 삭제 실패:', error)
         alert('쿠폰 삭제에 실패했습니다.')
       }
     }

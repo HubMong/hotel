@@ -1,3 +1,6 @@
+/* ==========================================================================
+   1. 기본 레이아웃
+   ========================================================================== */
 .business-apply {
   background: #f5f7fa;
   min-height: 100vh;
@@ -6,58 +9,105 @@
 .business-apply > div:last-child {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   padding: 60px 20px 80px 20px;
 }
 
 .apply-container {
   width: 100%;
-  max-width: 700px;
+  max-width: 900px;
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
   overflow: hidden;
   margin: 0 auto;
+  border: 3px solid #e0f2e0;
+
+  display: flex;
+  flex-direction: row;
 }
 
+/* ==========================================================================
+   2. 좌측 헤더 영역
+   ========================================================================== */
 .apply-header {
-  padding: 40px 50px 30px 50px;
+  flex-basis: 350px;
+  flex-shrink: 0;
+  padding: 40px 30px 30px 30px;
   background: #fff;
-  border-bottom: 1px solid #f1f3f5;
-  text-align: center;
+  border-right: 1px solid #f1f3f5;
+  border-bottom: none;
+  text-align: left;
 }
 
 .header-content {
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  flex-wrap: wrap;
 }
 
 .apply-header h1 {
-  margin-bottom: 12px;
-  font-size: 28px;
-  font-weight: 700;
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
   color: #2c3e50;
+  position: relative;
+  display: inline-block;
+}
+
+.apply-header h1::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  transform: none;
+  width: 60px;
+  height: 4px;
+  background: #4ec89f;
+  border-radius: 2px;
 }
 
 .sub-text {
   margin-bottom: 18px;
-  color: #6c757d;
-  font-weight: 500;
+  color: #4ec89f;
+  font-weight: 600;
   font-size: 15px;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
+  display: inline-block;
+  margin-left: 10px;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.apply-header h1 {
+  display: inline-block;
+  margin-right: 0;
+  margin-bottom: 8px;
+}
+
+.apply-header h1::after {
+  bottom: -5px;
+  left: 0;
+  transform: none;
+  width: 60px;
+  height: 4px;
 }
 
 .description {
   margin: 0;
   color: #6c757d;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.6;
-  max-width: 500px;
-  margin: 0 auto;
+  max-width: none;
+  margin: 15px 0 0 0;
 }
 
 .header-actions {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
+  margin-top: 30px;
 }
 
 .status-btn {
@@ -65,7 +115,7 @@
   background: #4ec89f;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -76,31 +126,76 @@
 .status-btn:hover {
   background: #45b892;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(78, 200, 159, 0.3);
+  box-shadow: 0 6px 16px rgba(78, 200, 159, 0.4);
 }
 
+/* ==========================================================================
+   3. 우측 폼 영역
+   ========================================================================== */
 .apply-form {
-  padding: 40px 50px 50px 50px;
+  flex-grow: 1;
+  padding: 40px 30px 50px 30px;
 }
 
 .input-group {
   margin-bottom: 28px;
 }
 
+.input-group:nth-child(1),
+.input-group:nth-child(2) {
+  width: 48%;
+  display: inline-block;
+  float: left;
+  margin-right: 4%;
+}
+
+.input-group:nth-child(2) {
+  float: right;
+  margin-right: 0;
+}
+
+.input-group:nth-child(3) {
+  clear: both;
+}
+
+.input-group:nth-child(4),
+.input-group:nth-child(5) {
+  width: 48%;
+  display: inline-block;
+  float: left;
+  margin-right: 4%;
+}
+
+.input-group:nth-child(5) {
+  float: right;
+  margin-right: 0;
+}
+
+.form-actions {
+  clear: both;
+  display: flex;
+  gap: 16px;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 40px;
+  padding-top: 25px;
+  border-top: 1px solid #f1f3f5;
+}
+
 .input-group label {
   display: block;
-  font-size: 15px;
-  margin-bottom: 10px;
-  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 8px;
+  font-weight: 700;
   color: #2c3e50;
 }
 
 .input-group input {
   width: 100%;
-  padding: 16px 18px;
+  padding: 14px 18px;
   border: 1px solid #dee2e6;
   border-radius: 8px;
-  font-size: 15px;
+  font-size: 16px;
   transition: all 0.2s ease;
   box-sizing: border-box;
   background: #fff;
@@ -110,7 +205,7 @@
 .input-group input:focus {
   outline: none;
   border-color: #4ec89f;
-  box-shadow: 0 0 0 3px rgba(78, 200, 159, 0.1);
+  box-shadow: 0 0 0 4px rgba(78, 200, 159, 0.2);
 }
 
 .input-group input::placeholder {
@@ -122,16 +217,15 @@
   border-color: #ced4da;
 }
 
-.form-actions {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  margin-top: 35px;
-  padding-top: 25px;
-  border-top: 1px solid #f1f3f5;
-}
-
+/* ==========================================================================
+   4. 버튼 그룹
+   ========================================================================== */
 .btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+
   padding: 14px 28px;
   border-radius: 8px;
   font-size: 16px;
@@ -143,16 +237,16 @@
 }
 
 .btn-secondary {
-  background: #f8f9fa;
-  color: #6c757d;
+  background: #e9ecef;
+  color: #495057;
   border: 1px solid #dee2e6;
 }
 
 .btn-secondary:hover {
-  background: #e9ecef;
-  color: #495057;
+  background: #dee2e6;
+  color: #343a40;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .btn-primary {
@@ -165,7 +259,7 @@
   background: #45b892;
   border-color: #45b892;
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(78, 200, 159, 0.3);
+  box-shadow: 0 6px 16px rgba(78, 200, 159, 0.4);
 }
 
 .btn-danger {
@@ -178,7 +272,7 @@
   background: #c82333;
   border-color: #bd2130;
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(220, 53, 69, 0.3);
+  box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4);
 }
 
 .btn:disabled {
@@ -188,83 +282,9 @@
   box-shadow: none !important;
 }
 
-/* 반응형 디자인 */
-@media (max-width: 1024px) {
-  .apply-container {
-    max-width: 600px;
-    margin: 0 20px;
-  }
-  
-  .apply-header {
-    padding: 40px 35px 30px 35px;
-  }
-  
-  .apply-form {
-    padding: 30px 35px 40px 35px;
-  }
-}
-
-@media (max-width: 768px) {
-  .business-apply > div:last-child {
-    padding: 30px 15px 50px 15px;
-  }
-  
-  .apply-container {
-    margin: 0 10px;
-    border-radius: 12px;
-  }
-  
-  .apply-header {
-    padding: 30px 25px 25px 25px;
-  }
-  
-  .apply-header h1 {
-    font-size: 26px;
-  }
-  
-  .apply-form {
-    padding: 25px 25px 30px 25px;
-  }
-  
-  .input-group {
-    margin-bottom: 24px;
-  }
-  
-  .input-group input {
-    padding: 14px 16px;
-  }
-  
-  .form-actions {
-    flex-direction: column;
-    gap: 12px;
-  }
-  
-  .btn {
-    width: 100%;
-    min-width: auto;
-  }
-}
-
-@media (max-width: 480px) {
-  .apply-header,
-  .apply-form {
-    padding: 20px;
-  }
-  
-  .apply-header h1 {
-    font-size: 24px;
-  }
-  
-  .description {
-    font-size: 15px;
-  }
-  
-  .header-content {
-    margin-bottom: 16px;
-  }
-}
-
-/* 모달 스타일 */
+/* ==========================================================================
+   5. 모달 스타일
+   ========================================================================== */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -283,9 +303,10 @@
   border-radius: 12px;
   width: 90%;
   max-width: 600px;
-  max-height: 80vh;
+  max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  margin: 20px auto;
 }
 
 .modal-header {
@@ -447,36 +468,84 @@
   font-size: 14px !important;
 }
 
-@media (max-width: 768px) {
-  .status-modal {
-    width: 95%;
-    margin: 20px;
+@media (max-width: 1024px) {
+  .apply-container {
+    flex-direction: column;
+    max-width: 600px;
   }
-  
-  .modal-header,
-  .modal-content {
+
+  .apply-header {
+    border-right: none;
+    border-bottom: 1px solid #f1f3f5;
+    text-align: center;
+    flex-basis: auto;
+  }
+
+  .header-content {
+    display: block;
+    margin-bottom: 20px;
+  }
+
+  .apply-header h1,
+  .sub-text {
+    display: block;
+    margin: 0 auto;
+  }
+
+  .sub-text {
+    margin-top: 5px;
+  }
+
+  .apply-header h1::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .header-actions {
+    justify-content: center;
+  }
+
+  .apply-form {
+    padding: 30px 35px 40px 35px;
+  }
+}
+
+@media (max-width: 768px) {
+  .input-group:nth-child(2n + 1):not(:nth-child(3)),
+  .input-group:nth-child(2n):not(:nth-child(3)) {
+    width: 100%;
+    float: none;
+    margin-right: 0;
+  }
+
+  .form-actions {
+    justify-content: center;
+  }
+
+  .btn-secondary {
+    order: 1;
+  }
+
+  .btn-primary {
+    order: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .apply-header,
+  .apply-form {
     padding: 20px;
   }
-  
-  .detail-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
+
+  .apply-header h1 {
+    font-size: 24px;
   }
-  
-  .label {
-    min-width: auto;
+
+  .description {
+    font-size: 15px;
   }
-  
-  .value {
-    text-align: left;
-  }
-  
-  .modal-actions {
-    flex-direction: column;
-  }
-  
-  .modal-actions .btn {
-    width: 100%;
+
+  .header-content {
+    margin-bottom: 16px;
   }
 }

@@ -2,14 +2,14 @@
   <div class="main-page">
     <!-- Hero 배너 -->
     <div class="hero-section hero-bg">
-      <div class="hero-overlay"></div>
+      <!-- <div class="hero-overlay"></div>
       <div class="hero-text-container">
         <div class="hero-text">
           <p class="hero-subtitle">
-            검색을 통해 요금을 비교하고 무료 취소 포함한 특가도 확인하세요!
+            호텔 예약 접속자 수 5위!!
           </p>
         </div>
-      </div>
+      </div> -->
     </div>
 
     <!-- 검색 폼 -->

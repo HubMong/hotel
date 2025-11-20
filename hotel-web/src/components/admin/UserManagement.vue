@@ -772,7 +772,6 @@ export default {
           coupons: couponList || []
         }
       } catch (error) {
-        console.error('사용자 통계 로드 실패:', error);
         this.selectedUserStats = { totalReservations: 0, totalPayment: 0, totalCoupons: 0, lastActivity: '-', recentReservations: [] }
       }
     },
@@ -861,7 +860,6 @@ export default {
       // 백엔드 메시지 엔드포인트가 없으므로 콘솔/알림 처리
       // 필요 시 /api/admin/notifications/send 같은 엔드포인트로 대체
       try {
-        console.log('메시지 전송:', { toUserId: user.id, content })
         alert('메시지가 전송되었습니다.')
       } catch {
         alert('메시지 전송 실패')

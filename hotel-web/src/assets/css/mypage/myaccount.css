@@ -1,12 +1,14 @@
 /* ========================================================================== 
    1. 기본 변수 및 전체 레이아웃
    ========================================================================== */
-:root { 
+:root {
   --line: #e5e7eb;
   --ink: #111827;
   --ink-light: #6b7280;
-  --brand-primary: #1d4ed8;
-  --brand-primary-hover: #2563eb;
+
+  --brand-primary: #28a745;
+  --brand-primary-hover: #218838;
+
   --bg-white: #fff;
   --bg-secondary: #f8f9fa;
   --danger: #dc3545;
@@ -17,9 +19,10 @@
 .allcard {
   background: var(--bg-white);
   padding: 40px 24px;
-  border: 1px solid var(--line);
+  padding-bottom: 40px !important;
+  border: 1.5px solid #e0f2e0 !important;
   border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
   max-width: 720px;
   margin: 40px auto;
 }
@@ -42,12 +45,15 @@
 
 .profile-img,
 .image img {
-  width: 120px;
-  height: 120px;
+  width: 120px !important;
+  height: 120px !important;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid var(--line);
+  border: 3px solid #28a745 !important;
   cursor: pointer;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important; /* 부드럽고 눈에 띄는 그림자 */
+  transition: box-shadow 0.3s ease, transform 0.2s ease; /* 호버 효과를 위한 트랜지션 추가 */
 }
 
 .menu-tabs {
@@ -66,10 +72,13 @@
   color: var(--ink-light);
   transition: all 0.2s ease-in-out;
 }
+
 .tab.active {
-  color: var(--brand-primary);
-  border-color: var(--brand-primary);
+  color: #28a745 !important;
+  border-color: #28a745 !important;
+  font-weight: 700 !important;
 }
+
 
 /* ========================================================================== 
    3. 계정 정보
@@ -78,10 +87,27 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 8px;
-  border-bottom: 1px solid var(--line);
+
+  padding: 18px 15px !important;
+  margin-bottom: 15px !important;
+
+  border-bottom: none !important;
+
+  border: 1px solid #f0f0f0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05) !important;
+
+  transition: all 0.2s ease-in-out;
 }
-.info-item:last-child { border-bottom: none; }
+
+.info-item:hover {
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-2px);
+}
+
+.info-item:last-child {
+  border-bottom: none !important;
+}
 
 .label {
   flex-basis: 150px;
@@ -89,6 +115,7 @@
   font-weight: 600;
   color: #374151;
 }
+
 .value {
   flex-grow: 1;
   color: var(--ink);
@@ -105,9 +132,10 @@
   margin-right: 1rem;
   transition: border-color 0.2s;
 }
+
 .input-edit:focus {
   outline: none;
-  border-color: var(--brand-primary);
+  border-color: #28a745 !important;
 }
 
 .password-edit-form {
@@ -117,16 +145,22 @@
   width: 100%;
   gap: 8px;
 }
+
 .password-edit-form .input-edit {
   width: calc(100% - 100px);
   box-sizing: border-box;
 }
-.password-buttons { margin-top: 8px; }
+
+.password-buttons {
+  margin-top: 8px;
+}
 
 /* ========================================================================== 
    4. 버튼
    ========================================================================== */
-.btn-change, .btn-save, .btn-cancel {
+.btn-change,
+.btn-save,
+.btn-cancel {
   border: 1px solid var(--line);
   border-radius: 6px;
   padding: 6px 14px;
@@ -141,22 +175,24 @@
   background-color: var(--bg-white);
   color: var(--ink);
 }
+
 .btn-change:hover {
-  border-color: var(--brand-primary);
-  background-color: var(--brand-primary);
+  border-color: #28a745 !important;
+  background-color: #28a745 !important;
   color: var(--bg-white);
 }
 
 .btn-save {
-  background-color: var(--brand-primary);
+  background-color: #28a745 !important;
   color: var(--bg-white);
-  border-color: var(--brand-primary);
+  border-color: #28a745 !important;
   margin-left: auto;
   margin-right: 8px;
 }
+
 .btn-save:hover {
-  background-color: var(--brand-primary-hover);
-  border-color: var(--brand-primary-hover);
+  background-color: #218838 !important;
+  border-color: #218838 !important;
 }
 
 .btn-cancel {
@@ -164,4 +200,7 @@
   color: var(--bg-white);
   border-color: var(--ink-light);
 }
-.btn-cancel:hover { opacity: 0.8; }
+
+.btn-cancel:hover {
+  opacity: 0.8;
+}

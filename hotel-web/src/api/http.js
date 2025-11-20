@@ -48,4 +48,10 @@ http.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// 401 에러 전역 처리 (선택 사항)
+// 만약 특정 컴포넌트에서 catch하지 않은 401 에러가 콘솔에 찍히는 것을 막고 싶다면
+// 아래와 같이 interceptor를 추가할 수 있습니다.
+// 하지만 axios는 기본적으로 에러를 throw하므로, catch하지 않으면 Uncaught error가 발생합니다.
+// 여기서는 단순히 에러를 다시 throw하되, 필요하다면 로깅을 억제하는 로직을 추가할 수 있습니다.
+
 export default http;

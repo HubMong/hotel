@@ -272,7 +272,7 @@ const selectedAmenities = ref([])
 function starToLabel(n) {
   const nInt = Number(n ?? 0)
   if (nInt < 1 || nInt > 5) return null
-  return `${nInt}성급(${('*'.repeat(nInt)).padEnd(5,' ')})`.replace(/ +$/,'')
+  return `${nInt}성급${('★'.repeat(nInt)).padEnd(5,' ')}`.replace(/ +$/,'')
 }
 const starOptions = ref([5,4,3,2,1].map(n => ({ n, label: starToLabel(n) })))
 const starIcon = n => '★'.repeat(n) + '☆'.repeat(5-n)
@@ -497,95 +497,343 @@ async function fillLowestPricesFromDetail(items) {
 </script>
 
 <style scoped>
+/* ========================================
+   검색 페이지 스타일
+   ======================================== */
+
 /* 레이아웃 기본 */
-.search-page { background: var(--bg, #fff); }
-.search-layout { display: flex; gap: 48px; padding: 12px 120px 60px; }
-.filter-sidebar { flex-basis: 280px; flex-shrink: 0; border-right: 1px solid var(--line, #eee); padding-right: 32px; }
-.main-content { flex: 1; overflow-x: hidden; }
-.page-title { font-size: 28px; margin: 12px 0 24px; }
+.search-page {
+  background-color: #ffffff; /* 전체 페이지 배경색 명확히 지정 */
+}
+
+/* 검색 레이아웃 */
+.search-layout {
+  display: flex;
+  gap: 48px;
+  padding: 12px 120px 60px;
+}
+
+/* 사이드바 (필터) */
+.filter-sidebar {
+  flex-basis: 280px;
+  flex-shrink: 0;
+  height: fit-content; /* 높이를 내용물에 맞춤 */
+  border-right: none;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  opacity: 1;
+  
+}
+
+/* 메인 콘텐츠 */
+.main-content {
+  flex: 1;
+  overflow-x: hidden;
+  padding: 0 20px;
+}
+
+.page-title {
+  font-size: 28px;
+  margin: 12px 0 24px;
+}
 
 /* 필터 공통 */
-.filter-group { margin-bottom: 2rem; }
-.filter-group h4 { margin-bottom: 10px; font-size: 16px; color: var(--ink-light, #666); }
-.hint { font-size: 12px; color: #9aa0a6; margin-top: 6px; }
+.filter-group {
+  margin-bottom: 2rem;
+}
+
+.filter-group h4 {
+  margin-bottom: 10px;
+  font-size: 16px;
+  color: var(--ink-light, #000);
+}
+
+.hint {
+  font-size: 12px;
+  color: #52b162;
+  margin-top: 6px;
+}
 
 /* 가격 */
-.price-range { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: #666; }
-.price-slider { width: 100%; cursor: pointer; }
+.price-range {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #c15454;
+}
+
+.price-slider {
+  width: 100%;
+  cursor: pointer;
+}
 
 /* 성급(칩) */
-.stars-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
-.star-chip{
-  display:inline-flex; align-items:center; gap:8px; padding:8px 10px;
-  border:1px solid #e5e7eb; border-radius:999px; background:#fff; cursor:pointer; user-select:none;
-  font-weight:700; color:#374151; transition:.15s ease;
+.stars-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
-.star-chip:hover{ box-shadow:0 4px 12px rgba(0,0,0,.06); transform: translateY(-1px); }
-.star-chip.on{ border-color:#39c5a0; background: #eafff7; color:#065f46; }
-.star-chip .star-ic{ font-size:14px; line-height:1; }
-.star-chip .star-txt{ font-size:13px; }
+
+.star-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid #52b162;
+  border-radius: 999px;
+  background: #fff;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 700;
+  color: #000;
+  transition: 0.15s ease;
+}
+
+.star-chip:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+.star-chip.on {
+  border-color: #39c5a0;
+  background: #eafff7;
+  color: #065f46;
+}
+
+.star-chip .star-ic {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.star-chip .star-txt {
+  font-size: 13px;
+}
 
 /* 편의시설 체크 */
-.amen-list{ display:grid; grid-template-columns: 1fr; gap:6px; }
-.chk{ display:flex; align-items:center; gap:8px; font-size:14px; }
-.chk input{ width:16px; height:16px; }
-.chk .ic{ width:18px; text-align:center; }
+.amen-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.chk {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.chk input {
+  width: 16px;
+  height: 16px;
+}
+
+.chk .ic {
+  width: 18px;
+  text-align: center;
+}
 
 /* 결과 카드 */
-.results-count { margin-bottom: 16px; color: var(--ink, #222); }
-.hotel-list { display: flex; flex-direction: column; gap: 16px; }
-.hotel-card-link { text-decoration: none; color: inherit; }
+.results-count {
+  margin-bottom: 16px;
+  color: var(--ink, #222);
+  padding: 0;
+}
+
+.hotel-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.hotel-card-link {
+  text-decoration: none;
+  color: inherit;
+}
+
 .hotel-card {
   position: relative;
-  display: flex; gap: 20px; align-items: center;
-  border: 1px solid var(--line, #eee); border-radius: 12px; padding: 16px 20px;
-  background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.04); transition: .2s ease;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  border: 1px solid var(--line, #eee);
+  border-radius: 12px;
+  padding: 16px 30px;
+  background: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  transition: 0.2s ease;
 }
-.hotel-card:hover { border-color: #39c5a0; box-shadow: 0 6px 18px rgba(0,0,0,.08); transform: translateY(-2px); }
-.hotel-image { width: 200px; height: 160px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
-.hotel-details { flex: 1; min-width: 0; }
-.hotel-rating { font-size: 12px; color: #666; display: block; margin-bottom: 4px; }
-.hotel-name { font-size: 18px; font-weight: 800; margin: 0 0 4px; }
-.hotel-city { font-size: 14px; color: #777; }
 
-.amen-preview{ margin-top:8px; display:flex; flex-wrap:wrap; gap:6px; }
-.amen-tag{
-  font-size:12px; color:#065f46; background:#eafff7; border:1px solid #a7f3d0;
-  border-radius:999px; padding:2px 8px; font-weight:700;
+.hotel-card:hover {
+  border-color: #39c5a0;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
 }
-.amen-more{ font-size:12px; color:#6b7280; }
 
-.hotel-price-block { text-align: right; }
-.hotel-price-block .price { font-size: 22px; font-weight: 800; color: #39c5a0; }
-.hotel-price-block .per-night { font-size: 13px; color: #888; margin-top: 4px; }
-
-.loading, .error, .no-results { padding: 24px 8px; color: #666; }
-
-/* 💗 찜 버튼 스타일 */
-.wish-btn{
-  position:absolute; top:12px; right:12px;
-  display:inline-flex; align-items:center; gap:6px;
-  height:34px; padding:0 10px;
-  border:1px solid #e5e7eb; border-radius:999px; background:#fff;
-  font-weight:800; cursor:pointer;
-  transition: box-shadow .15s ease, transform .1s ease, background .15s ease, color .15s ease, border-color .15s ease;
+.hotel-image {
+  width: 200px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
 }
-.wish-btn .heart{ font-size:16px; line-height:1; transform: translateY(-1px); transition: transform .12s ease; }
-.wish-btn:hover{ box-shadow:0 6px 16px rgba(0,0,0,.06); transform: translateY(-1px); }
-.wish-btn:disabled{ opacity:.6; cursor:not-allowed; }
-.wish-btn.on{
-  color:#ef4444;
-  background:#fee2e2;
-  border-color:#fecaca;
+
+.hotel-details {
+  flex: 1;
+  min-width: 0;
 }
-.wish-btn.on .heart{ transform: scale(1.1); }
+
+.hotel-rating {
+  font-size: 12px;
+  color: #666;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.hotel-name {
+  font-size: 18px;
+  font-weight: 800;
+  margin: 0 0 4px;
+}
+
+.hotel-city {
+  font-size: 14px;
+  color: #777;
+}
+
+.amen-preview {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.amen-tag {
+  font-size: 12px;
+  color: #065f46;
+  background: #eafff7;
+  border: 1px solid #a7f3d0;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-weight: 700;
+}
+
+.amen-more {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.hotel-price-block {
+  text-align: right;
+}
+
+.hotel-price-block .price {
+  font-size: 22px;
+  font-weight: 800;
+  color: #39c5a0;
+}
+
+.hotel-price-block .per-night {
+  font-size: 13px;
+  color: #888;
+  margin-top: 4px;
+}
+
+.loading,
+.no-results {
+  padding: 24px 8px;
+  color: #666;
+}
+
+/* 오류 메시지 박스 */
+.error {
+  color: #991b1b;
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  text-align: center;
+  padding: 24px 8px;
+  margin-top: 20px;
+}
+
+/* 찜 버튼 */
+.wish-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: #fff;
+  font-weight: 800;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.1s ease,
+              background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.wish-btn .heart {
+  font-size: 16px;
+  line-height: 1;
+  transform: translateY(-1px);
+  transition: transform 0.12s ease;
+}
+
+.wish-btn:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+.wish-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.wish-btn.on {
+  color: #ef4444;
+  background: #fee2e2;
+  border-color: #fecaca;
+}
+
+.wish-btn.on .heart {
+  transform: scale(1.1);
+}
 
 /* 반응형 */
 @media (max-width: 992px) {
-  .search-layout { flex-direction: column; gap: 24px; padding: 12px 20px 40px; }
-  .filter-sidebar { border-right: none; border-bottom: 1px solid var(--line, #eee); padding-right: 0; padding-bottom: 20px; margin-bottom: 8px; }
-  .hotel-card { flex-direction: column; align-items: flex-start; }
-  .hotel-image { width: 100%; height: 200px; }
-  .hotel-price-block { width: 100%; text-align: left; }
+  .search-layout {
+    flex-direction: column;
+    gap: 24px;
+    padding: 12px 20px 40px;
+  }
+
+  .filter-sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--line, #eee);
+    padding-right: 0;
+    padding-bottom: 20px;
+    margin-bottom: 8px;
+  }
+
+  .hotel-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hotel-image {
+    width: 100%;
+    height: 200px;
+  }
+
+  .hotel-price-block {
+    width: 100%;
+    text-align: left;
+  }
 }
 </style>

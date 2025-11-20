@@ -18,6 +18,7 @@ public class UserReviewResponseDto {
     private String userName;
     private Long hotelId;
     private String hotelName;
+    private Long reservationId;
     private double rating;
     private String content;
     private List<String> images;

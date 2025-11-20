@@ -173,7 +173,7 @@ const categoryTitle = computed(() => '웹사이트');
 const modalTitle = computed(() => '웹사이트');
 
 
-const handleLogout = () => { console.log("로그아웃 처리 로직 필요"); };
+const handleLogout = () => { /* 로그아웃 처리 로직 필요 */ };
 const toggleFaq = (itemToToggle) => { itemToToggle.open = !itemToToggle.open; };
 
 const openInquiryModal = () => {

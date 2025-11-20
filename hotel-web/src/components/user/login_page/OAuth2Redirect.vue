@@ -38,8 +38,13 @@ export default {
         notifyAuthChanged();
         this.$router.push(userInfo?.role === 'ADMIN' ? '/admin' : '/');
       } catch (error) {
-        console.error('사용자 정보 가져오기 실패:', error);
-        alert('로그인 처리 중 오류가 발생했습니다.');
+        const status = error.response?.status;
+        if (status === 401 || error.message?.includes('401')) {
+          // 401 오류는 무시
+        } else {
+          console.error('사용자 정보 가져오기 실패:', error);
+          alert('로그인 처리 중 오류가 발생했습니다.');
+        }
         clearAuthUser();
         notifyAuthChanged();
         this.$router.push('/login');

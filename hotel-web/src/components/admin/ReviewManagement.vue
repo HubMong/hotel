@@ -499,10 +499,7 @@ export default {
         const sortParam = toApiSort(sort.value)
         if (sortParam) params.sort = sortParam
 
-        console.log('리뷰 목록 요청 파라미터:', params)
-
         const response = await axios.get('/admin/reviews', { params })
-        console.log('리뷰 목록 응답:', response.data)
 
         const data = response.data?.data || { content: [], totalPages: 0, totalElements: 0 }
         reviews.value = data.content || []
@@ -513,7 +510,6 @@ export default {
         updateStatistics()
         
       } catch (error) {
-        console.error('리뷰 목록 로딩 오류:', error)
         alert('리뷰 목록을 불러오는데 실패했습니다.')
       }
     }
@@ -571,10 +567,7 @@ export default {
     // 리뷰 상세 보기
     const viewReviewDetail = async (review) => {
       try {
-        console.log('리뷰 상세 조회 시작:', review.reviewId)
-        
         const response = await axios.get(`/admin/reviews/${review.reviewId}`)
-        console.log('리뷰 상세 조회 응답:', response.data)
 
         const data = response.data?.data || {}
         selectedReview.value = {
@@ -600,7 +593,6 @@ export default {
         showDetailModal.value = true
         
       } catch (error) {
-        console.error('리뷰 상세 조회 오류:', error)
         alert('리뷰 상세 정보를 불러오는데 실패했습니다.')
       }
     }
@@ -628,7 +620,6 @@ export default {
         }
         
       } catch (error) {
-        console.error('리뷰 숨김 처리 오류:', error)
         alert('리뷰 숨김 처리에 실패했습니다.')
       }
     }
@@ -648,7 +639,6 @@ export default {
         }
         
       } catch (error) {
-        console.error('리뷰 숨김 해제 오류:', error)
         alert('리뷰 숨김 해제에 실패했습니다.')
       }
     }
@@ -677,7 +667,6 @@ export default {
         // 서버 기준 재조회로 페이지네이션 등 갱신
         searchReviews()
       } catch (error) {
-        console.error('리뷰 삭제 오류:', error)
         let msg = '리뷰 삭제에 실패했습니다.'
         try {
           msg = error?.response?.data?.message || msg
@@ -739,7 +728,6 @@ export default {
         searchReviews()
         
       } catch (error) {
-        console.error('답변 삭제 오류:', error)
         alert('답변 삭제에 실패했습니다.')
       }
     }
@@ -771,7 +759,6 @@ export default {
         searchReviews()
         
       } catch (error) {
-        console.error('답변 등록 오류:', error)
         alert('답변 등록에 실패했습니다.')
       }
     }
@@ -804,7 +791,6 @@ export default {
         searchReviews()
         
       } catch (error) {
-        console.error('답변 삭제 오류:', error)
         alert('답변 삭제에 실패했습니다.')
       }
     }
@@ -849,7 +835,6 @@ export default {
         searchReviews()
         
       } catch (error) {
-        console.error('빠른 답변 등록 오류:', error)
         alert('답변 등록에 실패했습니다.')
       }
     }

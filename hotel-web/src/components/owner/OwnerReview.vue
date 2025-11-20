@@ -124,7 +124,7 @@ const ownerId = ref(null);
 const filterData = ref({ hotels: [] });
 const selectedHotelId = ref(null);
 const selectedRoomType = ref(null);
-const answerStatus = ref('UNREPLIED');
+const answerStatus = ref(''); // 기본값을 '전체 답변'으로 변경
 const exposureStatus = ref('ALL');
 const reviews = ref([]);
 const page = ref(0);
@@ -149,10 +149,10 @@ const fetchFilterData = async () => {
   try {
     const response = await OwnerApi.getFilterData(ownerId.value);
     filterData.value = response.data;
-    await fetchReviews(); 
   } catch (error) {
     console.error("필터 데이터 로딩 실패:", error);
   } finally {
+    await fetchReviews(); 
     isLoading.value = false;
   }
 };

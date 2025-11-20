@@ -37,10 +37,10 @@ public class RateLimitingFilter extends OncePerRequestFilter {
     private static final Logger log = LoggerFactory.getLogger(RateLimitingFilter.class);
     private static final Logger suspiciousLog = LoggerFactory.getLogger("SUSPICIOUS");
 
-    // 1분에 10개 요청으로 제한
+    // 1분에 100개 요청으로 제한 (기존 10개에서 상향)
     private static final Bandwidth LIMIT = Bandwidth.builder()
-        .capacity(10)
-        .refillGreedy(10, Duration.ofMinutes(1))
+        .capacity(100)
+        .refillGreedy(100, Duration.ofMinutes(1))
         .build();
 
     private final Cache<String, Bucket> bucketCache = Caffeine.newBuilder()
@@ -97,7 +97,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
             long remaining = availableTokens - 1;
             log.info("✅ Request ALLOWED - key: {}, Remaining: {}/10", bucketKey, remaining);
             response.setHeader("X-RateLimit-Remaining", String.valueOf(remaining));
-            response.setHeader("X-RateLimit-Limit", "10");
+            response.setHeader("X-RateLimit-Limit", "100");
             filterChain.doFilter(request, response);
             return;
         }
@@ -110,7 +110,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setHeader(HttpHeaders.RETRY_AFTER, "60");
         response.setHeader("X-RateLimit-Remaining", "0");
-        response.setHeader("X-RateLimit-Limit", "10");
+        response.setHeader("X-RateLimit-Limit", "100");
         response.getWriter().write("{\"status\":\"error\",\"message\":\"요청이 너무 많습니다. 1분 후 다시 시도해주세요.\"}");
     }
 

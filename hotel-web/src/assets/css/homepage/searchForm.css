@@ -1,7 +1,7 @@
 .search-form-wrapper {
   display: flex;
   justify-content: center;
-  margin-top: -50px;
+  margin-top: -220px;
   position: relative;
   z-index: 5;
 }

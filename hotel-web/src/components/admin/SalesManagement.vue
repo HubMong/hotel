@@ -449,8 +449,6 @@ export default {
 
       loading.value = true
       try {
-        console.log('매출 데이터 조회 요청:', { from: dateRange.from, to: dateRange.to })
-        
         const response = await api.get('/admin/stats/sales', {
           params: {
             from: dateRange.from,
@@ -458,11 +456,9 @@ export default {
           }
         })
 
-        console.log('매출 데이터 조회 응답:', response.data)
         salesData.value = response.data?.data || response.data
         
       } catch (error) {
-        console.error('매출 데이터 조회 오류:', error)
         const status = error?.response?.status
         const message = error?.response?.data?.message || error.message
         
@@ -757,9 +753,7 @@ export default {
         if (selectedHotelId.value) params.hotelId = selectedHotelId.value
         if (selectedMethod.value) params.paymentMethod = selectedMethod.value
 
-        console.log('매출 통계 요청:', params)
         const res = await api.get('/admin/payments/analytics', { params })
-        console.log('매출 통계 응답:', res.data)
         const data = res.data?.data || {}
         analyticsData.period = data.byPeriod || []
         analyticsData.byHotel = data.byHotel || []
@@ -769,7 +763,6 @@ export default {
           buildCharts()
         }
       } catch (e) {
-        console.error('매출 통계 로딩 오류:', e)
         const status = e?.response?.status
         const message = e?.response?.data?.message || e.message
         if (status === 401) {

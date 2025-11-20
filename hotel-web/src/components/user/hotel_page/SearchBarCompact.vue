@@ -212,11 +212,9 @@ const dateRangeConfig = {
       if (ci && co && co <= ci) { co = new Date(ci); co.setDate(co.getDate() + 1) }
       lastGood.value = { ci: ci || null, co: co || null }
     }
-    console.log('[SearchBar FP onChange] selected =', (Array.isArray(sd)?sd:[sd]).map(d => toYmd(d)))
   },
 
   onValueUpdate: (sd) => {
-    console.log('[SearchBar FP onValueUpdate] =', (Array.isArray(sd)?sd:[sd]).map(d => toYmd(d)))
   },
 
   onClose: (sd, _str, instance) => {
@@ -236,7 +234,7 @@ function setRange(ci, co, reason='route') {
   ci = coerceDate(ci); co = coerceDate(co)
   const y1 = ci?.getFullYear?.(), y2 = co?.getFullYear?.()
   if ((y1 && (y1 < 2015 || y1 > 2035)) || (y2 && (y2 < 2015 || y2 > 2035))) {
-    console.warn(`[SearchBar] ignored out-of-range year (${y1}, ${y2}) from ${reason}`)
+    // console.warn(`[SearchBar] ignored out-of-range year (${y1}, ${y2}) from ${reason}`)
     return
   }
   if (ci && co) {
@@ -260,7 +258,6 @@ watch(() => route.fullPath, syncFromRoute, { immediate: true })
 
 // v-model 자체 변화도 추적 (문자/Date/범위문자열 섞여도 안전)
 watch(dateRange, (nv) => {
-  console.log('[SearchBar v-model:dateRange] =', asArray(nv).map(toYmd))
 })
 
 // ---------- 외부 클릭으로 드롭다운 닫기

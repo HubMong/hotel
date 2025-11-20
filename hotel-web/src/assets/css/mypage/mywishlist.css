@@ -1,34 +1,41 @@
-/* ========================================================================== 
+/* ==========================================================================
    1. 기본 변수 및 레이아웃 (Variables & Layout)
    ========================================================================== */
 :root {
   --line: #e5e7eb;
   --ink: #111827;
   --ink-light: #6b7280;
-  --brand-primary: #1d4ed8;
-  --brand-primary-hover: #2563eb;
+
+  /* 강조색을 녹색으로 통일 */
+  --brand-primary: #28a745;
+  --brand-primary-hover: #218838;
+
   --bg-white: #fff;
   --bg-secondary: #f8f9fa;
+
   --danger: #dc3545;
-  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --danger-hover: #b92c3c;
+
+  --shadow-sm: 0 3px 10px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 8px 18px rgba(0, 0, 0, 0.15);
 }
 
-/* 페이지 전체 */
+/* 페이지 전체 (탭 콘텐츠 영역으로 사용될 때) */
 .wishlist-tab {
-  padding: 50px 100px;
-  background: var(--bg-secondary);
+  /* 마이페이지 탭 내에서 외부 패딩 제거 */
+  padding: 0;
+  background: var(--bg-white);
 }
 
 .wishlist-tab h2 {
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 700;
   color: var(--ink);
   margin-bottom: 24px;
   text-align: left;
 }
 
-/* ========================================================================== 
+/* ==========================================================================
    2. 찜 목록 리스트 (Wishlist List)
    ========================================================================== */
 .wishlist-list {
@@ -42,30 +49,32 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 1px solid var(--line);
+
+  border: 1px solid #f0f0f0;
   border-radius: 12px;
-  padding: 16px 20px;
+  padding: 18px 20px; /* 좌우 패딩 20px로 조정 */
   background-color: var(--bg-white);
   box-shadow: var(--shadow-sm);
-  transition: all 0.25s ease;
+  transition: all 0.3s ease;
 }
+
 .wishlist-item:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(141, 140, 140, 0.2);
 }
 
 /* 호텔 정보 영역 */
 .hotel-info {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px; /* 이미지와 글자 사이 간격 최적화 */
   cursor: pointer;
   flex-grow: 1;
 }
 
 .hotel-image {
-  width: 100px;
-  height: 80px;
+  width: 120px; /* 이미지 크기 증가 */
+  height: 90px;
   border-radius: 8px;
   object-fit: cover;
   border: 1px solid var(--line);
@@ -79,11 +88,12 @@
 }
 
 .hotel-name {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
   color: var(--ink);
   transition: color 0.2s ease;
 }
+
 .hotel-name:hover {
   color: var(--brand-primary);
 }
@@ -93,20 +103,22 @@
   color: var(--ink-light);
 }
 
-/* ========================================================================== 
+/* ==========================================================================
    3. 가격 및 버튼 영역 (Actions & Price)
    ========================================================================== */
 .hotel-actions {
   text-align: right;
-  min-width: 160px;
+  min-width: 120px; /* 너비 감소하여 레이아웃 여유 확보 */
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  justify-content: center;
+  gap: 4px; /* 가격과 버튼 간격 감소 */
 }
 
 .hotel-price {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 800;
   color: var(--brand-primary);
 }
 
@@ -117,22 +129,24 @@
 
 /* 버튼 */
 .delete-btn {
-  margin-top: 10px;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 13px;
+  margin-top: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+
   border: 1px solid var(--danger);
   background-color: var(--danger);
   color: var(--bg-white);
   transition: all 0.25s ease;
 }
+
 .delete-btn:hover {
-  background-color: #b92c3c;
+  background-color: var(--danger-hover);
 }
 
-/* ========================================================================== 
+/* ==========================================================================
    4. 빈 상태 (Empty State)
    ========================================================================== */
 .empty {
@@ -142,7 +156,7 @@
   font-size: 15px;
 }
 
-/* ========================================================================== 
+/* ==========================================================================
    5. 반응형 (Responsive)
    ========================================================================== */
 @media (max-width: 960px) {

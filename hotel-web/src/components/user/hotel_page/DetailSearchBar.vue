@@ -171,7 +171,7 @@ const displayCheckIn  = computed(() => disp(asArray(dateRange.value)[0]))
 const displayCheckOut = computed(() => disp(asArray(dateRange.value)[1]))
 
 // sticky style
-const stickyStyle = computed(() => ({ position: 'sticky', top: `${props.top}px`, zIndex: 1000, background:'#fff' }))
+const stickyStyle = computed(() => ({ position: 'sticky', top: `${props.top}px`, zIndex: 1000, background:'transparent' }))
 
 // flatpickr 설정
 const dateRangeConfig = {
@@ -335,9 +335,9 @@ function applyQueryOnly () {
 :deep(.flatpickr-calendar){ z-index: 2200; }
 
 /* 상단 고정 바 */
-.searchbar-wrap{ position: sticky; top: 0; z-index: 1000; padding: 10px 14px; background:#fff; border-bottom:1px solid #eee; }
+.searchbar-wrap{ position: sticky; top: 0; z-index: 1000; padding: 10px 14px; }
 .searchbar{ display:grid; grid-template-columns: 1.6fr 1.1fr 1.1fr 1.2fr 0.9fr; gap:14px; max-width:1180px; margin:0 auto; }
-.cell{ display:flex; align-items:center; gap:12px; height:56px; padding:0 16px; background:#fff; border:1px solid #e6e6e6; border-radius:16px; box-shadow:0 4px 14px rgba(0,0,0,.06); }
+.cell{ display:flex; align-items:center; gap:12px; height:56px; padding:0 16px; background:#fff; border:1px solid #54e363; border-radius:16px; box-shadow:0 4px 14px rgba(0,0,0,.06); }
 .input{ border:none; outline:none; font-size:16px; width:100%; color:#111; }
 .cell--date{ justify-content:flex-start; text-align:left; }
 .date-text{ display:flex; flex-direction:column; line-height:1.15; }
